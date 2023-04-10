@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".NotificationFragment"
-    android:background="@color/main_theme_color">
+    android:background="@color/primary_color">
 
     <!-- TODO: Update blank fragment layout -->
     <RelativeLayout
@@ -50,12 +50,12 @@
         android:cursorVisible="true"
         android:drawableLeft="@drawable/ic_search"
         android:drawablePadding="5dp"
-        android:drawableTint="@color/main_theme_word_second_color"
+        android:drawableTint="@color/primary_word_second_color"
         android:hint="Search all notifications"
         android:minHeight="48dp"
         android:padding="5dp"
-        android:textColor="@color/main_theme_word_color"
-        android:textColorHint="@color/main_theme_word_second_color"
+        android:textColor="@color/primary_word_color"
+        android:textColorHint="@color/primary_word_second_color"
         android:textCursorDrawable="@null"
         android:textSize="20dp" />
 
@@ -75,7 +75,7 @@
                 android:text="All"
                 android:textAllCaps="false"
                 android:textSize="20dp"
-                android:textColor="@color/main_theme_word_color"
+                android:textColor="@color/primary_word_color"
                 android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"
                 android:paddingLeft="10dp"
@@ -87,7 +87,7 @@
                 android:text="Unread"
                 android:textAllCaps="false"
                 android:textSize="20dp"
-                android:textColor="@color/main_theme_word_color"
+                android:textColor="@color/primary_word_color"
                 android:layout_marginRight="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"/>
@@ -98,7 +98,7 @@
                 android:text="I was mentioned"
                 android:textAllCaps="false"
                 android:textSize="20dp"
-                android:textColor="@color/main_theme_word_color"
+                android:textColor="@color/primary_word_color"
                 android:layout_marginRight="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"/>
@@ -106,7 +106,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:background="@drawable/background_corner_btn"
-                android:textColor="@color/main_theme_word_color"
+                android:textColor="@color/primary_word_color"
                 android:text="Assign to me"
                 android:textAllCaps="false"
                 android:textSize="20dp"
@@ -117,7 +117,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:background="@drawable/background_corner_btn"
-                android:textColor="@color/main_theme_word_color"
+                android:textColor="@color/primary_word_color"
                 android:text="Today"
                 android:textAllCaps="false"
                 android:textSize="20dp"
@@ -136,7 +136,7 @@
         android:background="@color/transparent"
         android:text="Ready, set, get notified!"
         android:textAlignment="center"
-        android:textColor="@color/main_theme_word_color"
+        android:textColor="@color/primary_word_color"
         android:textSize="32dp"
         android:textStyle="bold" />
     <TextView
@@ -148,7 +148,7 @@
         android:text="Here's where you'll get notified in real-time every time something important happens"
         android:textAlignment="center"
         android:background="@color/transparent"
-        android:textColor="@color/main_theme_word_color"
+        android:textColor="@color/primary_word_color"
         android:textSize="24dp" />
 
     <Button
@@ -158,7 +158,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="40dp"
-        android:backgroundTint="@color/main_theme_btn_color"
+        android:backgroundTint="@color/primary_btn_color"
         android:text="Invite team members"
         android:textAllCaps="false"
         android:textSize="20dp"

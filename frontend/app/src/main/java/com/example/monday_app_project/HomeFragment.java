@@ -17,7 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
@@ -27,6 +29,7 @@ public class HomeFragment extends Fragment {
     Button btn_myfavorities = null;
     ImageButton btn_addperson = null;
     ImageButton btn_add = null;
+    EditText inputSearchLabel = null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -35,6 +38,7 @@ public class HomeFragment extends Fragment {
         btn_myfavorities = v.findViewById(R.id.btn_myfavorites);
         btn_addperson = v.findViewById(R.id.btn_addperson);
         btn_add = v.findViewById(R.id.btn_add);
+        inputSearchLabel = v.findViewById(R.id.input_search_label);
         layout = v.findViewById(R.id.home_fragment);
 
         btn_myfavorities.setOnClickListener(new View.OnClickListener() {
@@ -43,7 +47,6 @@ public class HomeFragment extends Fragment {
                 btn_myfavorities_showDialog();
             }
         });
-
         btn_addperson.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,7 +60,18 @@ public class HomeFragment extends Fragment {
                 setPopupBtnAdd();
             }
         });
-        // Inflate the layout for this fragment
+
+        inputSearchLabel.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                int action = motionEvent.getAction() & MotionEvent.ACTION_MASK;
+
+                if (action == MotionEvent.ACTION_UP) {
+                    inputSearch_showDialog();
+                }
+                return true;
+            }
+        });
         return v;
     }
 
@@ -84,13 +98,46 @@ public class HomeFragment extends Fragment {
                 return true;
             }
         });
+        LinearLayout btnAddItem = popupView.findViewById(R.id.btn_add_item);
+        btnAddItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btn_add_item_showDialog();
+            }
+        });
+
     }
 
 
     private void btn_addperson_showDialog() {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_btn_addperson);
+        dialog.setContentView(R.layout.popup_btn_invite_by_email);
+
+        //Set activity of button in dialog here
+
+
+        //
+
+
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.show();
+        ImageButton btnClosePopupBtnAddPerson = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
+        btnClosePopupBtnAddPerson.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private void btn_add_item_showDialog() {
+        final Dialog dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.popup_add_new_item);
 
         //Set activity of button in dialog here
 
@@ -133,5 +180,29 @@ public class HomeFragment extends Fragment {
                 dialog.dismiss();
             }
         });
+    }
+
+    private void inputSearch_showDialog() {
+        final Dialog dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.popup_search);
+        //Set activity of button in dialog here
+
+
+        //
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+
+        ImageButton btnClosePopup = dialog.findViewById(R.id.btn_close_popup);
+        btnClosePopup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
     }
 }

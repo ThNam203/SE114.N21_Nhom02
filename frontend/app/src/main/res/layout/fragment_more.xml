@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MoreFragment"
-    android:background="@color/main_theme_color">
+    android:background="@color/primary_color">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
                 android:background="@drawable/background_round_btn"
                 android:backgroundTint="@color/teal_200"
                 android:text="N"
-                android:textColor="@color/main_theme_word_color"
+                android:textColor="@color/primary_word_color"
                 android:textSize="24dp"
                 android:layout_gravity="center"
                 android:contentDescription="btn add"
@@ -32,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Name"
-                android:textColor="@color/main_theme_word_color"
+                android:textColor="@color/primary_word_color"
                 android:layout_gravity="center"
                 android:textSize="24dp"
                 android:textStyle="bold"/>
@@ -41,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="View Profile"
-                android:textColor="@color/main_theme_word_second_color"
+                android:textColor="@color/primary_word_second_color"
                 android:layout_gravity="center"
                 android:textSize="24dp"
                 android:layout_marginBottom="25dp"/>
@@ -81,7 +81,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="5dp"
                             android:text="Inbox"
-                            android:textColor="@color/main_theme_word_color"
+                            android:textColor="@color/primary_word_color"
                             android:textSize="24dp" />
 
                         <TextView
@@ -89,7 +89,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="5dp"
                             android:text="No new updates"
-                            android:textColor="@color/main_theme_word_second_color"
+                            android:textColor="@color/primary_word_second_color"
                             android:textSize="24dp" />
 
                     </LinearLayout>
@@ -100,7 +100,7 @@
                         android:layout_marginRight="10dp"
                         android:src="@drawable/ic_arrow_right"
                         android:layout_gravity="center"
-                        app:tint="@color/main_theme_icon_second_color" />
+                        app:tint="@color/primary_icon_second_color" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -133,7 +133,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="5dp"
                             android:text="My team"
-                            android:textColor="@color/main_theme_word_color"
+                            android:textColor="@color/primary_word_color"
                             android:textSize="24dp" />
 
                         <TextView
@@ -141,7 +141,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="5dp"
                             android:text="1 Contact"
-                            android:textColor="@color/main_theme_word_second_color"
+                            android:textColor="@color/primary_word_second_color"
                             android:textSize="24dp" />
 
                     </LinearLayout>
@@ -152,7 +152,7 @@
                         android:layout_marginRight="10dp"
                         android:src="@drawable/ic_arrow_right"
                         android:layout_gravity="center"
-                        app:tint="@color/main_theme_icon_second_color" />
+                        app:tint="@color/primary_icon_second_color" />
                 </LinearLayout>
                 <LinearLayout
                 android:layout_width="match_parent"
@@ -185,7 +185,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
                         android:text="Search everywhere"
-                        android:textColor="@color/main_theme_word_color"
+                        android:textColor="@color/primary_word_color"
                         android:textSize="24dp" />
 
                     <TextView
@@ -195,7 +195,7 @@
                         android:text="Boards, dashboards, dsadad"
                         android:ellipsize="end"
                         android:singleLine="true"
-                        android:textColor="@color/main_theme_word_second_color"
+                        android:textColor="@color/primary_word_second_color"
                         android:textSize="24dp" />
 
                 </LinearLayout>
@@ -206,7 +206,7 @@
                     android:layout_marginRight="10dp"
                     android:src="@drawable/ic_arrow_right"
                     android:layout_gravity="center"
-                    app:tint="@color/main_theme_icon_second_color" />
+                    app:tint="@color/primary_icon_second_color" />
             </LinearLayout>
             </LinearLayout>
 
@@ -214,7 +214,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Settings"
-                android:textColor="@color/main_theme_word_color"
+                android:textColor="@color/primary_word_color"
                 android:layout_marginTop="24dp"
                 android:layout_marginLeft="20dp"
                 android:textSize="28dp"
@@ -238,7 +238,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_account"
-                        app:tint="@color/main_theme_icon_color" />
+                        app:tint="@color/primary_icon_color" />
                     <TextView
                         android:layout_weight="1"
                         android:layout_width="wrap_content"
@@ -246,7 +246,7 @@
                         android:layout_marginLeft="15dp"
                         android:layout_gravity="center"
                         android:text="Inbox"
-                        android:textColor="@color/main_theme_word_color"
+                        android:textColor="@color/primary_word_color"
                         android:textSize="24dp" />
 
                     <TextView
@@ -254,7 +254,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:text="name-company"
-                        android:textColor="@color/main_theme_word_second_color"
+                        android:textColor="@color/primary_word_second_color"
                         android:textSize="24dp" />
                 </LinearLayout>
                 <LinearLayout
@@ -268,7 +268,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_notification_setting"
-                        app:tint="@color/main_theme_icon_color" />
+                        app:tint="@color/primary_icon_color" />
                     <TextView
                         android:layout_weight="1"
                         android:layout_width="wrap_content"
@@ -276,7 +276,7 @@
                         android:layout_marginLeft="15dp"
                         android:layout_gravity="center"
                         android:text="Notification Settings"
-                        android:textColor="@color/main_theme_word_color"
+                        android:textColor="@color/primary_word_color"
                         android:textSize="24dp" />
 
                     <ImageView
@@ -284,7 +284,7 @@
                         android:layout_height="45dp"
                         android:src="@drawable/ic_arrow_right"
                         android:layout_gravity="center"
-                        app:tint="@color/main_theme_icon_second_color" />
+                        app:tint="@color/primary_icon_second_color" />
 
                 </LinearLayout>
                 <LinearLayout
@@ -298,7 +298,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_earth"
-                        app:tint="@color/main_theme_icon_color" />
+                        app:tint="@color/primary_icon_color" />
                     <TextView
                         android:layout_weight="1"
                         android:layout_width="wrap_content"
@@ -306,7 +306,7 @@
                         android:layout_marginLeft="15dp"
                         android:layout_gravity="center"
                         android:text="Language"
-                        android:textColor="@color/main_theme_word_color"
+                        android:textColor="@color/primary_word_color"
                         android:textSize="24dp" />
 
                     <TextView
@@ -315,7 +315,7 @@
                         android:layout_gravity="center"
                         android:text="English"
                         android:layout_marginRight="10dp"
-                        android:textColor="@color/main_theme_word_second_color"
+                        android:textColor="@color/primary_word_second_color"
                         android:textSize="24dp" />
 
                     <ImageView
@@ -323,7 +323,7 @@
                         android:layout_height="45dp"
                         android:src="@drawable/ic_arrow_right"
                         android:layout_gravity="center"
-                        app:tint="@color/main_theme_icon_second_color" />
+                        app:tint="@color/primary_icon_second_color" />
 
                 </LinearLayout>
                 <LinearLayout
@@ -337,7 +337,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_theme"
-                        app:tint="@color/main_theme_icon_color" />
+                        app:tint="@color/primary_icon_color" />
                     <TextView
                         android:layout_weight="1"
                         android:layout_width="wrap_content"
@@ -345,7 +345,7 @@
                         android:layout_marginLeft="15dp"
                         android:layout_gravity="center"
                         android:text="Theme"
-                        android:textColor="@color/main_theme_word_color"
+                        android:textColor="@color/primary_word_color"
                         android:textSize="24dp" />
 
                     <TextView
@@ -354,7 +354,7 @@
                         android:layout_gravity="center"
                         android:text="System Default"
                         android:layout_marginRight="10dp"
-                        android:textColor="@color/main_theme_word_second_color"
+                        android:textColor="@color/primary_word_second_color"
                         android:textSize="24dp" />
 
                     <ImageView
@@ -362,7 +362,7 @@
                         android:layout_height="45dp"
                         android:src="@drawable/ic_arrow_right"
                         android:layout_gravity="center"
-                        app:tint="@color/main_theme_icon_second_color" />
+                        app:tint="@color/primary_icon_second_color" />
 
                 </LinearLayout>
             </LinearLayout>

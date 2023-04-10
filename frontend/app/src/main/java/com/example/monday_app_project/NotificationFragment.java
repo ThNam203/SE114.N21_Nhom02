@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 
 
@@ -38,7 +39,7 @@ public class NotificationFragment extends Fragment {
     private void btn_invite_showDialog() {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_btn_addperson);
+        dialog.setContentView(R.layout.popup_btn_invite_by_email);
 
         //Set activity of button in dialog here
 
@@ -50,6 +51,9 @@ public class NotificationFragment extends Fragment {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
+
+        EditText inputEmail = (EditText) dialog.findViewById(R.id.input_email);
+        inputEmail.requestFocus();
 
         dialog.show();
 
