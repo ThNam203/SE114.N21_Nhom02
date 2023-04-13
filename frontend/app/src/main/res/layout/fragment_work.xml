@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".WorkFragment"
+    tools:context=".Fragments.WorkFragment"
     android:background="@color/primary_color">
 
     <RelativeLayout
@@ -231,7 +231,7 @@
         android:layout_height="200dp"
         android:layout_centerInParent="true"
         android:background="@color/transparent"
-        android:src="@drawable/work_page" />
+        android:src="@drawable/image_center_work_page" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -258,6 +258,7 @@
         android:textSize="24dp" />
 
     <ImageButton
+        android:id="@+id/btn_add_item"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_alignParentEnd="true"
@@ -266,6 +267,6 @@
         android:layout_marginBottom="10dp"
         android:background="@drawable/background_round_btn"
         android:contentDescription="btn add"
-        android:src="@drawable/ic_add"
+        android:src="@drawable/ic_add_calendar"
         app:tint="@color/white" />
 </RelativeLayout>

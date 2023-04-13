@@ -1,4 +1,4 @@
-package com.example.monday_app_project;
+package com.example.monday_app_project.Fragments;
 
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
@@ -23,6 +23,10 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
+import com.example.monday_app_project.Pages.page_search;
+import com.example.monday_app_project.R;
+import com.example.monday_app_project.Util.SwitchActivity;
+
 public class HomeFragment extends Fragment {
 
     RelativeLayout layout = null;
@@ -44,20 +48,20 @@ public class HomeFragment extends Fragment {
         btn_myfavorities.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btn_myfavorities_showDialog();
+                btn_myfavorities_showPopup();
             }
         });
         btn_addperson.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btn_addperson_showDialog();
+                btn_addperson_showPopup();
 
             }
         });
         btn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setPopupBtnAdd();
+                btnAdd_showPopup();
             }
         });
 
@@ -67,7 +71,7 @@ public class HomeFragment extends Fragment {
                 int action = motionEvent.getAction() & MotionEvent.ACTION_MASK;
 
                 if (action == MotionEvent.ACTION_UP) {
-                    inputSearch_showDialog();
+                    inputSearch_showActivity();
                 }
                 return true;
             }
@@ -75,7 +79,7 @@ public class HomeFragment extends Fragment {
         return v;
     }
 
-    private void setPopupBtnAdd() {
+    private void btnAdd_showPopup() {
         LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = layoutInflater.inflate(R.layout.popup_btn_add, null);
 
@@ -102,14 +106,14 @@ public class HomeFragment extends Fragment {
         btnAddItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btn_add_item_showDialog();
+                btn_add_item_showPopup();
             }
         });
 
     }
 
 
-    private void btn_addperson_showDialog() {
+    private void btn_addperson_showPopup() {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.popup_btn_invite_by_email);
@@ -122,11 +126,11 @@ public class HomeFragment extends Fragment {
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().getAttributes().windowAnimations = R.style.BottomDialogAnimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         dialog.show();
-        ImageButton btnClosePopupBtnAddPerson = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
-        btnClosePopupBtnAddPerson.setOnClickListener(new View.OnClickListener() {
+        ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
+        btnClosePopup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
@@ -134,7 +138,7 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void btn_add_item_showDialog() {
+    private void btn_add_item_showPopup() {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.popup_add_new_item);
@@ -147,62 +151,42 @@ public class HomeFragment extends Fragment {
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().getAttributes().windowAnimations = R.style.BottomDialogAnimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         dialog.show();
-        ImageButton btnClosePopupBtnAddPerson = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
-        btnClosePopupBtnAddPerson.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-    }
-
-    private void btn_myfavorities_showDialog() {
-        final Dialog dialog = new Dialog(getActivity());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_btn_myfavortites);
-        //Set activity of button in dialog here
-
-
-        //
-        dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
-
-        ImageButton btnClosePopupBtnMyfavorites = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
-        btnClosePopupBtnMyfavorites.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-    }
-
-    private void inputSearch_showDialog() {
-        final Dialog dialog = new Dialog(getActivity());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_search);
-        //Set activity of button in dialog here
-
-
-        //
-        dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
-
-        ImageButton btnClosePopup = dialog.findViewById(R.id.btn_close_popup);
+        ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
         btnClosePopup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
             }
         });
+    }
 
+    private void btn_myfavorities_showPopup() {
+        final Dialog dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.popup_btn_myfavorite);
+        //Set activity of button in dialog here
+
+
+        //
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.BottomDialogAnimation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+
+        ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
+        btnClosePopup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private void inputSearch_showActivity() {
+        SwitchActivity.switchToActivity(getContext(), page_search.class);
     }
 }

@@ -14,7 +14,7 @@
         android:paddingRight="15dp"
         android:paddingBottom="15dp">
         <ImageButton
-            android:id="@+id/btn_close_popup"
+            android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"

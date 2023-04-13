@@ -1,4 +1,4 @@
-package com.example.monday_app_project;
+package com.example.monday_app_project.Fragments;
 
 import android.app.Dialog;
 import android.graphics.Color;
@@ -15,6 +15,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+
+import com.example.monday_app_project.R;
 
 
 public class NotificationFragment extends Fragment {
@@ -49,7 +51,7 @@ public class NotificationFragment extends Fragment {
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().getAttributes().windowAnimations = R.style.BottomDialogAnimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
 
         EditText inputEmail = (EditText) dialog.findViewById(R.id.input_email);

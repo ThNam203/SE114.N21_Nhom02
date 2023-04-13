@@ -18,6 +18,7 @@
     <color name="primary_third_color">#2c2c2c</color>
     <color name="primary_word_color">#fafafa</color>
     <color name="primary_word_second_color">#a9a9a9</color>
+    <color name="primary_word_third_color">#0075e2</color>
     <color name="primary_icon_color">#fbfbfb</color>
     <color name="primary_icon_second_color">#a3a3a3</color>
     <color name="primary_btn_color">#0075e2</color>
@@ -29,5 +30,6 @@
     <color name="toggle_track_off_color">#595959</color>
     <color name="toggle_thumb_on_color">#0072ec</color>
     <color name="toggle_thumb_off_color">#bababa</color>
-
+    <color name="tablayout_unselected">#fafafa</color>
+    <color name="tablayout_selected">#6ca8f4</color>
 </resources>

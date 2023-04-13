@@ -1,21 +1,31 @@
-package com.example.monday_app_project;
+package com.example.monday_app_project.Fragments;
 
+import android.app.Dialog;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
+
+import com.example.monday_app_project.R;
 
 public class WorkFragment extends Fragment {
 
     Button btnHideDoneItem = null;
     Boolean IsbtnHideDoneItemChecked = false;
+
+    ImageButton btnAddItem = null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -46,8 +56,38 @@ public class WorkFragment extends Fragment {
 
             }
         });
-
-
+        btnAddItem = v.findViewById(R.id.btn_add_item);
+        btnAddItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btnAddItem_showDialog();
+            }
+        });
         return v;
+    }
+
+    private void btnAddItem_showDialog() {
+        final Dialog dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.popup_add_new_item);
+
+        //Set activity of button in dialog here
+
+
+        //
+
+
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.BottomDialogAnimation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.show();
+        ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
+        btnClosePopup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
     }
 }

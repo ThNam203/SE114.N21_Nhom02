@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_top_left_and_right_radius"
-    android:backgroundTint="@color/primary_color"
+    android:background="@color/primary_color"
     android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +15,7 @@
         android:layout_marginRight="15dp">
 
         <ImageButton
-            android:id="@+id/btn_close_popup"
+            android:id="@+id/btn_back_popup"
             android:layout_width="30dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -43,7 +42,7 @@
         android:layout_height="200dp"
         android:layout_gravity="center"
         android:background="@color/transparent"
-        android:src="@drawable/search"
+        android:src="@drawable/image_center_search"
         android:layout_marginTop="50dp"/>
 
     <TextView

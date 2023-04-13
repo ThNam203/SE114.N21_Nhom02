@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NotificationFragment"
+    tools:context=".Fragments.NotificationFragment"
     android:background="@color/primary_color">
 
     <!-- TODO: Update blank fragment layout -->
@@ -38,7 +38,7 @@
         android:layout_height="250dp"
         android:layout_centerInParent="true"
         android:background="@color/transparent"
-        android:src="@drawable/notification_page" />
+        android:src="@drawable/image_center_notification_page" />
     <EditText
         android:id="@+id/text_input"
         android:layout_width="match_parent"
