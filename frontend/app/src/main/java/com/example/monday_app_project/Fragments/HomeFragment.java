@@ -6,6 +6,7 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.opengl.Visibility;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -19,9 +20,11 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.example.monday_app_project.Pages.page_search;
 import com.example.monday_app_project.R;
@@ -167,16 +170,16 @@ public class HomeFragment extends Fragment {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.popup_btn_myfavorite);
-        //Set activity of button in dialog here
 
-
-        //
-        dialog.show();
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.BottomDialogAnimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.show();
 
+
+
+        //      Set activity of button in dialog here
         ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
         btnClosePopup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,7 +187,50 @@ public class HomeFragment extends Fragment {
                 dialog.dismiss();
             }
         });
+
+        LinearLayout optionRecent = (LinearLayout) dialog.findViewById(R.id.option_recent);
+        LinearLayout optionMyfavorite = (LinearLayout) dialog.findViewById(R.id.option_myfavorite);
+
+        ImageView iconRecent = (ImageView) dialog.findViewById(R.id.option_recent_icon);
+        TextView titleRecent = (TextView) dialog.findViewById(R.id.option_recent_title);
+        ImageView tickRecent = (ImageView) dialog.findViewById(R.id.option_recent_tick);
+        ImageView iconMyfavorite = (ImageView) dialog.findViewById(R.id.option_myfavorite_icon);
+        TextView titleMyfavorite = (TextView) dialog.findViewById(R.id.option_myfavorite_title);
+        ImageView tickMyfavorite = (ImageView) dialog.findViewById(R.id.option_myfavorite_tick);
+
+        int chosenColor = getResources().getColor(R.color.chosen_color);
+        int defaultColor = getResources().getColor(R.color.primary_icon_color);
+
+        updateButtonState(iconRecent, titleRecent, tickRecent, chosenColor, true);
+        optionRecent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateButtonState(iconRecent, titleRecent, tickRecent, chosenColor, true);
+                updateButtonState(iconMyfavorite, titleMyfavorite, tickMyfavorite, defaultColor, false);
+            }
+        });
+
+        optionMyfavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateButtonState(iconRecent, titleRecent, tickRecent, defaultColor, false);
+                updateButtonState(iconMyfavorite, titleMyfavorite, tickMyfavorite, chosenColor, true);
+            }
+        });
+
+        //
     }
+
+
+
+    private void updateButtonState(ImageView icon, TextView title, ImageView tick, int color, boolean tickState)
+    {
+        icon.setColorFilter(color);
+        title.setTextColor(color);
+        if(tickState)  tick.setVisibility(View.VISIBLE);
+        else tick.setVisibility(View.INVISIBLE);
+    }
+
 
     private void inputSearch_showActivity() {
         SwitchActivity.switchToActivity(getContext(), page_search.class);

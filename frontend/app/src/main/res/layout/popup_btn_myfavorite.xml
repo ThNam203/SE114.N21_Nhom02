@@ -47,6 +47,7 @@
             android:layout_marginLeft="25dp"
             android:layout_marginTop="10dp"/>
         <LinearLayout
+            android:id="@+id/option_recent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -56,8 +57,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="15dp">
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp">
                 <ImageView
+                    android:id="@+id/option_recent_icon"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentStart="true"
@@ -65,6 +68,7 @@
                     android:src="@drawable/ic_recent"
                     app:tint="@color/primary_icon_color" />
                 <TextView
+                    android:id="@+id/option_recent_title"
                     android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -73,7 +77,15 @@
                     android:text="Recent"
                     android:textColor="@color/primary_word_color"
                     android:textSize="24dp" />
-
+                <ImageView
+                    android:id="@+id/option_recent_tick"
+                    android:visibility="invisible"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/ic_tick"
+                    android:layout_gravity="center"
+                    app:tint="@color/chosen_color" />
             </LinearLayout>
             <View
                 android:layout_width="match_parent"
@@ -81,17 +93,19 @@
                 android:background="@color/primary_splitter_color" />
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/option_myfavorite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="15dp">
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp">
                 <ImageView
+                    android:id="@+id/option_myfavorite_icon"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentStart="true"
@@ -99,6 +113,7 @@
                     android:src="@drawable/ic_star"
                     app:tint="@color/primary_icon_color" />
                 <TextView
+                    android:id="@+id/option_myfavorite_title"
                     android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -108,12 +123,14 @@
                     android:textColor="@color/primary_word_color"
                     android:textSize="24dp" />
                 <ImageView
+                    android:id="@+id/option_myfavorite_tick"
+                    android:visibility="invisible"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="10dp"
                     android:src="@drawable/ic_tick"
                     android:layout_gravity="center"
-                    app:tint="@color/primary_icon_color" />
+                    app:tint="@color/chosen_color" />
             </LinearLayout>
             <View
                 android:layout_width="match_parent"

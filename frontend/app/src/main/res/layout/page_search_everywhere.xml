@@ -10,9 +10,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@drawable/background_input_box"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="15dp">
+        android:layout_marginRight="20dp">
 
         <ImageButton
             android:id="@+id/btn_back"
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:cursorVisible="true"
-            android:hint="Search boards, docs, and dashboards"
+            android:hint="Find boards, items, updates..."
             android:minHeight="48dp"
             android:padding="5dp"
             android:textColor="@color/primary_word_color"
@@ -42,8 +42,8 @@
         android:layout_height="200dp"
         android:layout_gravity="center"
         android:background="@color/transparent"
-        android:src="@drawable/image_search"
-        android:layout_marginTop="50dp"/>
+        android:src="@drawable/image_search_second"
+        android:layout_marginTop="30dp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -51,13 +51,22 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_gravity="center"
-        android:text="What's the name of your board, doc or dashboard?"
+        android:text="Looking for a specific board, item or an update?"
         android:textAlignment="center"
         android:background="@color/transparent"
         android:textColor="@color/primary_word_color"
-        android:textSize="32dp"
-        android:textStyle="bold"
-        android:layout_marginTop="20dp"
+        android:textSize="28dp"
         android:contentDescription="describe page"/>
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_gravity="center"
+        android:text="Search for it here"
+        android:textAlignment="center"
+        android:background="@color/transparent"
+        android:textColor="@color/primary_word_color"
+        android:textSize="28dp"
+        android:contentDescription="describe page"/>
 </LinearLayout>

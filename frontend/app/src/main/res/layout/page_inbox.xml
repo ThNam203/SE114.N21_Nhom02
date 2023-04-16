@@ -62,7 +62,7 @@
         android:layout_height="200dp"
         android:layout_gravity="center"
         android:background="@color/transparent"
-        android:src="@drawable/image_center_inbox_page" />
+        android:src="@drawable/image_inbox_page" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
