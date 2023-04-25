@@ -23,11 +23,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_gravity="center">
-                <androidx.appcompat.widget.AppCompatButton
+                <TextView
                     android:id="@+id/btn_profile"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_gravity="center"
+                    android:gravity="center"
                     android:layout_margin="10dp"
                     android:background="@drawable/background_round_btn"
                     android:backgroundTint="@color/teal_200"

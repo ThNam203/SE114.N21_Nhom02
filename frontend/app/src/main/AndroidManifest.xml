@@ -12,6 +12,12 @@
         android:theme="@style/Theme.Monday_app_project"
         tools:targetApi="31">
         <activity
+            android:name=".Pages.page_task_board"
+            android:exported="false" />
+        <activity
+            android:name=".Pages.page_add_board"
+            android:exported="false" />
+        <activity
             android:name=".Pages.page_search_everywhere"
             android:exported="false" />
         <activity

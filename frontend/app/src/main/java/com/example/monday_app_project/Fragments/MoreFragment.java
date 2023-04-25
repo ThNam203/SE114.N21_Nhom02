@@ -31,8 +31,7 @@ public class MoreFragment extends Fragment {
     LinearLayout btnMyteam = null;
 
     LinearLayout btnSearchEverywhere = null;
-    LinearLayout ProfileArea = null;
-    Button btnProfile = null;
+    LinearLayout Profile = null;
 
 
     @Override
@@ -44,8 +43,7 @@ public class MoreFragment extends Fragment {
         btnInbox = (LinearLayout) v.findViewById(R.id.btn_inbox);
         btnMyteam = (LinearLayout) v.findViewById(R.id.btn_myteam);
         btnSearchEverywhere = (LinearLayout) v.findViewById(R.id.btn_search_everywhere);
-        btnProfile = (Button) v.findViewById(R.id.btn_profile);
-        ProfileArea = (LinearLayout) v.findViewById(R.id.profile);
+        Profile = (LinearLayout) v.findViewById(R.id.profile);
 
         btnNotificationSetting.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,13 +72,7 @@ public class MoreFragment extends Fragment {
                 btnSearchEverywhere_showActivity();
             }
         });
-        btnProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnProfile_showActivity();
-            }
-        });
-        ProfileArea.setOnClickListener(new View.OnClickListener() {
+        Profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 btnProfile_showActivity();

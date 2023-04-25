@@ -14,7 +14,7 @@
             <ImageView
                 android:layout_width="200dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/logo_app" />
+                android:src="@drawable/image_logo_app" />
 
             <ImageButton
                 android:id="@+id/btn_addperson"
@@ -94,7 +94,7 @@
             android:layout_marginBottom="10dp"
             android:background="@drawable/background_round_btn"
             android:contentDescription="btn add"
-            android:src="@drawable/ic_add_selector"
+            android:src="@drawable/selector_ic_add"
             app:tint="@color/white" />
 
 </RelativeLayout>
