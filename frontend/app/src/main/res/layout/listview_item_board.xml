@@ -12,7 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/background_border_tablelayout"
-            android:divider="@color/grey"
+            android:divider="@drawable/background_divider_tablelayout"
             android:showDividers="middle">
             <TableRow
                 android:layout_width="match_parent"
@@ -34,6 +34,11 @@
                         android:textSize="20dp" />
                 </FrameLayout>
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@color/grey" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -46,7 +51,11 @@
                     android:textColor="@color/primary_word_color"
                     android:textSize="20dp"
                     android:layout_gravity="center"/>
-
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@color/grey" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -59,7 +68,11 @@
                     android:textColor="@color/primary_word_color"
                     android:textSize="20dp"
                     android:layout_gravity="center"/>
-
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@color/grey" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -72,7 +85,11 @@
                     android:textColor="@color/primary_word_color"
                     android:textSize="20dp"
                     android:layout_gravity="center"/>
-
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@color/grey" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -85,7 +102,11 @@
                     android:textColor="@color/primary_word_color"
                     android:textSize="20dp"
                     android:layout_gravity="center"/>
-
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@color/grey" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -100,59 +121,6 @@
                     android:layout_gravity="center"/>
             </TableRow>
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center_vertical"
-                        android:paddingLeft="15dp"
-                        android:paddingTop="5dp"
-                        android:paddingRight="10dp"
-                        android:paddingBottom="5dp"
-                        android:text="Item 1"
-                        android:textColor="@color/primary_word_color"
-                        android:textSize="20dp" />
-                </FrameLayout>
-                <ImageButton
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_add_message"
-                    android:backgroundTint="@color/transparent"
-                    app:tint="@color/primary_icon_second_color" />
-                <ImageButton
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:backgroundTint="@color/transparent"
-                    android:contentDescription="btn add person"
-                    android:src="@drawable/ic_person"
-                    app:tint="@color/primary_icon_second_color" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
-                    android:text="Working on it"
-                    android:textColor="@color/primary_word_color"
-                    android:textSize="20dp"
-                    android:background="@color/orange"/>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingRight="10dp"
-                    android:paddingBottom="5dp"
-                    android:text="1/1/2000"
-                    android:textColor="@color/primary_word_color"
-                    android:textSize="20dp" />
-            </TableRow>
         </TableLayout>
     </HorizontalScrollView>
 

@@ -13,7 +13,7 @@
     <color name="primary_color">#111111</color>
     <color name="primary_second_color">#474747</color>
     <color name="primary_third_color">#2c2c2c</color>
-    <color name="primary_word_color">#fafafa</color>
+    <color name="primary_word_color">#FAFAFA</color>
     <color name="primary_word_second_color">#a9a9a9</color>
     <color name="primary_word_third_color">#0075e2</color>
     <color name="primary_icon_color">#fbfbfb</color>
@@ -32,7 +32,7 @@
 
 <!--    main primary color     -->
     <color name="blue">#00aefd</color>
-    <color name="orange">#ffa400</color>
+    <color name="orange">#FFA500</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#a9a9a9</color>
