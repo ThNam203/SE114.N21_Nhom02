@@ -39,12 +39,14 @@ public class MoreFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_more, container, false);
 
+        //init variables here
         btnNotificationSetting = (LinearLayout) v.findViewById(R.id.btn_notification_settings);
         btnInbox = (LinearLayout) v.findViewById(R.id.btn_inbox);
         btnMyteam = (LinearLayout) v.findViewById(R.id.btn_myteam);
         btnSearchEverywhere = (LinearLayout) v.findViewById(R.id.btn_search_everywhere);
         Profile = (LinearLayout) v.findViewById(R.id.profile);
 
+        //set onclick of buttons here
         btnNotificationSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,7 +83,7 @@ public class MoreFragment extends Fragment {
 
         return v;
     }
-
+// define function here
     private void btnSearchEverywhere_showActivity() {
         SwitchActivity.switchToActivity(getContext(), page_search_everywhere.class);
     }

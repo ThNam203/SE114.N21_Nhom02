@@ -1,12 +1,16 @@
 package com.example.monday_app_project.Models;
 
+import android.content.Context;
+import android.widget.TableLayout;
+
 import java.util.List;
 
-public class Board {
+public class TaskBoard extends TableLayout {
     private String title = "";
     private List<Task> tasks;
-    public Board()
+    public TaskBoard(Context context)
     {
+        super(context);
 
     }
 

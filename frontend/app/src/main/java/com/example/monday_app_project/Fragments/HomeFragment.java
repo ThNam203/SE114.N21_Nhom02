@@ -43,12 +43,16 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.fragment_home, container, false);
+
+
+        //Init variables here
         btn_myfavorities = v.findViewById(R.id.btn_myfavorites);
         btn_addperson = v.findViewById(R.id.btn_addperson);
         btn_add = v.findViewById(R.id.btn_add);
         inputSearchLabel = v.findViewById(R.id.input_search_label);
         layout = v.findViewById(R.id.home_fragment);
 
+        //set onclick buttons here
         btn_myfavorities.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,7 +72,6 @@ public class HomeFragment extends Fragment {
                 btnAdd_showPopup();
             }
         });
-
         inputSearchLabel.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -83,6 +86,8 @@ public class HomeFragment extends Fragment {
         return v;
     }
 
+
+    //define function here
     private void btnAdd_showPopup() {
         LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = layoutInflater.inflate(R.layout.popup_btn_add, null);

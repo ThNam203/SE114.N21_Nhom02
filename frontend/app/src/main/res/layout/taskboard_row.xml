@@ -6,13 +6,15 @@
     android:background="@drawable/background_border_tablelayout"
     android:divider="@drawable/background_divider_tablelayout"
     android:showDividers="middle">
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@color/grey" />
+    <TextView
+            android:id="@+id/task_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:paddingLeft="15dp"
             android:paddingTop="5dp"
@@ -21,13 +23,13 @@
             android:text="Item 1"
             android:textColor="@color/primary_word_color"
             android:textSize="20dp" />
-    </FrameLayout>
     <View
         android:layout_width="1dp"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:background="@color/grey" />
     <ImageButton
+        android:id="@+id/task_message"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/ic_add_message"
@@ -39,6 +41,7 @@
         android:layout_gravity="center"
         android:background="@color/grey" />
     <ImageButton
+        android:id="@+id/task_person"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:backgroundTint="@color/transparent"
@@ -51,6 +54,7 @@
         android:layout_gravity="center"
         android:background="@color/grey" />
     <TextView
+        android:id="@+id/task_status"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="10dp"
@@ -67,6 +71,7 @@
         android:layout_gravity="center"
         android:background="@color/grey" />
     <TextView
+        android:id="@+id/task_date"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="10dp"
@@ -76,4 +81,9 @@
         android:text="1/1/2000"
         android:textColor="@color/primary_word_color"
         android:textSize="20dp" />
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@color/grey" />
 </TableRow>

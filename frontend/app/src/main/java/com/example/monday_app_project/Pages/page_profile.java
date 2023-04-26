@@ -22,13 +22,12 @@ public class page_profile extends AppCompatActivity {
         getSupportActionBar().hide();
 
 
+        //Init variables here
         btnBack = (ImageButton) findViewById(R.id.btn_back);
         btnEdit = (Button) findViewById(R.id.btn_edit);
 
 
-
-
-
+        //set onclick buttons here
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

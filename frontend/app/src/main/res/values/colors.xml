@@ -20,7 +20,7 @@
     <color name="primary_icon_second_color">#a3a3a3</color>
     <color name="primary_btn_color">#0075e2</color>
     <color name="primary_btn_second_color">#636363</color>
-    <color name="primary_splitter_color">#ddd</color>
+    <color name="primary_splitter_color">#ccc</color>
     <color name="chosen_color">#00aefd</color>
     <color name="darkgrey_translucent">#EE444444</color>
     <color name="toggle_track_on_color">#0c314f</color>
@@ -36,6 +36,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#a9a9a9</color>
+    <color name="red">#e96a7f</color>
+    <color name="green">#31d493</color>
 
 
 </resources>

@@ -1,14 +1,18 @@
 package com.example.monday_app_project.Models;
 
+import android.content.Context;
+import android.widget.TableRow;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Task {
+public class Task extends TableRow {
     private List<String> message;
     private User person;
     private String date = "";
-    public Task()
+    public Task(Context context)
     {
+        super(context);
         message = new ArrayList<String>();
     }
 

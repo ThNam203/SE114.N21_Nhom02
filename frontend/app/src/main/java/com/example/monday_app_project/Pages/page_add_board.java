@@ -21,8 +21,11 @@ public class page_add_board extends AppCompatActivity {
         setContentView(R.layout.page_add_board);
         getSupportActionBar().hide();
 
+        //Init variables here
         btnNewBoard = (Button) findViewById(R.id.btn_create_new_board);
         btnClose = (ImageButton) findViewById(R.id.btn_close);
+
+        //set onclick buttons here
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
