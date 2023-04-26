@@ -1,9 +1,17 @@
 package com.example.monday_app_project.Pages;
 
+import static com.google.android.material.internal.ContextUtils.getActivity;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.TableLayout;
@@ -54,7 +62,15 @@ public class page_task_board extends AppCompatActivity {
             TableRow newTaskRow = (TableRow) getLayoutInflater().inflate(R.layout.taskboard_row, null);
 
             TextView taskName = (TextView) newTaskRow.findViewById(R.id.task_name);
+            TextView taskStatus = (TextView) newTaskRow.findViewById(R.id.task_status);
             taskName.setText("Item " + String.valueOf(i + 1));
+            taskStatus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showTaskStatusPopup(taskStatus);
+
+                }
+            });
 
             taskBoard.addView(newTaskRow);
         }
@@ -67,4 +83,58 @@ public class page_task_board extends AppCompatActivity {
         taskBoards.add(newTaskBoard);
         horizontalScrollView.addView(newTaskBoard);
     }
+
+    private void showTaskStatusPopup(TextView taskStatus)
+    {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.popup_status);
+
+        //init variables here
+        ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
+        TextView statusWorking = (TextView) dialog.findViewById(R.id.status_working);
+        TextView statusStuck = (TextView) dialog.findViewById(R.id.status_stuck);
+        TextView statusDone = (TextView) dialog.findViewById(R.id.status_done);
+
+        //set onclick buttons here
+        btnClosePopup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        statusWorking.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                taskStatus.setText("Working on it");
+                taskStatus.setBackgroundColor(getResources().getColor(R.color.orange));
+                dialog.dismiss();
+            }
+        });
+        statusStuck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                taskStatus.setText("Stuck");
+                taskStatus.setBackgroundColor(getResources().getColor(R.color.red));
+                dialog.dismiss();
+            }
+        });
+        statusDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                taskStatus.setText("Done");
+                taskStatus.setBackgroundColor(getResources().getColor(R.color.green));
+                dialog.dismiss();
+            }
+        });
+
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.show();
+
+
+    }
+
 }
