@@ -62,7 +62,7 @@
                     android:id="@+id/btn_table"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
-                    android:background="@drawable/background_corner_btn"
+                    android:background="@drawable/background_btn_corner"
                     android:text="Main Table"
                     android:textAllCaps="false"
                     android:textSize="20dp"
@@ -79,7 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_toRightOf="@+id/btn_table"
-                    android:background="@drawable/background_corner_btn"
+                    android:background="@drawable/background_btn_corner"
                     android:text="Filter"
                     android:textAllCaps="false"
                     android:textSize="20dp"
@@ -95,16 +95,16 @@
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_alignParentEnd="true"
-                    android:background="@drawable/background_corner_btn"
+                    android:background="@drawable/background_btn_corner"
                     android:src="@drawable/ic_search"
                     app:tint="@color/primary_icon_color" />
             </RelativeLayout>
-            <HorizontalScrollView
-                android:id="@+id/horizontal_scroll"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
 
-            </HorizontalScrollView>
+            <LinearLayout
+                android:id="@+id/taskboard_frame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

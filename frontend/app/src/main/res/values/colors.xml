@@ -20,6 +20,8 @@
     <color name="primary_icon_second_color">#a3a3a3</color>
     <color name="primary_btn_color">#0075e2</color>
     <color name="primary_btn_second_color">#636363</color>
+    <color name="btn_disabled_color">#636363</color>
+    <color name="btn_enabled_color">#0075e2</color>
     <color name="primary_splitter_color">#ccc</color>
     <color name="chosen_color">#00aefd</color>
     <color name="darkgrey_translucent">#EE444444</color>
@@ -36,8 +38,12 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#a9a9a9</color>
-    <color name="red">#e96a7f</color>
+    <color name="red">#FF3333</color>
+    <color name="light_red">#e96a7f</color>
     <color name="green">#31d493</color>
+    <color name="pink">#FF33EC</color>
+    <color name="purple">#BE33FF</color>
+    <color name="yellow">#F9FF33</color>
 
 
 </resources>

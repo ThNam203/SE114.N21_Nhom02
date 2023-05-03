@@ -5,27 +5,34 @@
     android:layout_height="wrap_content"
     android:divider="@drawable/background_divider_tablelayout"
     android:showDividers="middle|end"
-    android:background="@color/primary_color">
+    android:background="@color/primary_color"
+    android:stretchColumns="*">
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:background="@color/transparent" />
-            <TextView
+
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:paddingLeft="15dp"
-                android:paddingTop="5dp"
-                android:paddingRight="10dp"
-                android:paddingBottom="5dp"
-                android:text="Group Title"
-                android:textColor="@color/blue"
-                android:textSize="20dp" />
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:layout_gravity="left">
+
+                <!-- Đây là phần tử bạn muốn dock -->
+                <TextView
+                    android:id="@+id/taskboard_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:paddingLeft="15dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="10dp"
+                    android:paddingBottom="5dp"
+                    android:text="Group Title"
+                    android:textColor="@color/blue"
+                    android:textSize="20dp" />
+            </FrameLayout>
+
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
