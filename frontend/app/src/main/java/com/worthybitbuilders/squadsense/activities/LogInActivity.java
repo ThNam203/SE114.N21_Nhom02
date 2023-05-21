@@ -76,32 +76,34 @@ public class LogInActivity extends AppCompatActivity {
             finish();
         });
 
+        binding.btnNext.setEnabled(true);
         binding.btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String inputEmail = binding.loginEmail.getText().toString();
-                String inputPassword = binding.loginPassword.getText().toString();
-                if(!loginViewModel.IsValidEmail(inputEmail))
-                {
-                    Toast.makeText(LogInActivity.this, "Invalid email", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                startLoadingIndicator();
-                loginViewModel.logIn(inputEmail, inputPassword, new LoginViewModel.LogInCallback() {
-                    @Override
-                    public void onSuccess() {
-                        stopLoadingIndicator();
-                        SwitchActivity.switchToActivity(LogInActivity.this, MainActivity.class);
-                        finish();
-                    }
-
-                    @Override
-                    public void onFailure(String message) {
-                        stopLoadingIndicator();
-                        Toast.makeText(LogInActivity.this, message, Toast.LENGTH_LONG).show();
-                    }
-                });
+                SwitchActivity.switchToActivity(LogInActivity.this, BoardActivity.class);
+//                String inputEmail = binding.loginEmail.getText().toString();
+//                String inputPassword = binding.loginPassword.getText().toString();
+//                if(!loginViewModel.IsValidEmail(inputEmail))
+//                {
+//                    Toast.makeText(LogInActivity.this, "Invalid email", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//
+//                startLoadingIndicator();
+//                loginViewModel.logIn(inputEmail, inputPassword, new LoginViewModel.LogInCallback() {
+//                    @Override
+//                    public void onSuccess() {
+//                        stopLoadingIndicator();
+//                        SwitchActivity.switchToActivity(LogInActivity.this, MainActivity.class);
+//                        finish();
+//                    }
+//
+//                    @Override
+//                    public void onFailure(String message) {
+//                        stopLoadingIndicator();
+//                        Toast.makeText(LogInActivity.this, message, Toast.LENGTH_LONG).show();
+//                    }
+//                });
             }
         });
     }
