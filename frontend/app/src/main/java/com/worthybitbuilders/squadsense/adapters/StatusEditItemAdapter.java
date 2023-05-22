@@ -74,6 +74,9 @@ public class StatusEditItemAdapter extends RecyclerView.Adapter {
 
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    // TODO: IF USER EDIT THE ITEM THAT HAS ALREADY BEEN EXISTED, WE SHOULD STOP IT
+                    if (itemModel.getContent().equals(itemModel.getContents().get(position)))
+                        itemModel.setContent(charSequence.toString());
                     itemModel.setContentAt(position, charSequence.toString());
                 }
 

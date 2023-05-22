@@ -35,6 +35,7 @@ import com.worthybitbuilders.squadsense.adapters.StatusEditItemAdapter;
 import com.worthybitbuilders.squadsense.adapters.TableViewAdapter;
 import com.worthybitbuilders.squadsense.databinding.ActivityBoardBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardAddItemPopupBinding;
+import com.worthybitbuilders.squadsense.databinding.BoardAddNewRowPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardDateItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardNumberItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardStatusEditNewItemPopupBinding;
@@ -54,6 +55,7 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardTextItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTimelineItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUpdateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUserItemModel;
+import com.worthybitbuilders.squadsense.utils.BoardTemplates;
 import com.worthybitbuilders.squadsense.utils.CustomUtils;
 
 import java.time.Instant;
@@ -68,7 +70,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BoardActivity extends AppCompatActivity {
     private TableViewAdapter boardAdapter;
-    private BoardContentModel data;
+    private BoardContentModel boardData;
     private ActivityBoardBinding activityBinding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +111,11 @@ public class BoardActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onNewRowHeaderClick() {
+                showNewRowPopup();
+            }
+
+            @Override
             public void onTextItemClick(BoardTextItemModel itemModel, String columnTitle) {
                 showTextItemPopup(itemModel, columnTitle);
             }
@@ -126,68 +133,31 @@ public class BoardActivity extends AppCompatActivity {
 
         activityBinding.exampleTableView.setAdapter(boardAdapter);
         // populate data
-        data = generateBoardContent();
-        boardAdapter.setBoardContent(data);
+        boardData = BoardTemplates.sampleBoardContent().get(0);
+        boardAdapter.setBoardContent(boardData);
         activityBinding.btnBack.setOnClickListener((view) -> onBackPressed());
-
         setContentView(activityBinding.getRoot());
     }
 
-    private BoardContentModel generateBoardContent() {
-        List<String> rowTitles = new ArrayList<>();
-        rowTitles.add("Nam");
-        rowTitles.add("Dat");
-        rowTitles.add("Khoi");
-        rowTitles.add("Son");
+    private void showNewRowPopup() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        BoardAddNewRowPopupBinding binding = BoardAddNewRowPopupBinding.inflate(getLayoutInflater());
+        dialog.setContentView(binding.getRoot());
 
-        List<String> columnTitles = new ArrayList<>();
-        columnTitles.add("Avatar");
-        columnTitles.add("Frontend");
-        columnTitles.add("Backend");
-        columnTitles.add("Fullstack");
-        columnTitles.add("+ New column");
+        binding.btnClosePopup.setOnClickListener(view -> dialog.dismiss());
+        binding.btnAdd.setOnClickListener(view -> {
+            String newRowTitle = binding.etContent.getText().toString();
+            if (newRowTitle.isEmpty()) { dialog.dismiss(); return; }
+            boardAdapter.createNewRow(newRowTitle);
+            dialog.dismiss();
+        });
 
-        List<List<BoardBaseItemModel>> cells = new ArrayList<>();
-        List<String> statusContent = new ArrayList<>();
-        statusContent.add("Lam chua xong");
-        statusContent.add("Bat dau lam");
-        statusContent.add("Lam gan xong");
-        statusContent.add("Da xong");
-
-        List<BoardBaseItemModel> firstRow = new ArrayList<>();
-        firstRow.add(new BoardUserItemModel(0, 0));
-        firstRow.add(new BoardStatusItemModel("Lam chua xong", statusContent, 1, 0));
-        firstRow.add(new BoardTextItemModel("Bat dau lam", 2, 0));
-        firstRow.add(new BoardTextItemModel("Lam gan xong", 3, 0));
-        firstRow.add(new BoardEmptyItemModel());
-
-        List<BoardBaseItemModel> secondRow = new ArrayList<>();
-        secondRow.add(new BoardUserItemModel(0, 1));
-        secondRow.add(new BoardStatusItemModel("Da xong", statusContent, 1, 1));
-        secondRow.add(new BoardTextItemModel("Lam chua xong", 2, 1));
-        secondRow.add(new BoardTextItemModel("Bat dau lam", 3, 1));
-        secondRow.add(new BoardEmptyItemModel());
-
-        List<BoardBaseItemModel> thirdRow = new ArrayList<>();
-        thirdRow.add(new BoardUserItemModel(0, 2));
-        thirdRow.add(new BoardStatusItemModel("Lam gan xong", statusContent, 1, 2));
-        thirdRow.add(new BoardTextItemModel("Da xong", 2, 2));
-        thirdRow.add(new BoardTextItemModel("Bat dau lam", 3, 2));
-        thirdRow.add(new BoardEmptyItemModel());
-
-        List<BoardBaseItemModel> fourthRow = new ArrayList<>();
-        fourthRow.add(new BoardUserItemModel(0, 3));
-        fourthRow.add(new BoardStatusItemModel("Lam gan xong", statusContent, 1, 3));
-        fourthRow.add(new BoardTextItemModel("Da xong", 2, 3));
-        fourthRow.add(new BoardTextItemModel("Bat dau lam", 3, 3));
-        fourthRow.add(new BoardEmptyItemModel());
-
-        cells.add(firstRow);
-        cells.add(secondRow);
-        cells.add(thirdRow);
-        cells.add(fourthRow);
-
-        return new BoardContentModel("Test table", rowTitles, columnTitles, cells);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
+        dialog.getWindow().setGravity(Gravity.CENTER);
+        dialog.show();
     }
 
     private void showTaskStatusPopup(BoardStatusItemModel statusItemModel)
@@ -245,8 +215,12 @@ public class BoardActivity extends AppCompatActivity {
 
             @Override
             public void onDeleteClick(int position, BoardStatusItemModel itemModel) {
+                if (position >= itemModel.getContents().size()) return;
+                if (Objects.equals(itemModel.getContent(), itemModel.getContents().get(position))) itemModel.setContent("");
                 itemModel.removeContentAt(position);
-                statusEditItemAdapter.notifyItemRemoved(position);
+                statusEditItemAdapter.notifyDataSetChanged();
+                // THIS IS BUGGED
+                // statusEditItemAdapter.notifyItemRemoved(position);
             }
         });
         binding.rvStatusItems.setLayoutManager(new LinearLayoutManager(BoardActivity.this, LinearLayoutManager.VERTICAL, false));
@@ -285,8 +259,6 @@ public class BoardActivity extends AppCompatActivity {
                     return;
                 }
             }
-            if (newContent.isEmpty()) return;
-
             itemModel.addNewContent(newContent);
             statusEditItemAdapter.notifyItemInserted(itemModel.getContents().size());
             dialog.dismiss();

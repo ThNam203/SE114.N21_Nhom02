@@ -58,6 +58,7 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
                     BoardTimelineItemViewHolder.TimelineItemClickHandlers
     {
         void onNewColumnHeaderClick();
+        void onNewRowHeaderClick();
     }
 
     public TableViewAdapter(Context context, OnClickHandlers handlers) {
@@ -126,14 +127,14 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
     @Override
     public AbstractViewHolder onCreateColumnHeaderViewHolder(@NonNull ViewGroup parent, int viewType) {
         View layout = LayoutInflater.from(parent.getContext()).inflate(R.layout.board_column_header_view, parent, false);
-        if (viewType == BoardColumnHeaderModel.ColumnType.NewColumn.getKey())
-            layout.setOnClickListener((view) -> handlers.onNewColumnHeaderClick());
         return new BoardColumnHeaderViewHolder(layout);
     }
 
     @Override
     public void onBindColumnHeaderViewHolder(@NonNull AbstractViewHolder holder, @Nullable BoardColumnHeaderModel columnHeaderItemModel, int columnPosition) {
         BoardColumnHeaderViewHolder columnHolder = (BoardColumnHeaderViewHolder) holder;
+        if (columnHeaderItemModel.getColumnType() == BoardColumnHeaderModel.ColumnType.NewColumn)
+            holder.itemView.setOnClickListener((view) -> handlers.onNewColumnHeaderClick());
         columnHolder.setColumnHeaderModel(columnHeaderItemModel);
     }
 
@@ -151,6 +152,9 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
         headerHolder.setRowHeaderModel(model);
         headerHolder.container.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;
         headerHolder.headerTitle.requestLayout();
+
+        if (rowHeaderItemModel.getIsAddNewRowRow())
+            headerHolder.itemView.setOnClickListener(view -> handlers.onNewRowHeaderClick());
     }
 
     @NonNull
@@ -194,11 +198,17 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
             itemModels.add(newModel);
         }
         boardViewModel.addNewColumn(newColumnModel, itemModels, columnPosition);
-        setAllItems(
-                boardViewModel.getColumHeaderModeList(),
-                boardViewModel.getRowHeaderModelList(),
-                boardViewModel.getCellModelList()
-        );
+        setColumnHeaderItems(boardViewModel.getColumHeaderModeList());
+        setCellItems(boardViewModel.getCellModelList());
+        notifyDataSetChanged();
+    }
+
+    public void createNewRow(String title) {
+        BoardRowHeaderModel newRowHeaderModel = new BoardRowHeaderModel(title, false);
+        int columnPosition = mRowHeaderItems.size() - 1;
+        boardViewModel.addNewRow(newRowHeaderModel, columnPosition);
+        setCellItems(boardViewModel.getCellModelList());
+        setRowHeaderItems(boardViewModel.getRowHeaderModelList());
         notifyDataSetChanged();
     }
 }

@@ -7,11 +7,18 @@ import java.util.Objects;
 public class BoardStatusItemModel extends BoardBaseItemModel {
     private List<String> contents;
     private List<String> colors;
+    public BoardStatusItemModel(Integer columnPosition, Integer rowPosition) {
+        super(BoardColumnHeaderModel.ColumnType.Status, "", columnPosition, rowPosition);
+        this.contents = new ArrayList<>();
+        this.colors = new ArrayList<>();
+    }
+
+    // TODO: JUST FOR SAMPLE DATA BOARD, REMOVE IT IF SAMPLE BOARD IS NOT USED
     public BoardStatusItemModel(String content, List<String> contents, Integer columnPosition, Integer rowPosition) {
         super(BoardColumnHeaderModel.ColumnType.Status, content, columnPosition, rowPosition);
         this.contents = contents;
         this.colors = new ArrayList<>();
-        for (int i = 0; i < contents.size(); i++) { colors.add("#9c9c9c"); }
+        for (int i = 0; i < contents.size(); i++) colors.add("#9c9c9c");
     }
 
     public BoardStatusItemModel(String content, List<String> contents, List<String> colors, Integer columnPosition, Integer rowPosition) {

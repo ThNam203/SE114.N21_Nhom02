@@ -1,11 +1,16 @@
 package com.worthybitbuilders.squadsense.viewmodels;
 
 import android.graphics.Color;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.worthybitbuilders.squadsense.factory.BoardItemFactory;
 import com.worthybitbuilders.squadsense.models.board_models.BoardBaseItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardColumnHeaderModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
+import com.worthybitbuilders.squadsense.models.board_models.BoardEmptyItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardRowHeaderModel;
+import com.worthybitbuilders.squadsense.utils.CustomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +23,12 @@ public class BoardViewModel {
     private List<List<BoardBaseItemModel>> mCellModelList;
 
     public int getCellItemViewType(int columnPosition) {
-        return mColumnHeaderModelList.get(columnPosition).getColumnType().getKey();
+        try {
+            return mColumnHeaderModelList.get(columnPosition).getColumnType().getKey();
+        } catch (IndexOutOfBoundsException e) {
+            Log.e("INDEX OUT OF BOUND BOARD VIEW MODEL", "CON CONSD:KFJLSDFJLSDJFL:SDKKKKKKKKKKKKKKKKKK");
+            return BoardColumnHeaderModel.ColumnType.NewColumn.getKey();
+        }
     }
 
     public String getBoardTitle() {
@@ -51,8 +61,9 @@ public class BoardViewModel {
     private List<BoardRowHeaderModel> createRowHeaderList(BoardContentModel contentModel) {
         List<BoardRowHeaderModel> data = new ArrayList<>();
         contentModel.getRowTitles().forEach(title -> {
-            data.add(new BoardRowHeaderModel(title));
+            data.add(new BoardRowHeaderModel(title, false));
         });
+        data.add(new BoardRowHeaderModel("+ New Row", true));
 
         return data;
     }
@@ -64,6 +75,10 @@ public class BoardViewModel {
             itemRow.forEach(item -> {
                 if (item.getItemType() != null) newItemRow.add(item);
             });
+
+            // add the empty cells for "+ New Column"
+            newItemRow.add(new BoardEmptyItemModel());
+
             data.add(newItemRow);
         });
 
@@ -73,9 +88,14 @@ public class BoardViewModel {
     private List<BoardColumnHeaderModel> createColumnHeaderModelList(BoardContentModel contentModel) {
         List<BoardColumnHeaderModel> data = new ArrayList<>();
         List<String> titles = contentModel.getColumnTitles();
-        List<BoardBaseItemModel> items = contentModel.getItems().get(0);
+        List<BoardBaseItemModel> firstRowItems = contentModel.getItems().get(0);
+
+        // Add the "+ New Column" column
+        titles.add("+ New Column");
+        firstRowItems.add(new BoardEmptyItemModel());
+
         for (int i = 0; i < contentModel.getColumnTitles().size(); i++) {
-            data.add(new BoardColumnHeaderModel(items.get(i).getItemType(), titles.get(i)));
+            data.add(new BoardColumnHeaderModel(firstRowItems.get(i).getItemType(), titles.get(i)));
         }
 
         return data;
@@ -86,6 +106,15 @@ public class BoardViewModel {
         for (int i = 0; i < mCellModelList.size(); i++) {
             mCellModelList.get(i).add(columnPosition, itemModels.get(i));
         }
+    }
+
+    public void addNewRow(BoardRowHeaderModel rowHeaderModel, int rowPosition) {
+        mRowHeaderModelList.add(rowPosition, rowHeaderModel);
+        List<BoardBaseItemModel> newRowItems = new ArrayList<>();
+        for (int i = 0; i < mColumnHeaderModelList.size(); i++) {
+            newRowItems.add(BoardItemFactory.createNewItem(mColumnHeaderModelList.get(i).getColumnType(), i, rowPosition));
+        }
+        mCellModelList.add(newRowItems);
     }
 
     public int getRandomColor() {

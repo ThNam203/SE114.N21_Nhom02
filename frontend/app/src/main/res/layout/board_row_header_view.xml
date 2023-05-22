@@ -6,30 +6,25 @@
     android:orientation="horizontal"
     android:layout_width="200dp"
     android:layout_height="@dimen/tableview_default_height">
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/background_board_row_header">
-        <LinearLayout
-            android:orientation="horizontal"
+        <View
+            android:id="@+id/leftSideStroke"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="@color/blue"/>
+        <TextView
+            android:id="@+id/tvRowHeader"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <View
-                android:id="@+id/leftSideStroke"
-                android:layout_width="4dp"
-                android:layout_height="match_parent"
-                android:background="@color/blue"/>
-            <TextView
-                android:id="@+id/tvRowHeader"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center_vertical"
-                android:paddingLeft="8dp"
-                android:singleLine="true"
-                android:textColor="@color/white"
-                android:textSize="@dimen/tableview_default_text_size"
-                tools:text="Header Data" />
-        </LinearLayout>
-    </FrameLayout>
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:paddingLeft="8dp"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textSize="@dimen/tableview_default_text_size"
+            tools:text="Header Data" />
+    </LinearLayout>
 </LinearLayout>

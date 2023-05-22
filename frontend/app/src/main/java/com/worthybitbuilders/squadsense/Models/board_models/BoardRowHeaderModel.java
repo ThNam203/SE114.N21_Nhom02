@@ -3,8 +3,12 @@ package com.worthybitbuilders.squadsense.models.board_models;
 public class BoardRowHeaderModel {
     private String title;
 
-    public BoardRowHeaderModel(String title) {
+    // the "+ New row" row
+    private Boolean isAddNewRowRow = false;
+
+    public BoardRowHeaderModel(String title, Boolean isAddNewRowRow) {
         this.title = title;
+        this.isAddNewRowRow = isAddNewRowRow;
     }
 
     public String getTitle() {
@@ -13,5 +17,9 @@ public class BoardRowHeaderModel {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Boolean getIsAddNewRowRow() {
+        return isAddNewRowRow;
     }
 }

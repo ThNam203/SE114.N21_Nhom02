@@ -24,14 +24,14 @@ public class BoardStatusItemViewHolder extends AbstractViewHolder {
     }
 
     public void setItemModel(BoardStatusItemModel itemModel) {
-        // Set text
         taskStatusContent.setText(itemModel.getContent());
 
         String color = null;
         for (int i = 0; i < itemModel.getContents().size(); i++) {
             if (Objects.equals(itemModel.getContent(), itemModel.getContents().get(i))) color = itemModel.getColorAt(i);
         }
-        DrawableCompat.setTint(taskStatusContent.getBackground(), Color.parseColor(color));
+        if (color == null) DrawableCompat.setTint(taskStatusContent.getBackground(), Color.parseColor("#9c9c9c"));
+        else DrawableCompat.setTint(taskStatusContent.getBackground(), Color.parseColor(color));
         itemView.setOnClickListener((view) -> {
             handlers.onStatusItemClick(itemModel);
         });

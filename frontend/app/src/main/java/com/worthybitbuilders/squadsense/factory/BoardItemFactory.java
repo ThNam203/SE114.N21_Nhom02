@@ -20,7 +20,7 @@ public class BoardItemFactory {
         if (type == BoardColumnHeaderModel.ColumnType.NewColumn) {
             newItem = new BoardEmptyItemModel();
         } else if (type == BoardColumnHeaderModel.ColumnType.Status) {
-            newItem = new BoardStatusItemModel("", new ArrayList<>(), columnPosition, rowPosition);
+            newItem = new BoardStatusItemModel(columnPosition, rowPosition);
         } else if (type == BoardColumnHeaderModel.ColumnType.Update) {
             newItem = new BoardUpdateItemModel(columnPosition, rowPosition);
         } else if (type == BoardColumnHeaderModel.ColumnType.Text) {
