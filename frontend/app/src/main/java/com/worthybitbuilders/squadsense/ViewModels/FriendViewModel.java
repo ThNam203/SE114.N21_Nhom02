@@ -3,39 +3,37 @@ package com.worthybitbuilders.squadsense.ViewModels;
 import android.util.Log;
 import android.util.Patterns;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.auth0.android.jwt.JWT;
 import com.google.gson.Gson;
 import com.worthybitbuilders.squadsense.Models.ErrorResponse;
-import com.worthybitbuilders.squadsense.Models.LoginRequest;
-import com.worthybitbuilders.squadsense.Models.UserModel;
+import com.worthybitbuilders.squadsense.Models.FriendRequest;
+import com.worthybitbuilders.squadsense.services.FriendService;
 import com.worthybitbuilders.squadsense.services.RetrofitServices;
 import com.worthybitbuilders.squadsense.services.UserService;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LoginViewModel extends ViewModel {
+public class FriendViewModel extends ViewModel {
+    private final FriendService friendService = RetrofitServices.getFriendService();
     private final UserService userService = RetrofitServices.getUserService();
 
-    public LoginViewModel() {}
+    public FriendViewModel() {}
 
     public boolean IsValidEmail(String email)
     {
         return !email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    public void logIn (String email, String password, LogInCallback callback) {
-        Call<String> login = userService.loginUser(new LoginRequest(email, password));
-        login.enqueue(new Callback<String>() {
+    public void Invite (String senderEmail, String reveiverEmail, FriendRequestCallback callback) {
+        Call<String> invitation = friendService.inviteUser(new FriendRequest(senderEmail, reveiverEmail));
+        invitation.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful()) {
@@ -64,7 +62,7 @@ public class LoginViewModel extends ViewModel {
         });
     }
 
-    public interface LogInCallback {
+    public interface FriendRequestCallback {
         public void onSuccess();
         public void onFailure(String message);
     }

@@ -1,7 +1,7 @@
 package com.worthybitbuilders.squadsense.services;
 
-import com.worthybitbuilders.squadsense.models.LoginRequest;
-import com.worthybitbuilders.squadsense.models.UserModel;
+import com.worthybitbuilders.squadsense.Models.LoginRequest;
+import com.worthybitbuilders.squadsense.Models.UserModel;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -12,6 +12,9 @@ import retrofit2.http.Path;
 public interface UserService {
     @GET("{userId}")
     Call<UserModel> getUser(@Path("userId") String userId);
+
+    @GET("{email}")
+    Call<UserModel> getUserByEmail(@Path("email") String email);
 
     @POST("{userId}")
     Call<UserModel> updateUser(@Path("userId") String userId);

@@ -14,9 +14,9 @@ import android.widget.Toast;
 
 import com.worthybitbuilders.squadsense.MainActivity;
 import com.worthybitbuilders.squadsense.R;
+import com.worthybitbuilders.squadsense.ViewModels.LoginViewModel;
 import com.worthybitbuilders.squadsense.databinding.PageLoginBinding;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
-import com.worthybitbuilders.squadsense.viewmodels.LoginViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;

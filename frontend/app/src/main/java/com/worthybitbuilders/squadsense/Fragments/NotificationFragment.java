@@ -1,4 +1,4 @@
-package com.worthybitbuilders.squadsense.fragments;
+package com.worthybitbuilders.squadsense.Fragments;
 
 import android.app.Dialog;
 import android.graphics.Color;

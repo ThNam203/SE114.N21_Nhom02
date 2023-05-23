@@ -1,4 +1,4 @@
-package com.worthybitbuilders.squadsense.fragments;
+package com.worthybitbuilders.squadsense.Fragments;
 
 import android.os.Bundle;
 

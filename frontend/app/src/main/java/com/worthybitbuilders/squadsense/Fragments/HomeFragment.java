@@ -1,4 +1,4 @@
-package com.worthybitbuilders.squadsense.fragments;
+package com.worthybitbuilders.squadsense.Fragments;
 
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
@@ -8,7 +8,9 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.worthybitbuilders.squadsense.R;
+import com.worthybitbuilders.squadsense.ViewModels.FriendViewModel;
 import com.worthybitbuilders.squadsense.activities.page_add_board;
 import com.worthybitbuilders.squadsense.activities.page_search;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
@@ -37,6 +40,9 @@ public class HomeFragment extends Fragment {
     ImageButton btn_addperson = null;
     ImageButton btn_add = null;
     EditText inputSearchLabel = null;
+
+    FriendViewModel friendViewModel;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -49,6 +55,7 @@ public class HomeFragment extends Fragment {
         btn_add = v.findViewById(R.id.btn_add);
         inputSearchLabel = v.findViewById(R.id.input_search_label);
         layout = v.findViewById(R.id.home_fragment);
+        friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
 
         //set onclick buttons here
         btn_myfavorities.setOnClickListener(new View.OnClickListener() {
@@ -132,8 +139,24 @@ public class HomeFragment extends Fragment {
         dialog.setContentView(R.layout.popup_btn_invite_by_email);
 
         //Set activity of button in dialog here
+        ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
+        AppCompatButton btnInvite = (AppCompatButton) dialog.findViewById(R.id.btn_invite);
+        EditText receiverEmail = (EditText) dialog.findViewById(R.id.input_email);
 
 
+        btnInvite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                friendViewModel.Invite();
+            }
+        });
+
+        btnClosePopup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
         //
 
 
@@ -142,13 +165,6 @@ public class HomeFragment extends Fragment {
         dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         dialog.show();
-        ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
-        btnClosePopup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
     }
 
     private void btn_add_item_showPopup() {

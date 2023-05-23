@@ -1,4 +1,4 @@
-package com.worthybitbuilders.squadsense.models;
+package com.worthybitbuilders.squadsense.Models;
 
 public class UserModel {
     private String email;

@@ -20,11 +20,11 @@ import android.view.WindowInsets;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.worthybitbuilders.squadsense.Models.UserModel;
+import com.worthybitbuilders.squadsense.ViewModels.SignUpViewModel;
 import com.worthybitbuilders.squadsense.databinding.ActivitySignUpBinding;
 import com.worthybitbuilders.squadsense.R;
-import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
-import com.worthybitbuilders.squadsense.viewmodels.SignUpViewModel;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
