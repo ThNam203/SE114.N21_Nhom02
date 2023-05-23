@@ -18,6 +18,7 @@
             android:scaleX="1.5"
             android:layout_gravity="center"
             android:backgroundTint="@color/transparent"
+            android:button="@android:color/transparent"
             app:tint="@color/white"/>
     </FrameLayout>
 </LinearLayout>

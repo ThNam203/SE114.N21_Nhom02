@@ -176,6 +176,7 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
     }
 
     public void setBoardContent(BoardContentModel content) {
+        boardViewModel.setBoardTitle(content.getBoardTitle());
         boardViewModel.generateDataForBoard(content);
         setAllItems(
                 boardViewModel.getColumHeaderModeList(),

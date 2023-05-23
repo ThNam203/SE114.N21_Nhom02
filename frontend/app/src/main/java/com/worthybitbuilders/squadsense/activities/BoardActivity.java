@@ -30,6 +30,7 @@ import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.ColorPickerDialog;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import com.worthybitbuilders.squadsense.R;
+import com.worthybitbuilders.squadsense.adapters.EditBoardsAdapter;
 import com.worthybitbuilders.squadsense.adapters.StatusContentsAdapter;
 import com.worthybitbuilders.squadsense.adapters.StatusEditItemAdapter;
 import com.worthybitbuilders.squadsense.adapters.TableViewAdapter;
@@ -37,6 +38,8 @@ import com.worthybitbuilders.squadsense.databinding.ActivityBoardBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardAddItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardAddNewRowPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardDateItemPopupBinding;
+import com.worthybitbuilders.squadsense.databinding.BoardEditBoardsViewBinding;
+import com.worthybitbuilders.squadsense.databinding.BoardNewBoardPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardNumberItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardStatusEditNewItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardStatusEditViewBinding;
@@ -55,6 +58,7 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardTextItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTimelineItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUpdateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUserItemModel;
+import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import com.worthybitbuilders.squadsense.utils.BoardTemplates;
 import com.worthybitbuilders.squadsense.utils.CustomUtils;
 
@@ -70,13 +74,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BoardActivity extends AppCompatActivity {
     private TableViewAdapter boardAdapter;
-    private BoardContentModel boardData;
+    private ProjectModel projectModel;
     private ActivityBoardBinding activityBinding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Objects.requireNonNull(getSupportActionBar()).hide();
         activityBinding = ActivityBoardBinding.inflate(getLayoutInflater());
+
+        activityBinding.btnShowTables.setOnClickListener(view -> showTables());
 
         boardAdapter = new TableViewAdapter(this, new TableViewAdapter.OnClickHandlers() {
             @Override
@@ -131,12 +137,40 @@ public class BoardActivity extends AppCompatActivity {
             }
         });
 
-        activityBinding.exampleTableView.setAdapter(boardAdapter);
+        activityBinding.tableView.setAdapter(boardAdapter);
         // populate data
-        boardData = BoardTemplates.sampleBoardContent().get(0);
-        boardAdapter.setBoardContent(boardData);
+        projectModel = new ProjectModel(0, BoardTemplates.sampleBoardContent());
+        boardAdapter.setBoardContent(projectModel.getBoards().get(projectModel.getChosenPosition()));
         activityBinding.btnBack.setOnClickListener((view) -> onBackPressed());
         setContentView(activityBinding.getRoot());
+    }
+
+    private void showTables() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        BoardEditBoardsViewBinding binding = BoardEditBoardsViewBinding.inflate(getLayoutInflater());
+        dialog.setContentView(binding.getRoot());
+
+        EditBoardsAdapter editBoardsAdapter = new EditBoardsAdapter(this.projectModel, position -> {
+
+        });
+        binding.rvBoards.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvBoards.setAdapter(editBoardsAdapter);
+
+        binding.btnClose.setOnClickListener(view -> dialog.dismiss());
+        binding.btnNewBoard.setOnClickListener(view -> {
+            Toast.makeText(this, "HEEIIEIE", Toast.LENGTH_LONG).show();
+//            projectModel.addBoard(new BoardContentModel());
+//            if (newRowTitle.isEmpty()) { dialog.dismiss(); return; }
+//            boardAdapter.createNewRow(newRowTitle);
+//            dialog.dismiss();
+        });
+
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.show();
     }
 
     private void showNewRowPopup() {
@@ -595,7 +629,6 @@ public class BoardActivity extends AppCompatActivity {
 
         binding.btnAddTimelineItem.setOnClickListener((view) -> {
             boardAdapter.createNewColumn(BoardColumnHeaderModel.ColumnType.TimeLine);
-            activityBinding.exampleTableView.invalidate();
         });
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
