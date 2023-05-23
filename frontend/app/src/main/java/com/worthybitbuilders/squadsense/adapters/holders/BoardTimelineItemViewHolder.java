@@ -18,12 +18,12 @@ public class BoardTimelineItemViewHolder extends AbstractViewHolder {
         this.handlers = handlers;
     }
 
-    public void setItemModel(BoardTimelineItemModel itemModel, String columnTitle) {
+    public void setItemModel(BoardTimelineItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
         tvContent.setText(itemModel.getContent());
-        itemView.setOnClickListener((view) -> handlers.OnTimelineItemClick(itemModel, columnTitle));
+        itemView.setOnClickListener((view) -> handlers.OnTimelineItemClick(itemModel, columnTitle, columnPos, rowPos));
     }
 
     public interface TimelineItemClickHandlers {
-        public void OnTimelineItemClick(BoardTimelineItemModel itemModel, String columnTitle);
+        public void OnTimelineItemClick(BoardTimelineItemModel itemModel, String columnTitle, int columnPos, int rowPos);
     }
 }

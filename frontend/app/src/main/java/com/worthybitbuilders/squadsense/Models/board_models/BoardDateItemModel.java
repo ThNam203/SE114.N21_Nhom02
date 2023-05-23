@@ -13,12 +13,12 @@ public class BoardDateItemModel extends BoardBaseItemModel {
     private int day = -1;
     private int hour = -1;
     private int minute = -1;
-    public BoardDateItemModel(Integer columnPosition, Integer rowPosition) {
-        super(BoardColumnHeaderModel.ColumnType.Date, "", columnPosition, rowPosition);
+    public BoardDateItemModel() {
+        super("");
     }
 
-    public BoardDateItemModel(String content, Integer columnPosition, Integer rowPosition, int year, int month, int day, int hour, int minute) {
-        super(BoardColumnHeaderModel.ColumnType.Date, content, columnPosition, rowPosition);
+    public BoardDateItemModel(String content, int year, int month, int day, int hour, int minute) {
+        super(content);
         this.year = year;
         this.month = month;
         this.day = day;

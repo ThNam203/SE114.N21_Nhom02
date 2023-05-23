@@ -7,27 +7,27 @@ import java.util.Objects;
 public class BoardStatusItemModel extends BoardBaseItemModel {
     private List<String> contents;
     private List<String> colors;
-    public BoardStatusItemModel(Integer columnPosition, Integer rowPosition) {
-        super(BoardColumnHeaderModel.ColumnType.Status, "", columnPosition, rowPosition);
+    public BoardStatusItemModel() {
+        super("");
         this.contents = new ArrayList<>();
         this.colors = new ArrayList<>();
     }
 
     // TODO: JUST FOR SAMPLE DATA BOARD, REMOVE IT IF SAMPLE BOARD IS NOT USED
-    public BoardStatusItemModel(String content, List<String> contents, Integer columnPosition, Integer rowPosition) {
-        super(BoardColumnHeaderModel.ColumnType.Status, content, columnPosition, rowPosition);
+    public BoardStatusItemModel(String content, List<String> contents) {
+        super(content);
         this.contents = contents;
         this.colors = new ArrayList<>();
         for (int i = 0; i < contents.size(); i++) colors.add("#9c9c9c");
     }
 
-    public BoardStatusItemModel(String content, List<String> contents, List<String> colors, Integer columnPosition, Integer rowPosition) {
-        super(BoardColumnHeaderModel.ColumnType.Status, content, columnPosition, rowPosition);
+    public BoardStatusItemModel(String content, List<String> contents, List<String> colors) {
+        super(content);
         this.contents = contents;
         this.colors = colors;
     }
     public BoardStatusItemModel(BoardStatusItemModel itemModel) {
-        super(BoardColumnHeaderModel.ColumnType.Status, itemModel.getContent(), itemModel.getColumnPosition(), itemModel.getRowPosition());
+        super(itemModel.getContent());
         this.contents = itemModel.getContents();
         this.colors = itemModel.getColors();
     }

@@ -4,8 +4,8 @@ public class BoardUserItemModel extends BoardBaseItemModel {
     private String userId;
     private String userImagePath;
 
-    public BoardUserItemModel(Integer columnPosition, Integer rowPosition) {
-        super(BoardColumnHeaderModel.ColumnType.User, "", columnPosition, rowPosition);
+    public BoardUserItemModel() {
+        super("");
         this.userId = "";
         this.userImagePath = "";
     }

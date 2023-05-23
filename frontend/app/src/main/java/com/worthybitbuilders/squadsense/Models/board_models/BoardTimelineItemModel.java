@@ -20,12 +20,12 @@ public class BoardTimelineItemModel extends BoardBaseItemModel {
     private int endYear = -1;
     private int endMonth = -1;
     private int endDay = -1;
-    public BoardTimelineItemModel(Integer columnPosition, Integer rowPosition) {
-        super(BoardColumnHeaderModel.ColumnType.TimeLine, "", columnPosition, rowPosition);
+    public BoardTimelineItemModel() {
+        super("");
     }
 
-    public BoardTimelineItemModel(Integer columnPosition, Integer rowPosition, int startYear, int startMonth, int startDay, int endYear, int endMonth, int endDay) {
-        super(BoardColumnHeaderModel.ColumnType.TimeLine, "", columnPosition, rowPosition);
+    public BoardTimelineItemModel(int startYear, int startMonth, int startDay, int endYear, int endMonth, int endDay) {
+        super("");
         this.startYear = startYear;
         this.startMonth = startMonth;
         this.startDay = startDay;

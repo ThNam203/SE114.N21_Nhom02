@@ -2,8 +2,8 @@ package com.worthybitbuilders.squadsense.models.board_models;
 
 public class BoardCheckboxItemModel extends BoardBaseItemModel {
     private Boolean isChecked;
-    public BoardCheckboxItemModel(Boolean isChecked, Integer columnPosition, Integer rowPosition) {
-        super(BoardColumnHeaderModel.ColumnType.Checkbox, "", columnPosition, rowPosition);
+    public BoardCheckboxItemModel(Boolean isChecked) {
+        super("");
         this.isChecked = isChecked;
     }
 

@@ -15,26 +15,26 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardUserItemModel;
 import java.util.ArrayList;
 
 public class BoardItemFactory {
-    public static BoardBaseItemModel createNewItem(BoardColumnHeaderModel.ColumnType type, int columnPosition, int rowPosition) {
+    public static BoardBaseItemModel createNewItem(BoardColumnHeaderModel.ColumnType type) {
         BoardBaseItemModel newItem = null;
         if (type == BoardColumnHeaderModel.ColumnType.NewColumn) {
             newItem = new BoardEmptyItemModel();
         } else if (type == BoardColumnHeaderModel.ColumnType.Status) {
-            newItem = new BoardStatusItemModel(columnPosition, rowPosition);
+            newItem = new BoardStatusItemModel();
         } else if (type == BoardColumnHeaderModel.ColumnType.Update) {
-            newItem = new BoardUpdateItemModel(columnPosition, rowPosition);
+            newItem = new BoardUpdateItemModel();
         } else if (type == BoardColumnHeaderModel.ColumnType.Text) {
-            newItem = new BoardTextItemModel("", columnPosition, rowPosition);
+            newItem = new BoardTextItemModel("");
         } else if (type == BoardColumnHeaderModel.ColumnType.Number) {
-            newItem = new BoardNumberItemModel("", columnPosition, rowPosition);
+            newItem = new BoardNumberItemModel("");
         } else if (type == BoardColumnHeaderModel.ColumnType.TimeLine) {
-            newItem = new BoardTimelineItemModel(columnPosition, rowPosition);
+            newItem = new BoardTimelineItemModel();
         } else if (type == BoardColumnHeaderModel.ColumnType.Date) {
-            newItem = new BoardDateItemModel(columnPosition, rowPosition);
+            newItem = new BoardDateItemModel();
         } else if (type == BoardColumnHeaderModel.ColumnType.User) {
-            newItem = new BoardUserItemModel(columnPosition, rowPosition);
+            newItem = new BoardUserItemModel();
         } else if (type == BoardColumnHeaderModel.ColumnType.Checkbox) {
-            newItem = new BoardCheckboxItemModel(false, columnPosition, rowPosition);
+            newItem = new BoardCheckboxItemModel(false);
         }
 
         return newItem;

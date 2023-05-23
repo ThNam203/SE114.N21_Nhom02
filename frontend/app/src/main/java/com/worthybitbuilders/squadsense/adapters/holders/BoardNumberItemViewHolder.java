@@ -18,12 +18,12 @@ public class BoardNumberItemViewHolder extends AbstractViewHolder {
         this.handlers = handlers;
     }
 
-    public void setItemModel(BoardNumberItemModel itemModel, String columnTitle) {
-        itemView.setOnClickListener((view) -> handlers.onNumberItemClick(itemModel, columnTitle));
+    public void setItemModel(BoardNumberItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
+        itemView.setOnClickListener((view) -> handlers.onNumberItemClick(itemModel, columnTitle, columnPos, rowPos));
         this.tvContent.setText(itemModel.getContent());
     }
 
     public interface NumberItemClickHandlers {
-        void onNumberItemClick(BoardNumberItemModel itemModel, String columnTitle);
+        void onNumberItemClick(BoardNumberItemModel itemModel, String columnTitle, int columnPos, int rowPos);
     }
 }

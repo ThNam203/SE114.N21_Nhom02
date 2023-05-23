@@ -105,21 +105,21 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
     public void onBindCellViewHolder(@NonNull AbstractViewHolder holder, @Nullable BoardBaseItemModel cellItemModel, int columnPosition, int rowPosition) {
         String columnTitle = mColumnHeaderItems.get(columnPosition).getTitle();
         if (holder instanceof BoardStatusItemViewHolder) {
-            ((BoardStatusItemViewHolder) holder).setItemModel((BoardStatusItemModel) cellItemModel);
+            ((BoardStatusItemViewHolder) holder).setItemModel((BoardStatusItemModel) cellItemModel, columnPosition, rowPosition);
         } else if (holder instanceof BoardTextItemViewHolder) {
-            ((BoardTextItemViewHolder) holder).setItemModel((BoardTextItemModel) cellItemModel, columnTitle);
+            ((BoardTextItemViewHolder) holder).setItemModel((BoardTextItemModel) cellItemModel, columnTitle, columnPosition, rowPosition);
         } else if (holder instanceof BoardUserItemViewHolder) {
             ((BoardUserItemViewHolder) holder).setItemModel((BoardUserItemModel) cellItemModel, mContext);
         } else if (holder instanceof BoardUpdateItemViewHolder) {
             ((BoardUpdateItemViewHolder) holder).setItemModel((BoardUpdateItemModel) cellItemModel, columnTitle);
         } else if (holder instanceof BoardNumberItemViewHolder) {
-            ((BoardNumberItemViewHolder) holder).setItemModel((BoardNumberItemModel) cellItemModel, columnTitle);
+            ((BoardNumberItemViewHolder) holder).setItemModel((BoardNumberItemModel) cellItemModel, columnTitle, columnPosition, rowPosition);
         } else if (holder instanceof BoardCheckboxItemViewHolder) {
-            ((BoardCheckboxItemViewHolder) holder).setItemModel((BoardCheckboxItemModel) cellItemModel);
+            ((BoardCheckboxItemViewHolder) holder).setItemModel((BoardCheckboxItemModel) cellItemModel, columnPosition, rowPosition);
         } else if (holder instanceof BoardDateItemViewHolder) {
-            ((BoardDateItemViewHolder) holder).setItemModel((BoardDateItemModel) cellItemModel, columnTitle);
+            ((BoardDateItemViewHolder) holder).setItemModel((BoardDateItemModel) cellItemModel, columnTitle, columnPosition, rowPosition);
         } else if (holder instanceof BoardTimelineItemViewHolder) {
-            ((BoardTimelineItemViewHolder) holder).setItemModel((BoardTimelineItemModel) cellItemModel, columnTitle);
+            ((BoardTimelineItemViewHolder) holder).setItemModel((BoardTimelineItemModel) cellItemModel, columnTitle, columnPosition, rowPosition);
         }
     }
 
@@ -190,11 +190,7 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
 
         int columnPosition = mColumnHeaderItems.size() - 1;
         for (int i = 0; i < mRowHeaderItems.size(); i++) {
-            BoardBaseItemModel newModel = BoardItemFactory.createNewItem(
-                    newColumnModel.getColumnType(),
-                    columnPosition,
-                    i
-            );
+            BoardBaseItemModel newModel = BoardItemFactory.createNewItem(newColumnModel.getColumnType());
             itemModels.add(newModel);
         }
         boardViewModel.addNewColumn(newColumnModel, itemModels, columnPosition);

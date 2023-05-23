@@ -80,19 +80,19 @@ public class BoardActivity extends AppCompatActivity {
 
         boardAdapter = new TableViewAdapter(this, new TableViewAdapter.OnClickHandlers() {
             @Override
-            public void OnTimelineItemClick(BoardTimelineItemModel itemModel, String columnTitle) {
-                showTimelineItemPopup(itemModel, columnTitle);
+            public void OnTimelineItemClick(BoardTimelineItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
+                showTimelineItemPopup(itemModel, columnTitle, columnPos, rowPos);
             }
 
             @Override
-            public void OnDateItemClick(BoardDateItemModel itemModel, String columnTitle) {
-                showDateItemPopup(itemModel, columnTitle);
+            public void OnDateItemClick(BoardDateItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
+                showDateItemPopup(itemModel, columnTitle, columnPos, rowPos);
             }
 
             @Override
-            public void onCheckboxItemClick(BoardCheckboxItemModel itemModel) {
+            public void onCheckboxItemClick(BoardCheckboxItemModel itemModel, int columnPos, int rowPos) {
                 itemModel.setChecked(!itemModel.getChecked());
-                boardAdapter.changeCellItem(itemModel.getColumnPosition(), itemModel.getRowPosition(), itemModel);
+                boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
             }
 
             @Override
@@ -101,8 +101,8 @@ public class BoardActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNumberItemClick(BoardNumberItemModel itemModel, String columnTitle) {
-                showNumberItemPopup(itemModel, columnTitle);
+            public void onNumberItemClick(BoardNumberItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
+                showNumberItemPopup(itemModel, columnTitle, columnPos, rowPos);
             }
 
             @Override
@@ -116,8 +116,8 @@ public class BoardActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTextItemClick(BoardTextItemModel itemModel, String columnTitle) {
-                showTextItemPopup(itemModel, columnTitle);
+            public void onTextItemClick(BoardTextItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
+                showTextItemPopup(itemModel, columnTitle, columnPos, rowPos);
             }
 
             @Override
@@ -126,8 +126,8 @@ public class BoardActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStatusItemClick(BoardStatusItemModel itemModel) {
-                showTaskStatusPopup(itemModel);
+            public void onStatusItemClick(BoardStatusItemModel itemModel, int columnPos, int rowPos) {
+                showTaskStatusPopup(itemModel, columnPos, rowPos);
             }
         });
 
@@ -160,7 +160,7 @@ public class BoardActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showTaskStatusPopup(BoardStatusItemModel statusItemModel)
+    private void showTaskStatusPopup(BoardStatusItemModel statusItemModel, int columnPos, int rowPos)
     {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -170,7 +170,7 @@ public class BoardActivity extends AppCompatActivity {
         StatusContentsAdapter statusContentsAdapter = new StatusContentsAdapter(statusItemModel);
         statusContentsAdapter.setHandlers((itemModel, newContent) -> {
             itemModel.setContent(newContent);
-            boardAdapter.changeCellItem(itemModel.getColumnPosition(), itemModel.getRowPosition(), itemModel);
+            boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
             dialog.dismiss();
         });
         binding.rvStatusContents.setLayoutManager(new LinearLayoutManager(this));
@@ -178,7 +178,7 @@ public class BoardActivity extends AppCompatActivity {
 
         binding.btnClose.setOnClickListener(view -> dialog.dismiss());
         binding.btnEditLabels.setOnClickListener(view -> {
-            showStatusContentsEdit(statusItemModel, statusContentsAdapter);
+            showStatusContentsEdit(statusItemModel, statusContentsAdapter, columnPos, rowPos);
         });
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -188,7 +188,7 @@ public class BoardActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showStatusContentsEdit(BoardStatusItemModel statusItemModel, StatusContentsAdapter statusContentsAdapter) {
+    private void showStatusContentsEdit(BoardStatusItemModel statusItemModel, StatusContentsAdapter statusContentsAdapter, int columnPos, int rowPos) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         BoardStatusEditViewBinding binding = BoardStatusEditViewBinding.inflate(getLayoutInflater());
@@ -232,7 +232,7 @@ public class BoardActivity extends AppCompatActivity {
         binding.btnClose.setOnClickListener(view -> dialog.dismiss());
         binding.btnSave.setOnClickListener(view -> {
             statusItemModel.copyDataFromAnotherInstance(clonedItemModel);
-            boardAdapter.changeCellItem(statusItemModel.getColumnPosition(), statusItemModel.getRowPosition(), statusItemModel);
+            boardAdapter.changeCellItem(columnPos, rowPos, statusItemModel);
             statusContentsAdapter.notifyDataSetChanged();
             dialog.dismiss();
         });
@@ -271,7 +271,7 @@ public class BoardActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showTextItemPopup(BoardTextItemModel itemModel, String title) {
+    private void showTextItemPopup(BoardTextItemModel itemModel, String title, int columnPos, int rowPos) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         BoardTextItemPopupBinding binding = BoardTextItemPopupBinding.inflate(getLayoutInflater());
@@ -284,7 +284,7 @@ public class BoardActivity extends AppCompatActivity {
         binding.btnSaveTextItem.setOnClickListener(view -> {
             String newContent = String.valueOf(binding.etTextItem.getText());
             itemModel.setContent(newContent);
-            boardAdapter.changeCellItem(itemModel.getColumnPosition(), itemModel.getRowPosition(), itemModel);
+            boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
             dialog.dismiss();
         });
 
@@ -297,7 +297,7 @@ public class BoardActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showNumberItemPopup(BoardNumberItemModel itemModel, String title) {
+    private void showNumberItemPopup(BoardNumberItemModel itemModel, String title, int columnPos, int rowPos) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         BoardNumberItemPopupBinding binding = BoardNumberItemPopupBinding.inflate(getLayoutInflater());
@@ -309,7 +309,7 @@ public class BoardActivity extends AppCompatActivity {
         binding.btnSaveNumberItem.setOnClickListener(view -> {
             String newContent = String.valueOf(binding.etNumberItem.getText());
             itemModel.setContent(newContent);
-            boardAdapter.changeCellItem(itemModel.getColumnPosition(), itemModel.getRowPosition(), itemModel);
+            boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
             dialog.dismiss();
         });
 
@@ -320,7 +320,7 @@ public class BoardActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showTimelineItemPopup(BoardTimelineItemModel itemModel, String title) {
+    private void showTimelineItemPopup(BoardTimelineItemModel itemModel, String title, int columnPos, int rowPos) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         BoardTimelineItemPopupBinding binding = BoardTimelineItemPopupBinding.inflate(getLayoutInflater());
@@ -364,7 +364,7 @@ public class BoardActivity extends AppCompatActivity {
             itemModel.setEndYear(dialogEndYear.get());
             itemModel.setEndMonth(dialogEndMonth.get());
             itemModel.setEndDay(dialogEndDay.get());
-            boardAdapter.changeCellItem(itemModel.getColumnPosition(), itemModel.getRowPosition(), itemModel);
+            boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
             dialog.dismiss();
         });
 
@@ -448,7 +448,7 @@ public class BoardActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showDateItemPopup(@NonNull BoardDateItemModel itemModel, String title) {
+    private void showDateItemPopup(@NonNull BoardDateItemModel itemModel, String title, int columnPos, int rowPos) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         BoardDateItemPopupBinding binding = BoardDateItemPopupBinding.inflate(getLayoutInflater());
@@ -497,7 +497,7 @@ public class BoardActivity extends AppCompatActivity {
             itemModel.setDay(dialogDay.get());
             itemModel.setHour(dialogHour.get());
             itemModel.setMinute(dialogMinute.get());
-            boardAdapter.changeCellItem(itemModel.getColumnPosition(), itemModel.getRowPosition(), itemModel);
+            boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
             dialog.dismiss();
         });
 

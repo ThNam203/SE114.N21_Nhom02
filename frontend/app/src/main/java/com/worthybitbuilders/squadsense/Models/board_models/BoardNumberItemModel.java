@@ -4,8 +4,8 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 public class BoardNumberItemModel extends BoardBaseItemModel {
-    public BoardNumberItemModel(String content, Integer columnPosition, Integer rowPosition) {
-        super(BoardColumnHeaderModel.ColumnType.Number, content, columnPosition, rowPosition);
+    public BoardNumberItemModel(String content) {
+        super(content);
     }
 
     @Override

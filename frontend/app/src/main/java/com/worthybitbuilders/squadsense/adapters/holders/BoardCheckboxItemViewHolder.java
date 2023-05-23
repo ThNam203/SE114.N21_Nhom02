@@ -19,12 +19,12 @@ public class BoardCheckboxItemViewHolder extends AbstractViewHolder {
         cbCheckBox = itemView.findViewById(R.id.checkBoxItemCheckbox);
     }
 
-    public void setItemModel(BoardCheckboxItemModel itemModel) {
+    public void setItemModel(BoardCheckboxItemModel itemModel, int columnPos, int rowPos) {
         cbCheckBox.setChecked(itemModel.getChecked());
-        itemView.setOnClickListener((view) -> handlers.onCheckboxItemClick(itemModel));
+        itemView.setOnClickListener((view) -> handlers.onCheckboxItemClick(itemModel, columnPos, rowPos));
     }
 
     public interface CheckboxItemClickHandlers {
-        void onCheckboxItemClick(BoardCheckboxItemModel itemModel);
+        void onCheckboxItemClick(BoardCheckboxItemModel itemModel, int columnPos, int rowPos);
     }
 }

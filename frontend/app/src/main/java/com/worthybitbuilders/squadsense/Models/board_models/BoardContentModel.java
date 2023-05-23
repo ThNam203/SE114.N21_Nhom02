@@ -4,15 +4,16 @@ import java.util.List;
 
 public class BoardContentModel {
     private String boardTitle;
-    private List<String> rowTitles;
-    private List<String> columnTitles;
-    private List<List<BoardBaseItemModel>> items;
+    private List<String> rowCells;
+    private List<BoardColumnHeaderModel> columnCells;
+    // TODO: COLUMN SHOULD HOLD THE COLUMN TYPE, NOT THE CELL
+    private List<List<BoardBaseItemModel>> cells;
 
-    public BoardContentModel(String boardTitle, List<String> rowTitles, List<String> columnTitles, List<List<BoardBaseItemModel>> items) {
+    public BoardContentModel(String boardTitle, List<String> rowCells, List<BoardColumnHeaderModel> columnCells, List<List<BoardBaseItemModel>> cells) {
         this.boardTitle = boardTitle;
-        this.rowTitles = rowTitles;
-        this.columnTitles = columnTitles;
-        this.items = items;
+        this.rowCells = rowCells;
+        this.columnCells = columnCells;
+        this.cells = cells;
     }
 
     public String getBoardTitle() {
@@ -23,27 +24,27 @@ public class BoardContentModel {
         this.boardTitle = boardTitle;
     }
 
-    public List<String> getRowTitles() {
-        return rowTitles;
+    public List<String> getRowCells() {
+        return rowCells;
     }
 
-    public void setRowTitles(List<String> rowTitles) {
-        this.rowTitles = rowTitles;
+    public void setRowCells(List<String> rowCells) {
+        this.rowCells = rowCells;
     }
 
-    public List<String> getColumnTitles() {
-        return columnTitles;
+    public List<BoardColumnHeaderModel> getColumnCells() {
+        return columnCells;
     }
 
-    public void setColumnTitles(List<String> columnTitles) {
-        this.columnTitles = columnTitles;
+    public void setColumnCells(List<BoardColumnHeaderModel> columnCells) {
+        this.columnCells = columnCells;
     }
 
-    public List<List<BoardBaseItemModel>> getItems() {
-        return items;
+    public List<List<BoardBaseItemModel>> getCells() {
+        return cells;
     }
 
-    public void setItems(List<List<BoardBaseItemModel>> items) {
-        this.items = items;
+    public void setCells(List<List<BoardBaseItemModel>> cells) {
+        this.cells = cells;
     }
 }

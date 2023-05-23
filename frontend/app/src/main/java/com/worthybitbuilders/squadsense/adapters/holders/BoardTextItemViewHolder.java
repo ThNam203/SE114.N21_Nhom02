@@ -19,12 +19,12 @@ public class BoardTextItemViewHolder extends AbstractViewHolder {
         this.handlers = handlers;
     }
 
-    public void setItemModel(@NonNull BoardTextItemModel itemModel, String columnTitle) {
+    public void setItemModel(@NonNull BoardTextItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
         tvContent.setText(itemModel.getContent());
-        itemView.setOnClickListener((view -> handlers.onTextItemClick(itemModel, columnTitle)));
+        itemView.setOnClickListener((view -> handlers.onTextItemClick(itemModel, columnTitle, columnPos, rowPos)));
     }
 
     public interface TextItemClickHandlers {
-        void onTextItemClick(BoardTextItemModel itemModel, String columnTitle);
+        void onTextItemClick(BoardTextItemModel itemModel, String columnTitle, int columnPos, int rowPos);
     }
 }

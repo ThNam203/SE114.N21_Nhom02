@@ -60,7 +60,7 @@ public class BoardViewModel {
 
     private List<BoardRowHeaderModel> createRowHeaderList(BoardContentModel contentModel) {
         List<BoardRowHeaderModel> data = new ArrayList<>();
-        contentModel.getRowTitles().forEach(title -> {
+        contentModel.getRowCells().forEach(title -> {
             data.add(new BoardRowHeaderModel(title, false));
         });
         data.add(new BoardRowHeaderModel("+ New Row", true));
@@ -70,15 +70,12 @@ public class BoardViewModel {
 
     private List<List<BoardBaseItemModel>> createCellModelList(BoardContentModel contentModel) {
         List<List<BoardBaseItemModel>> data = new ArrayList<>();
-        contentModel.getItems().forEach(itemRow -> {
-            List<BoardBaseItemModel> newItemRow = new ArrayList<>();
-            itemRow.forEach(item -> {
-                if (item.getItemType() != null) newItemRow.add(item);
-            });
 
+        contentModel.getCells().forEach(itemRow -> {
+            List<BoardBaseItemModel> newItemRow = new ArrayList<>();
+            itemRow.forEach(item -> newItemRow.add(item));
             // add the empty cells for "+ New Column"
             newItemRow.add(new BoardEmptyItemModel());
-
             data.add(newItemRow);
         });
 
@@ -86,19 +83,10 @@ public class BoardViewModel {
     }
 
     private List<BoardColumnHeaderModel> createColumnHeaderModelList(BoardContentModel contentModel) {
-        List<BoardColumnHeaderModel> data = new ArrayList<>();
-        List<String> titles = contentModel.getColumnTitles();
-        List<BoardBaseItemModel> firstRowItems = contentModel.getItems().get(0);
-
-        // Add the "+ New Column" column
-        titles.add("+ New Column");
-        firstRowItems.add(new BoardEmptyItemModel());
-
-        for (int i = 0; i < contentModel.getColumnTitles().size(); i++) {
-            data.add(new BoardColumnHeaderModel(firstRowItems.get(i).getItemType(), titles.get(i)));
-        }
-
-        return data;
+        contentModel.getColumnCells().add(new BoardColumnHeaderModel(
+                        BoardColumnHeaderModel.ColumnType.NewColumn,
+                        "+ New Column"));
+        return contentModel.getColumnCells();
     }
 
     public void addNewColumn(BoardColumnHeaderModel columnHeaderModel, List<BoardBaseItemModel> itemModels, int columnPosition) {
@@ -112,7 +100,7 @@ public class BoardViewModel {
         mRowHeaderModelList.add(rowPosition, rowHeaderModel);
         List<BoardBaseItemModel> newRowItems = new ArrayList<>();
         for (int i = 0; i < mColumnHeaderModelList.size(); i++) {
-            newRowItems.add(BoardItemFactory.createNewItem(mColumnHeaderModelList.get(i).getColumnType(), i, rowPosition));
+            newRowItems.add(BoardItemFactory.createNewItem(mColumnHeaderModelList.get(i).getColumnType()));
         }
         mCellModelList.add(newRowItems);
     }
