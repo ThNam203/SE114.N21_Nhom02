@@ -4,13 +4,10 @@ public class FriendRequest {
     private String senderID;
     private String receiverID;
 
-    private String senderEmail;
-    private String receiverEmail;
-
-    public FriendRequest(String senderEmail, String receiverEmail)
+    public FriendRequest(String senderID, String receiverID)
     {
-        this.senderEmail = senderEmail;
-        this.receiverEmail = receiverEmail;
+        this.senderID = senderID;
+        this.receiverID = receiverID;
     }
 
     public String getSenderID() {
@@ -27,21 +24,5 @@ public class FriendRequest {
 
     public void setReceiverID(String receiverID) {
         this.receiverID = receiverID;
-    }
-
-    public String getSenderEmail() {
-        return senderEmail;
-    }
-
-    public void setSenderEmail(String senderEmail) {
-        this.senderEmail = senderEmail;
-    }
-
-    public String getReceiverEmail() {
-        return receiverEmail;
-    }
-
-    public void setReceiverEmail(String receiverEmail) {
-        this.receiverEmail = receiverEmail;
     }
 }

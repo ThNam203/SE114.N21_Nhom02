@@ -26,7 +26,9 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.worthybitbuilders.squadsense.Models.UserModel;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.ViewModels.FriendViewModel;
 import com.worthybitbuilders.squadsense.activities.page_add_board;
@@ -141,13 +143,28 @@ public class HomeFragment extends Fragment {
         //Set activity of button in dialog here
         ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
         AppCompatButton btnInvite = (AppCompatButton) dialog.findViewById(R.id.btn_invite);
-        EditText receiverEmail = (EditText) dialog.findViewById(R.id.input_email);
+        EditText inputEmail = (EditText) dialog.findViewById(R.id.input_email);
 
 
         btnInvite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                friendViewModel.Invite();
+                String receiverEmail = inputEmail.getText().toString();
+                friendViewModel.checkUserByEmail(receiverEmail, new FriendViewModel.FriendRequestCallback() {
+                    @Override
+                    public void onSuccess(UserModel user) {
+                        Toast t = Toast.makeText(getContext(), user.getId().toString(), Toast.LENGTH_SHORT);
+                        t.setGravity(Gravity.TOP, 0, 0);
+                        t.show();
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        Toast t = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
+                        t.setGravity(Gravity.TOP, 0, 0);
+                        t.show();
+                    }
+                });
             }
         });
 

@@ -1,20 +1,18 @@
 package com.worthybitbuilders.squadsense.services;
 
 import com.worthybitbuilders.squadsense.Models.FriendRequest;
+import com.worthybitbuilders.squadsense.Models.UserModel;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface FriendService {
-//    @GET("{userId}")
-//    Call<UserModel> getUser(@Path("userId") String userId);
-//
-//    @POST("{userId}")
-//    Call<UserModel> updateUser(@Path("userId") String userId);
-//
-//    @POST("signup")
-//    Call<Void> createNewUser(@Body UserModel newUser);
+    @GET("user/{email}")
+    Call<UserModel> getUserByEmail(@Path("email") String email);
+
     @POST("invite")
     Call<String> inviteUser(@Body FriendRequest friendRequest);
 }

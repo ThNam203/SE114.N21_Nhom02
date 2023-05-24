@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.NotificationFragment"
+    tools:context=".Fragments.NotificationFragment"
     android:background="@color/primary_color">
 
     <!-- TODO: Update blank fragment layout -->
@@ -160,7 +160,7 @@
         android:textSize="24dp" />
 
     <Button
-        android:id="@+id/btn_invite"
+        android:id="@+id/btn_invite_member"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"

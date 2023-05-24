@@ -5,6 +5,10 @@ const AppError = require('../utils/AppError')
 
 const userSchema = new mongoose.Schema(
     {
+        _id: {
+            type: String,
+            unique: true,
+        },
         name: {
             type: String,
             trim: true,

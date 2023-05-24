@@ -35,7 +35,7 @@ public class page_add_board extends AppCompatActivity {
         btnNewBoard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SwitchActivity.switchToActivity(getWindow().getContext(), page_task_board.class);
+//                SwitchActivity.switchToActivity(getWindow().getContext(), page_task_board.class);
             }
         });
     }
