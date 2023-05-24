@@ -26,11 +26,37 @@
         android:layout_weight="1"
         android:paddingHorizontal="16dp"
         android:paddingVertical="12dp"
+        android:textSize="16sp"
+        android:visibility="gone"
         android:textColor="@color/primary_word_color"
         android:singleLine="true"
-        android:enabled="false"
         tools:text="asdfasdfasdfasdfasdf"
         android:background="@color/transparent"/>
+    <TextView
+        android:id="@+id/tvBoardName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:textSize="16sp"
+        android:textColor="@color/primary_word_color"
+        android:singleLine="true"
+        android:clickable="false"
+        tools:text="asdfasdfasdfasdfasdf"
+        android:background="@color/transparent"/>
+    <ImageButton
+        android:id="@+id/btnConfirmRename"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:scaleType="centerCrop"
+        android:paddingHorizontal="4dp"
+        android:visibility="gone"
+        android:layout_marginHorizontal="4dp"
+        android:background="@color/transparent"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_tick"
+        app:tint="@color/white"/>
     <ImageButton
         android:id="@+id/btnMoreOptions"
         android:layout_width="32dp"

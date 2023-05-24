@@ -35,4 +35,8 @@ public class ProjectModel {
     public void addBoard(BoardContentModel newBoard) {
         this.boards.add(newBoard);
     }
+    public void removeBoardAt(int position) {
+        if (chosenPosition == position) chosenPosition = 0;
+        this.boards.remove(position);
+    }
 }

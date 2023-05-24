@@ -44,9 +44,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderModel, BoardRowHeaderModel, BoardBaseItemModel> {
-    private BoardViewModel boardViewModel;
-    private Context mContext;
-    private OnClickHandlers handlers;
+    private final BoardViewModel boardViewModel;
+    private final Context mContext;
+    private final OnClickHandlers handlers;
+    private TextView tvBoardTitle;
     public interface OnClickHandlers
             extends BoardStatusItemViewHolder.StatusItemClickHandlers,
                     BoardUserItemViewHolder.UserItemClickHandler,
@@ -66,6 +67,7 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
         this.boardViewModel = new BoardViewModel();
         this.handlers = handlers;
     }
+
     @NonNull
     @Override
     public AbstractViewHolder onCreateCellViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -103,6 +105,7 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
 
     @Override
     public void onBindCellViewHolder(@NonNull AbstractViewHolder holder, @Nullable BoardBaseItemModel cellItemModel, int columnPosition, int rowPosition) {
+        if (cellItemModel == null) return;
         String columnTitle = mColumnHeaderItems.get(columnPosition).getTitle();
         if (holder instanceof BoardStatusItemViewHolder) {
             ((BoardStatusItemViewHolder) holder).setItemModel((BoardStatusItemModel) cellItemModel, columnPosition, rowPosition);
@@ -141,17 +144,16 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
     @NonNull
     @Override
     public AbstractViewHolder onCreateRowHeaderViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View layout = LayoutInflater.from(parent.getContext()).inflate(R.layout.board_row_header_view, parent, false);
+        View layout = LayoutInflater
+                .from(parent.getContext())
+                .inflate(R.layout.board_row_header_view, parent, false);
         return new BoardRowHeaderViewHolder(layout);
     }
 
     @Override
     public void onBindRowHeaderViewHolder(@NonNull AbstractViewHolder holder, @Nullable BoardRowHeaderModel rowHeaderItemModel, int rowPosition) {
-        BoardRowHeaderModel model = rowHeaderItemModel;
         BoardRowHeaderViewHolder headerHolder = (BoardRowHeaderViewHolder) holder;
-        headerHolder.setRowHeaderModel(model);
-        headerHolder.container.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;
-        headerHolder.headerTitle.requestLayout();
+        headerHolder.setRowHeaderModel(rowHeaderItemModel);
 
         if (rowHeaderItemModel.getIsAddNewRowRow())
             headerHolder.itemView.setOnClickListener(view -> handlers.onNewRowHeaderClick());
@@ -161,7 +163,9 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
     @Override
     public View onCreateCornerView(@NonNull ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.board_corner_view, parent, false);
-        ((TextView) view.findViewById(R.id.tvBoardTitle)).setText(boardViewModel.getBoardTitle());
+        this.tvBoardTitle = view.findViewById(R.id.tvBoardTitle);
+        tvBoardTitle.setText(boardViewModel.getBoardTitle());
+
         return view;
     }
 
@@ -183,6 +187,10 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
                 boardViewModel.getRowHeaderModelList(),
                 boardViewModel.getCellModelList()
         );
+    }
+
+    public void renameBoard(String newTitle) {
+        if (!newTitle.isEmpty()) this.tvBoardTitle.setText(newTitle);
     }
 
     public void createNewColumn(BoardColumnHeaderModel.ColumnType columnType) {

@@ -26,7 +26,6 @@ public class BoardViewModel {
         try {
             return mColumnHeaderModelList.get(columnPosition).getColumnType().getKey();
         } catch (IndexOutOfBoundsException e) {
-            Log.e("INDEX OUT OF BOUND BOARD VIEW MODEL", "CON CONSD:KFJLSDFJLSDJFL:SDKKKKKKKKKKKKKKKKKK");
             return BoardColumnHeaderModel.ColumnType.NewColumn.getKey();
         }
     }
@@ -83,10 +82,9 @@ public class BoardViewModel {
     }
 
     private List<BoardColumnHeaderModel> createColumnHeaderModelList(BoardContentModel contentModel) {
-        contentModel.getColumnCells().add(new BoardColumnHeaderModel(
-                        BoardColumnHeaderModel.ColumnType.NewColumn,
-                        "+ New Column"));
-        return contentModel.getColumnCells();
+        List<BoardColumnHeaderModel> columnRow = new ArrayList<>(contentModel.getColumnCells());
+        columnRow.add(new BoardColumnHeaderModel(BoardColumnHeaderModel.ColumnType.NewColumn, "+ New Column"));
+        return columnRow;
     }
 
     public void addNewColumn(BoardColumnHeaderModel columnHeaderModel, List<BoardBaseItemModel> itemModels, int columnPosition) {

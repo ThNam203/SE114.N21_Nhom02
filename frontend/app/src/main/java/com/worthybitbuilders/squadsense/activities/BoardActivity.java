@@ -141,6 +141,8 @@ public class BoardActivity extends AppCompatActivity {
         // populate data
         projectModel = new ProjectModel(0, BoardTemplates.sampleBoardContent());
         boardAdapter.setBoardContent(projectModel.getBoards().get(projectModel.getChosenPosition()));
+
+        activityBinding.btnShowTables.setText(projectModel.getBoards().get(projectModel.getChosenPosition()).getBoardTitle());
         activityBinding.btnBack.setOnClickListener((view) -> onBackPressed());
         setContentView(activityBinding.getRoot());
     }
@@ -151,19 +153,45 @@ public class BoardActivity extends AppCompatActivity {
         BoardEditBoardsViewBinding binding = BoardEditBoardsViewBinding.inflate(getLayoutInflater());
         dialog.setContentView(binding.getRoot());
 
-        EditBoardsAdapter editBoardsAdapter = new EditBoardsAdapter(this.projectModel, position -> {
+        EditBoardsAdapter editBoardsAdapter = new EditBoardsAdapter(this.projectModel, this);
+        editBoardsAdapter.setHandlers(new EditBoardsAdapter.ClickHandlers() {
+            @Override
+            public void onRemoveClick(int position) {
+                projectModel.removeBoardAt(position);
+                editBoardsAdapter.notifyItemRemoved(position);
+                editBoardsAdapter.notifyItemRangeChanged(position, projectModel.getBoards().size());
+            }
 
+            @Override
+            public void onRenameClick(int position, String newTitle) {
+                projectModel.getBoards().get(position).setBoardTitle(newTitle);
+                editBoardsAdapter.notifyItemChanged(position);
+                if (position == projectModel.getChosenPosition()) {
+                    boardAdapter.renameBoard(newTitle);
+                    activityBinding.btnShowTables.setText(newTitle);
+                }
+            }
+
+            @Override
+            public void onItemClick(int position) {
+                if (position == projectModel.getChosenPosition()) {
+                    dialog.dismiss();
+                    return;
+                }
+                projectModel.setChosenPosition(position);
+                BoardContentModel newContent = projectModel.getBoards().get(position);
+                boardAdapter.setBoardContent(newContent);
+                activityBinding.btnShowTables.setText(newContent.getBoardTitle());
+                dialog.dismiss();
+            }
         });
         binding.rvBoards.setLayoutManager(new LinearLayoutManager(this));
         binding.rvBoards.setAdapter(editBoardsAdapter);
 
         binding.btnClose.setOnClickListener(view -> dialog.dismiss());
         binding.btnNewBoard.setOnClickListener(view -> {
-            Toast.makeText(this, "HEEIIEIE", Toast.LENGTH_LONG).show();
-//            projectModel.addBoard(new BoardContentModel());
-//            if (newRowTitle.isEmpty()) { dialog.dismiss(); return; }
-//            boardAdapter.createNewRow(newRowTitle);
-//            dialog.dismiss();
+            projectModel.addBoard(new BoardContentModel("New board", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+            editBoardsAdapter.notifyItemInserted(projectModel.getBoards().size() - 1);
         });
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -252,9 +280,8 @@ public class BoardActivity extends AppCompatActivity {
                 if (position >= itemModel.getContents().size()) return;
                 if (Objects.equals(itemModel.getContent(), itemModel.getContents().get(position))) itemModel.setContent("");
                 itemModel.removeContentAt(position);
-                statusEditItemAdapter.notifyDataSetChanged();
-                // THIS IS BUGGED
-                // statusEditItemAdapter.notifyItemRemoved(position);
+                statusEditItemAdapter.notifyItemRemoved(position);
+                statusEditItemAdapter.notifyItemRangeChanged(position, itemModel.getContents().size());
             }
         });
         binding.rvStatusItems.setLayoutManager(new LinearLayoutManager(BoardActivity.this, LinearLayoutManager.VERTICAL, false));
