@@ -16,6 +16,7 @@ import com.worthybitbuilders.squadsense.MainActivity;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.ViewModels.LoginViewModel;
 import com.worthybitbuilders.squadsense.databinding.PageLoginBinding;
+import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -28,6 +29,7 @@ public class LogInActivity extends AppCompatActivity {
     private PageLoginBinding binding;
     LoginViewModel loginViewModel;
     GoogleSignInClient mGoogleSignInClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +39,8 @@ public class LogInActivity extends AppCompatActivity {
 
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
         setUpGoogleLogin();
+
+        SharedPreferencesManager.init(this);
 
         binding.loginEmail.addTextChangedListener(new TextWatcher() {
             @Override
@@ -92,6 +96,7 @@ public class LogInActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         stopLoadingIndicator();
+                        SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.USEREMAIL, inputEmail);
                         SwitchActivity.switchToActivity(LogInActivity.this, MainActivity.class);
                         finish();
                     }

@@ -101,27 +101,27 @@ public class NotificationFragment extends Fragment {
         inputEmail.requestFocus();
         AppCompatButton btnInvite = (AppCompatButton) dialog.findViewById(R.id.btn_invite);
 
-        btnInvite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String receiverEmail = inputEmail.getText().toString();
-                friendViewModel.checkUserByEmail(receiverEmail, new FriendViewModel.FriendRequestCallback() {
-                    @Override
-                    public void onSuccess(UserModel user) {
-                        Toast t = Toast.makeText(getContext(), user.getId().toString(), Toast.LENGTH_SHORT);
-                        t.setGravity(Gravity.TOP, 0, 0);
-                        t.show();
-                    }
-
-                    @Override
-                    public void onFailure(String message) {
-                        Toast t = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
-                        t.setGravity(Gravity.TOP, 0, 0);
-                        t.show();
-                    }
-                });
-            }
-        });
+//        btnInvite.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String receiverEmail = inputEmail.getText().toString();
+//                friendViewModel.checkUserByEmail(receiverEmail, new FriendViewModel.FriendRequestCallback() {
+//                    @Override
+//                    public void onSuccess(UserModel user) {
+//                        Toast t = Toast.makeText(getContext(), user.getId().toString(), Toast.LENGTH_SHORT);
+//                        t.setGravity(Gravity.TOP, 0, 0);
+//                        t.show();
+//                    }
+//
+//                    @Override
+//                    public void onFailure(String message) {
+//                        Toast t = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
+//                        t.setGravity(Gravity.TOP, 0, 0);
+//                        t.show();
+//                    }
+//                });
+//            }
+//        });
 
         //
 

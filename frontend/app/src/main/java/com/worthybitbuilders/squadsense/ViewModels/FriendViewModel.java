@@ -7,12 +7,16 @@ import androidx.lifecycle.ViewModel;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.worthybitbuilders.squadsense.Models.ErrorResponse;
+import com.worthybitbuilders.squadsense.Models.FriendRequest;
 import com.worthybitbuilders.squadsense.Models.UserModel;
 import com.worthybitbuilders.squadsense.services.FriendService;
 import com.worthybitbuilders.squadsense.services.RetrofitServices;
 import com.worthybitbuilders.squadsense.services.UserService;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -30,14 +34,13 @@ public class FriendViewModel extends ViewModel {
         return !email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    public void checkUserByEmail (String reveiverEmail, FriendRequestCallback callback) {
-        Call<UserModel> user = friendService.getUserByEmail(reveiverEmail);
-        user.enqueue(new Callback<UserModel>() {
+    public void requestByEmail (String senderEmail, String reveiverEmail, FriendRequestCallback callback) {
+        Call<FriendRequest> result = friendService.createRequest(new FriendRequest(senderEmail, reveiverEmail));
+        result.enqueue(new Callback<FriendRequest>() {
             @Override
-            public void onResponse(Call<UserModel> call, Response<UserModel> response) {
+            public void onResponse(Call<FriendRequest> call, Response<FriendRequest> response) {
                 if (response.isSuccessful()) {
-                    UserModel result = response.body();
-                    callback.onSuccess(result);
+                    callback.onSuccess();
                 }
                 else {
                     ErrorResponse err = null;
@@ -51,14 +54,14 @@ public class FriendViewModel extends ViewModel {
             }
 
             @Override
-            public void onFailure(Call<UserModel> call, Throwable t) {
+            public void onFailure(Call<FriendRequest> call, Throwable t) {
                 callback.onFailure(t.getMessage());
             }
         });
     }
 
     public interface FriendRequestCallback {
-        public void onSuccess(UserModel user);
+        public void onSuccess();
         public void onFailure(String message);
     }
 }

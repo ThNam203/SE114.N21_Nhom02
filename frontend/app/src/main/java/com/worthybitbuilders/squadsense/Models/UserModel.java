@@ -9,7 +9,8 @@ public class UserModel {
     private String profileImagePath;
     private String location;
 
-    public UserModel(String email, String password) {
+    public UserModel(String name, String email, String password) {
+        this.name = name;
         this.email = email;
         this.password = password;
     }

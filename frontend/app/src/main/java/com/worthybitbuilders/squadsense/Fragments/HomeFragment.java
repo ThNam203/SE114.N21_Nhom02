@@ -31,8 +31,10 @@ import android.widget.Toast;
 import com.worthybitbuilders.squadsense.Models.UserModel;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.ViewModels.FriendViewModel;
+import com.worthybitbuilders.squadsense.activities.LogInActivity;
 import com.worthybitbuilders.squadsense.activities.page_add_board;
 import com.worthybitbuilders.squadsense.activities.page_search;
+import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
 
 public class HomeFragment extends Fragment {
@@ -58,6 +60,7 @@ public class HomeFragment extends Fragment {
         inputSearchLabel = v.findViewById(R.id.input_search_label);
         layout = v.findViewById(R.id.home_fragment);
         friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
+        SharedPreferencesManager.init(getContext());
 
         //set onclick buttons here
         btn_myfavorities.setOnClickListener(new View.OnClickListener() {
@@ -150,10 +153,15 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String receiverEmail = inputEmail.getText().toString();
-                friendViewModel.checkUserByEmail(receiverEmail, new FriendViewModel.FriendRequestCallback() {
+                if(!friendViewModel.IsValidEmail(receiverEmail))
+                {
+                    Toast.makeText(getContext(), "Invalid email", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                friendViewModel.requestByEmail(SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USEREMAIL), receiverEmail, new FriendViewModel.FriendRequestCallback() {
                     @Override
-                    public void onSuccess(UserModel user) {
-                        Toast t = Toast.makeText(getContext(), user.getId().toString(), Toast.LENGTH_SHORT);
+                    public void onSuccess() {
+                        Toast t = Toast.makeText(getContext(), "request was sent to " + receiverEmail + "!!", Toast.LENGTH_SHORT);
                         t.setGravity(Gravity.TOP, 0, 0);
                         t.show();
                     }

@@ -26,6 +26,8 @@ import com.worthybitbuilders.squadsense.databinding.ActivitySignUpBinding;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
 
+import java.util.UUID;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -81,9 +83,10 @@ public class SignUpActivity extends AppCompatActivity {
             }
 
             startLoadingIndicator();
+            String name = String.valueOf(binding.name.getText());
             String email = String.valueOf(binding.etEmail.getText());
             String password = String.valueOf(binding.etPassword.getText());
-            UserModel newUser = new UserModel(email, password);
+            UserModel newUser = new UserModel(name, email, password);
             viewModel.signUp(newUser, new SignUpViewModel.SignUpCallback() {
                 @Override
                 public void onSuccess() {

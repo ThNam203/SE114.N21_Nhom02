@@ -55,7 +55,6 @@ exports.getUserById = asyncCatch(async (req, res, next) => {
     const user = await User.findById(userId)
     if (!user) return next(new AppError('No user found!', 400))
 
-    console.log(typeof user.id)
     res.status(200).json(user)
 })
 
@@ -71,7 +70,6 @@ exports.getUserByEmail = asyncCatch(async (req, res, next) => {
     const user = await User.findOne({ email })
     if (!user) return next(new AppError('No email found!', 400))
 
-    user._id = user._id.toString()
     res.status(200).json(user)
 })
 
