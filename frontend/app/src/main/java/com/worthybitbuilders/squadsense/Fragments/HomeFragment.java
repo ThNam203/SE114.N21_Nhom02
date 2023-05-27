@@ -18,7 +18,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -28,98 +27,85 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.worthybitbuilders.squadsense.databinding.FragmentHomeBinding;
 import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.viewmodels.FriendViewModel;
 import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
-import com.worthybitbuilders.squadsense.activities.page_add_board;
-import com.worthybitbuilders.squadsense.activities.page_search;
+import com.worthybitbuilders.squadsense.activities.AddBoardActivity;
+import com.worthybitbuilders.squadsense.activities.SearchActivity;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
 
 public class HomeFragment extends Fragment {
 
-    RelativeLayout layout = null;
-    Button btn_myfavorities = null;
-    ImageButton btn_addperson = null;
-    ImageButton btn_add = null;
-    EditText inputSearchLabel = null;
-
+    private FragmentHomeBinding binding;
     FriendViewModel friendViewModel;
     UserViewModel userViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        View v = inflater.inflate(R.layout.fragment_home, container, false);
-
-        //Init variables here
-        btn_myfavorities = v.findViewById(R.id.btn_myfavorites);
-        btn_addperson = v.findViewById(R.id.btn_addperson);
-        btn_add = v.findViewById(R.id.btn_add);
-        inputSearchLabel = v.findViewById(R.id.input_search_label);
-        layout = v.findViewById(R.id.home_fragment);
+        binding = FragmentHomeBinding.inflate(getLayoutInflater());
         friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         SharedPreferencesManager.init(getContext());
 
         //set onclick buttons here
-        btn_myfavorities.setOnClickListener(new View.OnClickListener() {
+        binding.btnMyfavorites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 btn_myfavorities_showPopup();
             }
         });
-        btn_addperson.setOnClickListener(new View.OnClickListener() {
+        binding.btnAddperson.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 btn_addperson_showPopup();
 
             }
         });
-        btn_add.setOnClickListener(new View.OnClickListener() {
+        binding.btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 btnAdd_showPopup();
             }
         });
-        inputSearchLabel.setOnTouchListener(new View.OnTouchListener() {
+        binding.labelSearch.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 int action = motionEvent.getAction() & MotionEvent.ACTION_MASK;
 
                 if (action == MotionEvent.ACTION_UP) {
-                    inputSearch_showActivity();
+                    labelSearch_showActivity();
                 }
                 return true;
             }
         });
-        return v;
+        return binding.getRoot();
     }
 
 
     //define function here
     private void btnAdd_showPopup() {
-        LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = layoutInflater.inflate(R.layout.popup_btn_add, null);
-
+        View popupView = getLayoutInflater().inflate(R.layout.popup_btn_add, null);
+        View layout = binding.getRoot();
         int width = ViewGroup.LayoutParams.MATCH_PARENT;
         int height = ViewGroup.LayoutParams.MATCH_PARENT;
 
-        PopupWindow popupBtnAdd = new PopupWindow(popupView,width,height, true);
-        popupBtnAdd.setAnimationStyle(R.style.PopupAnimationRight);
+        PopupWindow popupWindow = new PopupWindow(popupView,width,height, true);
+        popupWindow.setAnimationStyle(R.style.PopupAnimationRight);
         layout.post(new Runnable() {
             @Override
             public void run() {
-                popupBtnAdd.showAtLocation(layout, Gravity.RIGHT, 0, 550);
+                popupWindow.showAtLocation(layout, Gravity.RIGHT, 0, 550);
             }
         });
 
         popupView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                popupBtnAdd.dismiss();
+                popupWindow.dismiss();
                 return true;
             }
         });
@@ -234,7 +220,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void btn_add_board_showPopup() {
-        SwitchActivity.switchToActivity(getContext(), page_add_board.class);
+        SwitchActivity.switchToActivity(getContext(), AddBoardActivity.class);
     }
 
     private void btn_myfavorities_showPopup() {
@@ -301,7 +287,7 @@ public class HomeFragment extends Fragment {
         if(tickState)  tick.setVisibility(View.VISIBLE);
         else tick.setVisibility(View.INVISIBLE);
     }
-    private void inputSearch_showActivity() {
-        SwitchActivity.switchToActivity(getContext(), page_search.class);
+    private void labelSearch_showActivity() {
+        SwitchActivity.switchToActivity(getContext(), SearchActivity.class);
     }
 }

@@ -8,23 +8,23 @@ import android.widget.ImageButton;
 
 import com.worthybitbuilders.squadsense.R;
 
-public class page_myteam extends AppCompatActivity {
+public class SearchEverywhereActivity extends AppCompatActivity {
 
     ImageButton btnBack = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.page_myteam);
+        setContentView(R.layout.page_search_everywhere);
         getSupportActionBar().hide();
 
-        //Init variables here
+        //init variables here
         btnBack = (ImageButton) findViewById(R.id.btn_back);
 
         //set onclick buttons here
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                page_myteam.super.onBackPressed();
+                SearchEverywhereActivity.super.onBackPressed();
             }
         });
     }

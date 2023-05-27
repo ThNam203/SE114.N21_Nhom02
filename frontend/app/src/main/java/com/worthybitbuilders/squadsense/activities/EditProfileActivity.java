@@ -14,7 +14,7 @@ import android.widget.ImageButton;
 
 import com.worthybitbuilders.squadsense.R;
 
-public class page_edit_profile extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity {
 
     ImageButton btnBack = null;
     ImageButton btnCamera = null;
@@ -35,7 +35,7 @@ public class page_edit_profile extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                page_edit_profile.super.onBackPressed();
+                EditProfileActivity.super.onBackPressed();
             }
         });
 

@@ -8,9 +8,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.worthybitbuilders.squadsense.R;
-import com.worthybitbuilders.squadsense.utils.SwitchActivity;
 
-public class page_add_board extends AppCompatActivity {
+public class AddBoardActivity extends AppCompatActivity {
 
     ImageButton btnClose = null;
 
@@ -29,7 +28,7 @@ public class page_add_board extends AppCompatActivity {
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                page_add_board.super.onBackPressed();
+                AddBoardActivity.super.onBackPressed();
             }
         });
         btnNewBoard.setOnClickListener(new View.OnClickListener() {
