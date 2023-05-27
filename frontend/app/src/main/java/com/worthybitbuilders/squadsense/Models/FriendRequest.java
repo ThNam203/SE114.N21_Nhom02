@@ -1,27 +1,28 @@
-package com.worthybitbuilders.squadsense.Models;
+package com.worthybitbuilders.squadsense.models;
 
 public class FriendRequest {
-    private String senderEmail;
-    private String receiverEmail;
+    private String senderId;
+    private String receiverId;
 
-    public FriendRequest(String senderEmail, String receiverEmail)
+    public FriendRequest(String senderId, String receiverId)
     {
-        this.senderEmail = senderEmail;
-        this.receiverEmail = receiverEmail;
-    }
-    public String getSenderEmail() {
-        return senderEmail;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
     }
 
-    public void setSenderEmail(String senderEmail) {
-        this.senderEmail = senderEmail;
+    public String getSenderId() {
+        return senderId;
     }
 
-    public String getReceiverEmail() {
-        return receiverEmail;
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
 
-    public void setReceiverEmail(String receiverEmail) {
-        this.receiverEmail = receiverEmail;
+    public String getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
     }
 }

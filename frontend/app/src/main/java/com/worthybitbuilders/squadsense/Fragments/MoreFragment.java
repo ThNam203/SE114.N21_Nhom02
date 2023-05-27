@@ -1,4 +1,4 @@
-package com.worthybitbuilders.squadsense.Fragments;
+package com.worthybitbuilders.squadsense.fragments;
 
 import android.os.Bundle;
 
@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.worthybitbuilders.squadsense.activities.LogInActivity;
 import com.worthybitbuilders.squadsense.activities.page_inbox;
 import com.worthybitbuilders.squadsense.activities.page_myteam;
 import com.worthybitbuilders.squadsense.activities.page_notification_setting;
@@ -77,6 +78,7 @@ public class MoreFragment extends Fragment {
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SwitchActivity.switchToActivity(getContext(), LogInActivity.class);
                 getActivity().finish();
             }
         });

@@ -1,15 +1,13 @@
-package com.worthybitbuilders.squadsense.ViewModels;
+package com.worthybitbuilders.squadsense.viewmodels;
 
 import android.util.Patterns;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.gson.Gson;
-import com.worthybitbuilders.squadsense.Models.ErrorResponse;
-import com.worthybitbuilders.squadsense.Models.UserModel;
+import com.worthybitbuilders.squadsense.models.ErrorResponse;
+import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.services.RetrofitServices;
 import com.worthybitbuilders.squadsense.services.UserService;
 

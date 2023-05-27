@@ -1,4 +1,4 @@
-package com.worthybitbuilders.squadsense.Models;
+package com.worthybitbuilders.squadsense.models;
 
 public class ErrorResponse {
     private String message;

@@ -1,17 +1,15 @@
 package com.worthybitbuilders.squadsense.viewmodels;
 
-import android.util.Log;
+
 import android.util.Patterns;
 
 import androidx.lifecycle.ViewModel;
 
-import com.auth0.android.jwt.JWT;
 import com.google.gson.Gson;
 import com.worthybitbuilders.squadsense.models.ErrorResponse;
-import com.worthybitbuilders.squadsense.models.LoginRequest;
+import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.services.RetrofitServices;
 import com.worthybitbuilders.squadsense.services.UserService;
-import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 
 import java.io.IOException;
 
@@ -19,28 +17,24 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LoginViewModel extends ViewModel {
+public class UserViewModel extends ViewModel {
     private final UserService userService = RetrofitServices.getUserService();
 
-    public LoginViewModel() {}
+    public UserViewModel() {}
 
     public boolean IsValidEmail(String email)
     {
         return !email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    public void logIn (String email, String password, LogInCallback callback) {
-        Call<String> login = userService.loginUser(new LoginRequest(email, password));
-        login.enqueue(new Callback<String>() {
+    public void getUserByEmail (String email, UserCallback callback) {
+        Call<UserModel> result = userService.getUserByEmail(email);
+        result.enqueue(new Callback<UserModel>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(Call<UserModel> call, Response<UserModel> response) {
                 if (response.isSuccessful()) {
-                    String jwtString = response.body();
-                    Log.i("JWT", jwtString);
-                    SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.JWT, jwtString);
-                    JWT jwt = new JWT(jwtString);
-                    SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.USERID, jwt.getClaim("id").asString());
-                    callback.onSuccess();
+                    UserModel user = response.body();
+                    callback.onSuccess(user);
                 }
                 else {
                     ErrorResponse err = null;
@@ -54,14 +48,17 @@ public class LoginViewModel extends ViewModel {
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<UserModel> call, Throwable t) {
                 callback.onFailure(t.getMessage());
             }
         });
     }
 
-    public interface LogInCallback {
-        public void onSuccess();
+
+
+
+    public interface UserCallback {
+        public void onSuccess(UserModel user);
         public void onFailure(String message);
     }
 }

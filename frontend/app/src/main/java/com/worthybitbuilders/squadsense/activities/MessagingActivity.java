@@ -12,7 +12,7 @@ import android.view.View;
 import com.google.gson.Gson;
 import com.worthybitbuilders.squadsense.adapters.MessageAdapter;
 import com.worthybitbuilders.squadsense.databinding.ActivityMessagingBinding;
-import com.worthybitbuilders.squadsense.Models.ChatMessage;
+import com.worthybitbuilders.squadsense.models.ChatMessage;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;

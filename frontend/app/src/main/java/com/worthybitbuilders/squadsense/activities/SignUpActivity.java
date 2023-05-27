@@ -1,32 +1,21 @@
 package com.worthybitbuilders.squadsense.activities;
 
-import android.annotation.SuppressLint;
-
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowInsets;
 import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.worthybitbuilders.squadsense.Models.UserModel;
-import com.worthybitbuilders.squadsense.ViewModels.SignUpViewModel;
+import com.worthybitbuilders.squadsense.models.UserModel;
+import com.worthybitbuilders.squadsense.viewmodels.SignUpViewModel;
 import com.worthybitbuilders.squadsense.databinding.ActivitySignUpBinding;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
-
-import java.util.UUID;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.

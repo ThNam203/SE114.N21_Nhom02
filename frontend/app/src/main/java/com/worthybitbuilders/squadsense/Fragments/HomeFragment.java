@@ -1,4 +1,4 @@
-package com.worthybitbuilders.squadsense.Fragments;
+package com.worthybitbuilders.squadsense.fragments;
 
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
@@ -28,10 +28,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.worthybitbuilders.squadsense.Models.UserModel;
+import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.R;
-import com.worthybitbuilders.squadsense.ViewModels.FriendViewModel;
-import com.worthybitbuilders.squadsense.activities.LogInActivity;
+import com.worthybitbuilders.squadsense.viewmodels.FriendViewModel;
+import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
 import com.worthybitbuilders.squadsense.activities.page_add_board;
 import com.worthybitbuilders.squadsense.activities.page_search;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
@@ -46,6 +46,7 @@ public class HomeFragment extends Fragment {
     EditText inputSearchLabel = null;
 
     FriendViewModel friendViewModel;
+    UserViewModel userViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,6 +61,7 @@ public class HomeFragment extends Fragment {
         inputSearchLabel = v.findViewById(R.id.input_search_label);
         layout = v.findViewById(R.id.home_fragment);
         friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         SharedPreferencesManager.init(getContext());
 
         //set onclick buttons here
@@ -153,17 +155,31 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String receiverEmail = inputEmail.getText().toString();
+
                 if(!friendViewModel.IsValidEmail(receiverEmail))
                 {
                     Toast.makeText(getContext(), "Invalid email", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                friendViewModel.requestByEmail(SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USEREMAIL), receiverEmail, new FriendViewModel.FriendRequestCallback() {
+
+                userViewModel.getUserByEmail(receiverEmail, new UserViewModel.UserCallback() {
                     @Override
-                    public void onSuccess() {
-                        Toast t = Toast.makeText(getContext(), "request was sent to " + receiverEmail + "!!", Toast.LENGTH_SHORT);
-                        t.setGravity(Gravity.TOP, 0, 0);
-                        t.show();
+                    public void onSuccess(UserModel user) {
+                        friendViewModel.createRequest(SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USERID), user.getId(), new FriendViewModel.FriendRequestCallback() {
+                            @Override
+                            public void onSuccess() {
+                                Toast t = Toast.makeText(getContext(), "request was sent to " + receiverEmail + "!!", Toast.LENGTH_SHORT);
+                                t.setGravity(Gravity.TOP, 0, 0);
+                                t.show();
+                            }
+
+                            @Override
+                            public void onFailure(String message) {
+                                Toast t = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
+                                t.setGravity(Gravity.TOP, 0, 0);
+                                t.show();
+                            }
+                        });
                     }
 
                     @Override

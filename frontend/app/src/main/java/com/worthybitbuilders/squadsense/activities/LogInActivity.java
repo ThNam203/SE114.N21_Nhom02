@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.worthybitbuilders.squadsense.MainActivity;
 import com.worthybitbuilders.squadsense.R;
-import com.worthybitbuilders.squadsense.ViewModels.LoginViewModel;
+import com.worthybitbuilders.squadsense.viewmodels.LoginViewModel;
 import com.worthybitbuilders.squadsense.databinding.PageLoginBinding;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
@@ -124,7 +124,6 @@ public class LogInActivity extends AppCompatActivity {
     }
 
     private void setUpGoogleLogin() {
-        Toast.makeText(this, "Clicked", Toast.LENGTH_LONG).show();
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
@@ -132,7 +131,6 @@ public class LogInActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         binding.btnLoginGoogle.setOnClickListener(view -> {
-            Toast.makeText(this, "Clicked", Toast.LENGTH_LONG).show();
             Intent signInIntent = mGoogleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, 1);
         });

@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.worthybitbuilders.squadsense.R;
-import com.worthybitbuilders.squadsense.Models.ChatMessage;
+import com.worthybitbuilders.squadsense.models.ChatMessage;
 
 import java.util.List;
 

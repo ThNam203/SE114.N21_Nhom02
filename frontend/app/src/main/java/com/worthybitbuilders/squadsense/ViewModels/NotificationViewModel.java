@@ -1,38 +1,58 @@
 package com.worthybitbuilders.squadsense.viewmodels;
 
 
-import android.util.Patterns;
-
 import androidx.lifecycle.ViewModel;
-
 
 import com.google.gson.Gson;
 import com.worthybitbuilders.squadsense.models.ErrorResponse;
-import com.worthybitbuilders.squadsense.models.FriendRequest;
-import com.worthybitbuilders.squadsense.services.FriendService;
+import com.worthybitbuilders.squadsense.models.Notification;
+import com.worthybitbuilders.squadsense.services.NotificationService;
 import com.worthybitbuilders.squadsense.services.RetrofitServices;
 
 import java.io.IOException;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FriendViewModel extends ViewModel {
-    private final FriendService friendService = RetrofitServices.getFriendService();
+public class NotificationViewModel extends ViewModel {
+    private final NotificationService notificationService = RetrofitServices.getNotificationService();
 
-    public FriendViewModel() {}
+    public NotificationViewModel() {}
 
-    public boolean IsValidEmail(String email)
-    {
-        return !email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    public void getNotification (String userId, getNotificationCallback callback) {
+        Call<List<Notification>> result = notificationService.getNotificationByReceiverId(userId);
+        result.enqueue(new Callback<List<Notification>>() {
+            @Override
+            public void onResponse(Call<List<Notification>> call, Response<List<Notification>> response) {
+                if (response.isSuccessful()) {
+                    List<Notification> listNotification = response.body();
+                    callback.onSuccess(listNotification);
+                }
+                else {
+                    ErrorResponse err = null;
+                    try {
+                        err = new Gson().fromJson(response.errorBody().string(), ErrorResponse.class);
+                    } catch (IOException e) {
+                        callback.onFailure("Something has gone wrong!");
+                    }
+                    callback.onFailure(err.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Notification>> call, Throwable t) {
+                callback.onFailure(t.getMessage());
+            }
+        });
     }
 
-    public void createRequest (String senderId, String receiverId, FriendRequestCallback callback) {
-        Call<FriendRequest> result = friendService.createRequest(new FriendRequest(senderId, receiverId));
-        result.enqueue(new Callback<FriendRequest>() {
+    public void deleteNotification (String notificationId, deleteNotificationCallback callback) {
+        Call<Void> result = notificationService.deleteNotificationById(notificationId);
+        result.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<FriendRequest> call, Response<FriendRequest> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     callback.onSuccess();
                 }
@@ -48,41 +68,17 @@ public class FriendViewModel extends ViewModel {
             }
 
             @Override
-            public void onFailure(Call<FriendRequest> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 callback.onFailure(t.getMessage());
             }
         });
     }
 
-    public void reply (String senderId, String reveiverId, String response, FriendRequestCallback callback) {
-        Call<String> result = friendService.replyRequest(response, new FriendRequest(senderId, reveiverId));
-        result.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                if (response.isSuccessful()) {
-                    callback.onSuccess();
-                }
-                else {
-                    ErrorResponse err = null;
-                    try {
-                        err = new Gson().fromJson(response.errorBody().string(), ErrorResponse.class);
-                    } catch (IOException e) {
-                        callback.onFailure("Something has gone wrong!");
-                    }
-                    callback.onFailure(err.getMessage());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                callback.onFailure(t.getMessage());
-            }
-        });
+    public interface getNotificationCallback {
+        public void onSuccess(List<Notification> notificationData);
+        public void onFailure(String message);
     }
-
-
-
-    public interface FriendRequestCallback {
+    public interface deleteNotificationCallback {
         public void onSuccess();
         public void onFailure(String message);
     }

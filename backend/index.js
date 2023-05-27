@@ -7,6 +7,7 @@ const errorHandlers = require('./controllers/errorControllers/genericErrorContro
 const authRouter = require('./routers/authRouter')
 const userRouter = require('./routers/userRouter')
 const friendRouter = require('./routers/friendRouter')
+const notificationRouter = require('./routers/notificationRouter')
 
 const app = express()
 const server = http.createServer(app)
@@ -24,6 +25,7 @@ app.use(
 app.use('/', authRouter)
 app.use('/', userRouter)
 app.use('/', friendRouter)
+app.use('/', notificationRouter)
 app.use('*', errorHandlers.invalidUrlHandler)
 app.use(errorHandlers.globalErrorHandler)
 
