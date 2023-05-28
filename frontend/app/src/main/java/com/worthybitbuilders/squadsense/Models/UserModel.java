@@ -8,6 +8,8 @@ public class UserModel {
     private String phoneNumber;
     private String profileImagePath;
     private String location;
+    private String introduction;
+    private String birthday;
 
     public UserModel(String name, String email, String password) {
         this.name = name;
@@ -71,4 +73,19 @@ public class UserModel {
         this.location = location;
     }
 
+    public String getIntroduction() {
+        return introduction;
+    }
+
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
+    }
 }

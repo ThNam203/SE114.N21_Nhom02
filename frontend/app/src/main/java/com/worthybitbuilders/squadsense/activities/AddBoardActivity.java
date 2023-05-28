@@ -17,7 +17,7 @@ public class AddBoardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.page_add_board);
+        setContentView(R.layout.activity_add_board);
         getSupportActionBar().hide();
 
         //Init variables here

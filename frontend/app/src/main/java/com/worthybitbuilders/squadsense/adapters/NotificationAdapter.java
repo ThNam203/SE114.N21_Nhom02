@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -90,13 +91,14 @@ public class NotificationAdapter extends RecyclerView.Adapter {
     }
 
     private class FriendRequestNotificationHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvContent;
+        TextView tvTitle, tvContent, tvTimestamps;
         AppCompatButton btnAccept, btnDeny;
 
         FriendRequestNotificationHolder(View itemView) {
             super(itemView);
             tvTitle = (TextView) itemView.findViewById(R.id.title);
             tvContent = (TextView) itemView.findViewById(R.id.content);
+            tvTimestamps = (TextView) itemView.findViewById(R.id.timestamps);
             btnAccept = (AppCompatButton) itemView.findViewById(R.id.btn_accept);
             btnDeny = (AppCompatButton) itemView.findViewById(R.id.btn_deny);
         }
@@ -104,6 +106,8 @@ public class NotificationAdapter extends RecyclerView.Adapter {
         void bind(Notification notification, int position) {
             tvTitle.setText(notification.getTitle());
             tvContent.setText(notification.getContent());
+            tvTimestamps.setText(notification.getTimeCreated());
+
             btnAccept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -121,19 +125,22 @@ public class NotificationAdapter extends RecyclerView.Adapter {
 
 
     private class NewMessageNotificationHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvContent;
-        View view;
+        TextView tvTitle, tvContent, tvTimestamps;
+        ImageButton btnMore;
         NewMessageNotificationHolder(View itemView) {
             super(itemView);
             tvTitle = (TextView) itemView.findViewById(R.id.title);
             tvContent = (TextView) itemView.findViewById(R.id.content);
-            view = itemView;
+            tvTimestamps = (TextView) itemView.findViewById(R.id.timestamps);
+            btnMore = (ImageButton) itemView.findViewById(R.id.btn_more);
         }
 
         void bind(Notification notification, int position) {
             tvTitle.setText(notification.getTitle());
             tvContent.setText(notification.getContent());
-            view.setOnClickListener(new View.OnClickListener() {
+            tvTimestamps.setText(notification.getTimeCreated());
+
+            btnMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     callback.OnShowingOption(position);

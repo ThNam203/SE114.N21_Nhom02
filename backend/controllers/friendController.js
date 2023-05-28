@@ -19,6 +19,7 @@ const sendNotificationOnReply = async (sender, receiver, isAccept) => {
         notificationType: 'NewMessage',
         title: sender.name,
         content: message,
+        timestamp: Date.now(),
     })
 
     await Notification.findOneAndDelete({
@@ -36,6 +37,7 @@ const sendNotificationOnRequest = async (sender, receiver) => {
         notificationType: 'FriendRequest',
         title: sender.name,
         content: message,
+        timestamp: Date.now(),
     })
 }
 

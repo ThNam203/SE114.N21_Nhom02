@@ -22,32 +22,33 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.worthybitbuilders.squadsense.activities.NotificationSettingActivity;
 import com.worthybitbuilders.squadsense.models.Notification;
 import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.R;
-import com.worthybitbuilders.squadsense.viewmodels.FriendViewModel;
-import com.worthybitbuilders.squadsense.viewmodels.NotificationViewModel;
-import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
+import com.worthybitbuilders.squadsense.utils.Activity;
+import com.worthybitbuilders.squadsense.utils.Convert;
 import com.worthybitbuilders.squadsense.adapters.NotificationAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentNotificationBinding;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
+import com.worthybitbuilders.squadsense.viewmodels.FriendViewModel;
+import com.worthybitbuilders.squadsense.viewmodels.NotificationViewModel;
+import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
 public class NotificationFragment extends Fragment {
-
-    private Button selectedButton = null;
     private List<Button> buttonList = new ArrayList<>();
     private FragmentNotificationBinding binding;
     private NotificationViewModel notificationViewModel;
     private FriendViewModel friendViewModel;
-
     private NotificationAdapter notificationAdapter;
-
     private UserViewModel userViewModel;
-    private List<Notification> listNotification = new ArrayList<>();
+    private List<Notification> listNotification = new ArrayList<>(); //work as data to put in recyclerview
+    private List<Notification> tempListNotification = new ArrayList<>(); //work as cache, it use to store all notifications got from server
 
     private Notification selectedNotification;
     @Override
@@ -59,23 +60,19 @@ public class NotificationFragment extends Fragment {
         notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
+        binding.recyclerviewNotification.setLayoutManager(new LinearLayoutManager(getContext()));
+        notificationAdapter = new NotificationAdapter(getContext(), listNotification);
+
         setupBtnList();
 
         notificationViewModel.getNotification(SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USERID), new NotificationViewModel.getNotificationCallback() {
             @Override
             public void onSuccess(List<Notification> notificationsData) {
                 for (Notification item : notificationsData) {
-                    Notification notification = new Notification();
-                    notification.setId(item.getId());
-                    notification.setSenderId(item.getSenderId());
-                    notification.setReceiverId(item.getReceiverId());
-                    notification.setNotificationType(item.getNotificationType());
-                    notification.setTitle(item.getTitle());
-                    notification.setContent(item.getContent());
-                    notification.setIsRead(item.getIsRead());
-                    notification.setLink(item.getLink());
-                    listNotification.add(notification);
+                    listNotification.add(item);
+                    tempListNotification.add(item);
                 }
+                binding.recyclerviewNotification.setAdapter(notificationAdapter);
                 ReloadNotificationView();
             }
 
@@ -87,17 +84,14 @@ public class NotificationFragment extends Fragment {
             }
         });
 
-        binding.recyclerviewNotification.setLayoutManager(new LinearLayoutManager(getContext()));
-        notificationAdapter = new NotificationAdapter(getContext(), listNotification);
-        binding.recyclerviewNotification.setAdapter(notificationAdapter);
-
         notificationAdapter.setOnReplyListener(new NotificationAdapter.OnActionCallback() {
             @Override
             public void OnAccept(int position) {
                 String response = "Accept";
-                Reply(response, position);
+                ReplyFriendRequest(response, position);
 
                 listNotification.remove(position);
+                tempListNotification.remove(position);
                 binding.recyclerviewNotification.setAdapter(notificationAdapter);
                 ReloadNotificationView();
             }
@@ -105,9 +99,10 @@ public class NotificationFragment extends Fragment {
             @Override
             public void OnDeny(int position) {
                 String response = "Deny";
-                Reply(response, position);
+                ReplyFriendRequest(response, position);
 
                 listNotification.remove(position);
+                tempListNotification.remove(position);
                 binding.recyclerviewNotification.setAdapter(notificationAdapter);
                 ReloadNotificationView();
             }
@@ -116,7 +111,78 @@ public class NotificationFragment extends Fragment {
             public void OnShowingOption(int position) {
                 View notification = binding.recyclerviewNotification.getChildAt(position);
                 registerForContextMenu(notification);
+                getActivity().openContextMenu(notification);
                 selectedNotification = listNotification.get(position);
+            }
+        });
+
+        binding.btnAllNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listNotification.clear();
+
+                //get all notification
+                for (Notification item : tempListNotification)
+                {
+                    listNotification.add(item);
+                }
+
+                //reload view of list
+                binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                ReloadNotificationView();
+
+                //change color button selected
+                for (Button btn : buttonList)
+                {
+                    btn.setSelected(false);
+                }
+                binding.btnAllNotification.setSelected(true);
+            }
+        });
+
+        binding.btnTodayNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listNotification.clear();
+
+                //get today notification
+                String dateNow = Convert.DateToString(new Date(), Convert.Pattern.DAY_MONTH_YEAR);
+                for (Notification item : tempListNotification)
+                {
+                    if(item.getTimeCreatedDMY().equals(dateNow))
+                    {
+                        listNotification.add(item);
+                    }
+                }
+
+                //reload view of list
+                binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                ReloadNotificationView();
+
+                //change color button selected
+                for (Button btn : buttonList)
+                {
+                    btn.setSelected(false);
+                }
+                binding.btnTodayNotification.setSelected(true);
+            }
+        });
+
+        binding.btnMentionedNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listNotification.clear();
+
+                //reload view of list
+                binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                ReloadNotificationView();
+
+                //change color button selected
+                for (Button btn : buttonList)
+                {
+                    btn.setSelected(false);
+                }
+                binding.btnMentionedNotification.setSelected(true);
             }
         });
 
@@ -140,31 +206,16 @@ public class NotificationFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.option_mark_as_read:
-                selectedNotification.setIsRead(true);
+            case R.id.option_setting:
+                Activity.switchToActivity(getContext(), NotificationSettingActivity.class);
                 return true;
             case R.id.option_delete:
-            {
-                notificationViewModel.deleteNotification(selectedNotification.getId(), new NotificationViewModel.deleteNotificationCallback() {
-                    @Override
-                    public void onSuccess() {
-                        Toast t = Toast.makeText(getContext(), "notification deleted", Toast.LENGTH_SHORT);
-                        t.setGravity(Gravity.TOP, 0, 0);
-                        t.show();
-                    }
-
-                    @Override
-                    public void onFailure(String message) {
-                        Toast t = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
-                        t.setGravity(Gravity.TOP, 0, 0);
-                        t.show();
-                    }
-                });
+                DeleteNotification(selectedNotification.getId());
                 listNotification.remove(selectedNotification);
+                tempListNotification.remove(selectedNotification);
                 binding.recyclerviewNotification.setAdapter(notificationAdapter);
                 ReloadNotificationView();
                 return true;
-            }
             default:
                 return super.onContextItemSelected(item);
         }
@@ -184,7 +235,7 @@ public class NotificationFragment extends Fragment {
         }
     }
 
-    private void Reply(String response, int position){
+    private void ReplyFriendRequest(String response, int position){
         String replierId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USERID);
         String requestSender = listNotification.get(position).getSenderId();
         friendViewModel.reply(replierId, requestSender, response, new FriendViewModel.FriendRequestCallback() {
@@ -199,6 +250,24 @@ public class NotificationFragment extends Fragment {
             public void onFailure(String message) {
                 Toast t = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
                 t.setGravity(Gravity.TOP,0,0);
+                t.show();
+            }
+        });
+    }
+
+    private void DeleteNotification(String notificationId){
+        notificationViewModel.deleteNotification(notificationId, new NotificationViewModel.deleteNotificationCallback() {
+            @Override
+            public void onSuccess() {
+                Toast t = Toast.makeText(getContext(), "notification deleted", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.TOP, 0, 0);
+                t.show();
+            }
+
+            @Override
+            public void onFailure(String message) {
+                Toast t = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.TOP, 0, 0);
                 t.show();
             }
         });
@@ -276,25 +345,9 @@ public class NotificationFragment extends Fragment {
     {
         //Add button to list buttons in horizontal scrollview
         buttonList.add(binding.btnAllNotification);
-        buttonList.add(binding.btnUnreadNotification);
         buttonList.add(binding.btnMentionedNotification);
-        buttonList.add(binding.btnAssignToMeNotification);
         buttonList.add(binding.btnTodayNotification);
 
-        //Algorithm to set click buttons in horizontal scrollview to choose just one button each time
-        selectedButton = binding.btnAllNotification;
         binding.btnAllNotification.setSelected(true);
-
-        for(Button btn : buttonList)
-        {
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    selectedButton.setSelected(false);
-                    btn.setSelected(true);
-                    selectedButton = btn;
-                }
-            });
-        }
     }
 }

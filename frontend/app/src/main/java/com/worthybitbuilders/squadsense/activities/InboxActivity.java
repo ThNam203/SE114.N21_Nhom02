@@ -14,7 +14,7 @@ public class InboxActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.page_inbox);
+        setContentView(R.layout.activity_inbox);
         getSupportActionBar().hide();
 
         //Init variables here

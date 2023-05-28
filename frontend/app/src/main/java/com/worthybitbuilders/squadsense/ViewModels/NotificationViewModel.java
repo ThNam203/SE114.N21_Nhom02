@@ -74,6 +74,7 @@ public class NotificationViewModel extends ViewModel {
         });
     }
 
+
     public interface getNotificationCallback {
         public void onSuccess(List<Notification> notificationData);
         public void onFailure(String message);

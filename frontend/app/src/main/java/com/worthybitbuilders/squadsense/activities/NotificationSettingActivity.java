@@ -14,7 +14,7 @@ public class NotificationSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.page_notification_setting);
+        setContentView(R.layout.activity_notification_setting);
         getSupportActionBar().hide();
 
         //init variables here

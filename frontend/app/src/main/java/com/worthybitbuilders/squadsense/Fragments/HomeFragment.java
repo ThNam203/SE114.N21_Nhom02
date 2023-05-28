@@ -1,8 +1,6 @@
 package com.worthybitbuilders.squadsense.fragments;
 
 
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -23,7 +21,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +32,7 @@ import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
 import com.worthybitbuilders.squadsense.activities.AddBoardActivity;
 import com.worthybitbuilders.squadsense.activities.SearchActivity;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
-import com.worthybitbuilders.squadsense.utils.SwitchActivity;
+import com.worthybitbuilders.squadsense.utils.Activity;
 
 public class HomeFragment extends Fragment {
 
@@ -186,7 +183,6 @@ public class HomeFragment extends Fragment {
         });
         //
 
-
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
@@ -200,16 +196,6 @@ public class HomeFragment extends Fragment {
         dialog.setContentView(R.layout.popup_add_new_item);
 
         //Set activity of button in dialog here
-
-
-        //
-
-
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
-        dialog.show();
         ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
         btnClosePopup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -217,10 +203,17 @@ public class HomeFragment extends Fragment {
                 dialog.dismiss();
             }
         });
+
+        //
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.show();
     }
 
     private void btn_add_board_showPopup() {
-        SwitchActivity.switchToActivity(getContext(), AddBoardActivity.class);
+        Activity.switchToActivity(getContext(), AddBoardActivity.class);
     }
 
     private void btn_myfavorities_showPopup() {
@@ -274,11 +267,7 @@ public class HomeFragment extends Fragment {
                 updateButtonState(iconMyfavorite, titleMyfavorite, tickMyfavorite, chosenColor, true);
             }
         });
-
-        //
     }
-
-
 
     private void updateButtonState(ImageView icon, TextView title, ImageView tick, int color, boolean tickState)
     {
@@ -288,6 +277,6 @@ public class HomeFragment extends Fragment {
         else tick.setVisibility(View.INVISIBLE);
     }
     private void labelSearch_showActivity() {
-        SwitchActivity.switchToActivity(getContext(), SearchActivity.class);
+        Activity.switchToActivity(getContext(), SearchActivity.class);
     }
 }

@@ -14,7 +14,7 @@ public class SearchEverywhereActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.page_search_everywhere);
+        setContentView(R.layout.activity_search_everywhere);
         getSupportActionBar().hide();
 
         //init variables here

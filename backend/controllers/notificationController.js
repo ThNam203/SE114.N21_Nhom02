@@ -27,3 +27,12 @@ exports.deleteNotificationById = asyncCatch(async (req, res, next) => {
 
     res.status(200).end()
 })
+
+exports.updateReadNotification = asyncCatch(async (req, res, next) => {
+    const { notificationId } = req.params
+    const notification = await Notification.findById(notificationId)
+    if (!notification)
+        return next(new AppError('Unable to find the notification'))
+    notification.isRead = req.body.isRead
+    res.status(204).json(notification)
+})

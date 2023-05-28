@@ -46,6 +46,7 @@ notificationSchema.methods.createNewNotification = (req) =>
         content: req.body.content,
         isRead: req.body.isRead,
         link: req.body.link,
+        timestamps: req.body.timestamps,
     })
 
 module.exports = mongoose.model('Notification', notificationSchema)

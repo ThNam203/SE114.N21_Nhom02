@@ -23,22 +23,38 @@
                 android:layout_gravity="center"
                 android:layout_marginRight="10dp"
                 android:src="@drawable/ic_user" />
-            <RelativeLayout
-                android:layout_gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerInParent="true"
-                    android:text="Title"
-                    android:textColor="@color/white"
-                    android:textSize="24dp"
-                    android:textStyle="bold" />
-            </RelativeLayout>
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="center"
+                android:text="Title"
+                android:textColor="@color/primary_word_color"
+                android:textSize="24dp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/timestamps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="1/1/2000"
+                android:textColor="@color/primary_word_second_color"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+            <ImageButton
+                android:id="@+id/btn_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:backgroundTint="@color/transparent"
+                android:contentDescription="btn add person"
+                android:minHeight="48dp"
+                android:src="@drawable/ic_more_setting"
+                app:tint="@color/white" />
+
         </LinearLayout>
 
         <LinearLayout

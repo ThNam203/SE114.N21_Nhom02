@@ -11,4 +11,8 @@ router
     .route('/delete-notification/:notificationId')
     .get(notificationController.deleteNotificationById)
 
+router
+    .route('/update-notification')
+    .post(notificationController.updateReadNotification)
+
 module.exports = router

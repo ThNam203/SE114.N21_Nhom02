@@ -17,7 +17,7 @@ import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.viewmodels.LoginViewModel;
 import com.worthybitbuilders.squadsense.databinding.PageLoginBinding;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
-import com.worthybitbuilders.squadsense.utils.SwitchActivity;
+import com.worthybitbuilders.squadsense.utils.Activity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -76,8 +76,7 @@ public class LogInActivity extends AppCompatActivity {
         });
 
         binding.btnGoToSignUp.setOnClickListener((view) -> {
-            SwitchActivity.switchToActivity(this, SignUpActivity.class);
-            finish();
+            Activity.switchToActivity(this, SignUpActivity.class);
         });
 
         binding.btnNext.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +96,7 @@ public class LogInActivity extends AppCompatActivity {
                     public void onSuccess() {
                         stopLoadingIndicator();
                         SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.USEREMAIL, inputEmail);
-                        SwitchActivity.switchToActivity(LogInActivity.this, MainActivity.class);
+                        Activity.switchToActivity(LogInActivity.this, MainActivity.class);
                         finish();
                     }
 

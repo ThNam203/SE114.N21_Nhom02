@@ -55,6 +55,8 @@ exports.getUserById = asyncCatch(async (req, res, next) => {
     const user = await User.findById(userId)
     if (!user) return next(new AppError('No user found!', 400))
 
+    console.log(user)
+
     res.status(200).json(user)
 })
 
@@ -74,9 +76,9 @@ exports.getUserByEmail = asyncCatch(async (req, res, next) => {
     res.status(200).json(user)
 })
 
-exports.updateUserById = asyncCatch(async (req, res, next) => {
-    const { id } = req.params
-    const updatedUser = await User.findByIdAndUpdate(id, req.body, {
+exports.updateUser = asyncCatch(async (req, res, next) => {
+    const { _id } = req.body
+    const updatedUser = await User.findByIdAndUpdate(_id, req.body, {
         new: true,
         runValidators: true,
     })

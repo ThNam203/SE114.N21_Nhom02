@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
         },
         name: {
             type: String,
+            required: [true, 'Missing name property'],
             trim: true,
         },
         email: {
@@ -36,6 +37,14 @@ const userSchema = new mongoose.Schema(
             trim: true,
         },
         location: {
+            type: String,
+            trim: true,
+        },
+        introduction: {
+            type: String,
+            trim: true,
+        },
+        birthday: {
             type: String,
             trim: true,
         },

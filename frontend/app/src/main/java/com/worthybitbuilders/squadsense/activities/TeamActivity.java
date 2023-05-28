@@ -14,7 +14,7 @@ public class TeamActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.page_myteam);
+        setContentView(R.layout.activity_team);
         getSupportActionBar().hide();
 
         //Init variables here
