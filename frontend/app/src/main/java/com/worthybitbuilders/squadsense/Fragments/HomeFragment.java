@@ -3,12 +3,17 @@ package com.worthybitbuilders.squadsense.fragments;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,68 +29,75 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.worthybitbuilders.squadsense.R;
+import com.worthybitbuilders.squadsense.activities.BoardActivity;
 import com.worthybitbuilders.squadsense.activities.page_add_board;
 import com.worthybitbuilders.squadsense.activities.page_search;
+import com.worthybitbuilders.squadsense.adapters.ProjectAdapter;
+import com.worthybitbuilders.squadsense.databinding.FragmentHomeBinding;
+import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
+import com.worthybitbuilders.squadsense.viewmodels.MainActivityViewModel;
+
+import java.util.List;
 
 public class HomeFragment extends Fragment {
+    private FragmentHomeBinding binding;
+    private ProjectAdapter projectAdapter;
+    private MainActivityViewModel viewModel;
 
-    RelativeLayout layout = null;
-    Button btn_myfavorities = null;
-    ImageButton btn_addperson = null;
-    ImageButton btn_add = null;
-    EditText inputSearchLabel = null;
+    @SuppressLint({"ClickableViewAccessibility", "NotifyDataSetChanged"})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        binding = FragmentHomeBinding.inflate(getLayoutInflater());
+        viewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
 
-        View v = inflater.inflate(R.layout.fragment_home, container, false);
+        // THERE IS ONLY "ONFAILURE" method
+        viewModel.getAllProjects(message -> {
+            Toast.makeText(getContext(), "Unable to get your projects, please try again", Toast.LENGTH_LONG).show();
+        });
 
-        //Init variables here
-        btn_myfavorities = v.findViewById(R.id.btn_myfavorites);
-        btn_addperson = v.findViewById(R.id.btn_addperson);
-        btn_add = v.findViewById(R.id.btn_add);
-        inputSearchLabel = v.findViewById(R.id.input_search_label);
-        layout = v.findViewById(R.id.home_fragment);
+        viewModel.getProjectsLiveData().observe(getViewLifecycleOwner(), minimizedProjectModels -> {
+            if (minimizedProjectModels == null || minimizedProjectModels.size() == 0)
+                binding.emptyProjectsContainer.setVisibility(View.VISIBLE);
+            else binding.emptyProjectsContainer.setVisibility(View.GONE);
+            projectAdapter.setData(minimizedProjectModels);
+        });
+
+        projectAdapter = new ProjectAdapter(null, _id -> {
+            Intent intent = new Intent(getContext(), BoardActivity.class);
+            intent.putExtra("whatToDo", "fetch");
+            intent.putExtra("projectId", _id);
+            startActivity(intent);
+        });
+        binding.rvProjects.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.rvProjects.setHasFixedSize(true);
+        binding.rvProjects.setAdapter(projectAdapter);
 
         //set onclick buttons here
-        btn_myfavorities.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btn_myfavorities_showPopup();
-            }
-        });
-        btn_addperson.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btn_addperson_showPopup();
+        binding.btnMyfavorites.setOnClickListener(view -> btn_myfavorities_showPopup());
+        binding.btnAddperson.setOnClickListener(view -> btn_addperson_showPopup());
+        binding.btnAdd.setOnClickListener(view -> btnAdd_showPopup());
+        binding.inputSearchLabel.setOnTouchListener((view, motionEvent) -> {
+            int action = motionEvent.getAction() & MotionEvent.ACTION_MASK;
 
+            if (action == MotionEvent.ACTION_UP) {
+                inputSearch_showActivity();
             }
+            return true;
         });
-        btn_add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnAdd_showPopup();
-            }
-        });
-        inputSearchLabel.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                int action = motionEvent.getAction() & MotionEvent.ACTION_MASK;
 
-                if (action == MotionEvent.ACTION_UP) {
-                    inputSearch_showActivity();
-                }
-                return true;
-            }
-        });
-        return v;
+
+
+        return binding.getRoot();
     }
 
 
     //define function here
+    @SuppressLint("ClickableViewAccessibility")
     private void btnAdd_showPopup() {
         LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = layoutInflater.inflate(R.layout.popup_btn_add, null);
@@ -95,35 +107,17 @@ public class HomeFragment extends Fragment {
 
         PopupWindow popupBtnAdd = new PopupWindow(popupView,width,height, true);
         popupBtnAdd.setAnimationStyle(R.style.PopupAnimationRight);
-        layout.post(new Runnable() {
-            @Override
-            public void run() {
-                popupBtnAdd.showAtLocation(layout, Gravity.RIGHT, 0, 550);
-            }
-        });
+        binding.getRoot().post(() -> popupBtnAdd.showAtLocation(binding.getRoot(), Gravity.RIGHT, 0, 550));
 
-        popupView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                popupBtnAdd.dismiss();
-                return true;
-            }
+        popupView.setOnTouchListener((view, motionEvent) -> {
+            popupBtnAdd.dismiss();
+            return true;
         });
         LinearLayout btnAddItem = popupView.findViewById(R.id.btn_add_item);
-        btnAddItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btn_add_item_showPopup();
-            }
-        });
+        btnAddItem.setOnClickListener(view -> btn_add_item_showPopup());
 
         LinearLayout btnAddBoard = popupView.findViewById(R.id.btn_add_board);
-        btnAddBoard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btn_add_board_showPopup();
-            }
-        });
+        btnAddBoard.setOnClickListener(view -> btn_add_board_showPopup());
     }
 
     private void btn_addperson_showPopup() {

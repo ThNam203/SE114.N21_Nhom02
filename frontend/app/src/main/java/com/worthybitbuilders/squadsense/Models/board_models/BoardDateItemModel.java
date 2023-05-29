@@ -14,14 +14,27 @@ public class BoardDateItemModel extends BoardBaseItemModel {
     private int hour = -1;
     private int minute = -1;
     public BoardDateItemModel() {
-        super("");
+        super("", "Date");
     }
 
-    public BoardDateItemModel(String content, int year, int month, int day, int hour, int minute) {
-        super(content);
+    public BoardDateItemModel(int year, int month, int day, int hour, int minute) {
+        super("", "Date");
         this.year = year;
         this.month = month;
         this.day = day;
+        this.hour = hour;
+        this.minute = minute;
+    }
+
+    public BoardDateItemModel(int year, int month, int day) {
+        super("", "Date");
+        this.year = year;
+        this.month = month;
+        this.day = day;
+    }
+
+    public BoardDateItemModel(int hour, int minute) {
+        super("", "Date");
         this.hour = hour;
         this.minute = minute;
     }

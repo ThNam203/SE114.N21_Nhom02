@@ -1,14 +1,24 @@
 package com.worthybitbuilders.squadsense.models.board_models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class BoardColumnHeaderModel {
     public enum ColumnType {
+        @SerializedName("Status")
         Status(1, "Status"),
+        @SerializedName("Update")
         Update(2, "Update"),
+        @SerializedName("Text")
         Text(3, "Text"),
+        @SerializedName("Number")
         Number(4, "Number"),
+        @SerializedName("Timeline")
         TimeLine(5, "Timeline"),
+        @SerializedName("Date")
         Date(6, "Date"),
-        User(7, "People"),
+        @SerializedName("User")
+        User(7, "User"),
+        @SerializedName("Checkbox")
         Checkbox(8, "Checkbox"),
         NewColumn(9, "+ New Column");
 

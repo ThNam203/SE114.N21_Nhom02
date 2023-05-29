@@ -65,12 +65,12 @@ public class EditBoardsAdapter extends RecyclerView.Adapter<EditBoardsAdapter.Ed
     }
 
     public static class EditBoardItemViewHolder extends RecyclerView.ViewHolder {
-        private EditText etBoardName;
-        private TextView tvBoardName;
-        private ImageButton btnMoreOptions;
-        private LinearLayout container;
-        private ImageButton btnConfirmRename;
-        private Context context;
+        private final EditText etBoardName;
+        private final TextView tvBoardName;
+        private final ImageButton btnMoreOptions;
+        private final LinearLayout container;
+        private final ImageButton btnConfirmRename;
+        private final Context context;
         private ClickHandlers handlers;
         public EditBoardItemViewHolder(@NonNull View itemView, Context context) {
             super(itemView);

@@ -3,13 +3,28 @@ package com.worthybitbuilders.squadsense.models.board_models;
 import java.util.List;
 
 public class BoardContentModel {
+    private String _id;
     private String boardTitle;
     private List<String> rowCells;
     private List<BoardColumnHeaderModel> columnCells;
     // TODO: COLUMN SHOULD HOLD THE COLUMN TYPE, NOT THE CELL
     private List<List<BoardBaseItemModel>> cells;
 
+    /** This constructor is used for when data is fetched from server */
+    public BoardContentModel(String _id, String boardTitle, List<String> rowCells, List<BoardColumnHeaderModel> columnCells, List<List<BoardBaseItemModel>> cells) {
+        this._id = _id;
+        this.boardTitle = boardTitle;
+        this.rowCells = rowCells;
+        this.columnCells = columnCells;
+        this.cells = cells;
+    }
+
+    /**
+     * This constructor is used for client to make a new board
+     * The _id will be over-written when it's pushed and returned from server
+     */
     public BoardContentModel(String boardTitle, List<String> rowCells, List<BoardColumnHeaderModel> columnCells, List<List<BoardBaseItemModel>> cells) {
+        this._id = "server will recreate it later";
         this.boardTitle = boardTitle;
         this.rowCells = rowCells;
         this.columnCells = columnCells;

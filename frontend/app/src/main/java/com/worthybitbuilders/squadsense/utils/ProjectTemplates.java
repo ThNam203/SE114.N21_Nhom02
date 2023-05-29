@@ -3,15 +3,17 @@ package com.worthybitbuilders.squadsense.utils;
 import com.worthybitbuilders.squadsense.models.board_models.BoardBaseItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardColumnHeaderModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
+import com.worthybitbuilders.squadsense.models.board_models.BoardDateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardStatusItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTextItemModel;
+import com.worthybitbuilders.squadsense.models.board_models.BoardUpdateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUserItemModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoardTemplates {
-    public static List<BoardContentModel> sampleBoardContent() {
+public class ProjectTemplates {
+    public static List<BoardContentModel> sampleProjectContent() {
         List<String> rowTitles = new ArrayList<>();
         rowTitles.add("Nam");
         rowTitles.add("Dat");
@@ -61,8 +63,8 @@ public class BoardTemplates {
         cells.add(thirdRow);
         cells.add(fourthRow);
 
-        List<BoardContentModel> models = new ArrayList<>();
-        models.add(new BoardContentModel("Members", rowTitles, columnTitles, cells));
-        return models;
+        List<BoardContentModel> projectContent = new ArrayList<>();
+        projectContent.add(new BoardContentModel("Members", rowTitles, columnTitles, cells));
+        return projectContent;
     }
 }

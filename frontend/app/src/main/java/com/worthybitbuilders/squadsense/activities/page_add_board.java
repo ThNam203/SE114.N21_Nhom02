@@ -2,6 +2,7 @@ package com.worthybitbuilders.squadsense.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -35,7 +36,10 @@ public class page_add_board extends AppCompatActivity {
         btnNewBoard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SwitchActivity.switchToActivity(page_add_board.this, BoardActivity.class);
+                Intent boardIntent = new Intent(page_add_board.this, BoardActivity.class);
+                boardIntent.putExtra("whatToDo", "createNew");
+                finish();
+                startActivity(boardIntent);
             }
         });
     }

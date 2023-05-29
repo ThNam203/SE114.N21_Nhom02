@@ -5,7 +5,7 @@ public class BoardUserItemModel extends BoardBaseItemModel {
     private String userImagePath;
 
     public BoardUserItemModel() {
-        super("");
+        super("", "User");
         this.userId = "";
         this.userImagePath = "";
     }

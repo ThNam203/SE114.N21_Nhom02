@@ -28,9 +28,15 @@ public class LoginViewModel extends ViewModel {
 
     public LoginViewModel() {}
 
-    public boolean IsValidEmail(String email)
+    public boolean isValidEmail(String email)
     {
         return !email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    public boolean isAutoLogging() {
+        String jwt = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.JWT);
+        if (jwt.isEmpty()) return false;
+        return true;
     }
 
     public void logIn (String email, String password, LogInCallback callback) {
@@ -40,7 +46,6 @@ public class LoginViewModel extends ViewModel {
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful()) {
                     String jwtString = response.body();
-                    Log.i("JWT", jwtString);
                     SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.JWT, jwtString);
                     JWT jwt = new JWT(jwtString);
                     SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.USERID, jwt.getClaim("id").asString());
@@ -50,7 +55,7 @@ public class LoginViewModel extends ViewModel {
                     ErrorResponse err = null;
                     try {
                         err = new Gson().fromJson(response.errorBody().string(), ErrorResponse.class);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         callback.onFailure("Something has gone wrong!");
                     }
                     callback.onFailure(err.getMessage());

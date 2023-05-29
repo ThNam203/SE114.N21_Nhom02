@@ -21,11 +21,11 @@ public class BoardTimelineItemModel extends BoardBaseItemModel {
     private int endMonth = -1;
     private int endDay = -1;
     public BoardTimelineItemModel() {
-        super("");
+        super("", "Timeline");
     }
 
     public BoardTimelineItemModel(int startYear, int startMonth, int startDay, int endYear, int endMonth, int endDay) {
-        super("");
+        super("", "Timeline");
         this.startYear = startYear;
         this.startMonth = startMonth;
         this.startDay = startDay;

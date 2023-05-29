@@ -4,29 +4,20 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
-import com.google.android.material.snackbar.Snackbar;
-import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.ColorPickerDialog;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import com.worthybitbuilders.squadsense.R;
@@ -39,19 +30,16 @@ import com.worthybitbuilders.squadsense.databinding.BoardAddItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardAddNewRowPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardDateItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardEditBoardsViewBinding;
-import com.worthybitbuilders.squadsense.databinding.BoardNewBoardPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardNumberItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardStatusEditNewItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardStatusEditViewBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardStatusItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTextItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTimelineItemPopupBinding;
-import com.worthybitbuilders.squadsense.models.board_models.BoardBaseItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardCheckboxItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardColumnHeaderModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardDateItemModel;
-import com.worthybitbuilders.squadsense.models.board_models.BoardEmptyItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardNumberItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardStatusItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTextItemModel;
@@ -59,31 +47,30 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardTimelineItemMod
 import com.worthybitbuilders.squadsense.models.board_models.BoardUpdateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUserItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
-import com.worthybitbuilders.squadsense.utils.BoardTemplates;
 import com.worthybitbuilders.squadsense.utils.CustomUtils;
-
+import com.worthybitbuilders.squadsense.utils.DialogUtils;
+import com.worthybitbuilders.squadsense.viewmodels.BoardActivityViewModel;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import retrofit2.Call;
+
 public class BoardActivity extends AppCompatActivity {
     private TableViewAdapter boardAdapter;
-    private ProjectModel projectModel;
+    private final BoardActivityViewModel boardActivityViewModel = new BoardActivityViewModel();
     private ActivityBoardBinding activityBinding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Objects.requireNonNull(getSupportActionBar()).hide();
         activityBinding = ActivityBoardBinding.inflate(getLayoutInflater());
-
         activityBinding.btnShowTables.setOnClickListener(view -> showTables());
-
         boardAdapter = new TableViewAdapter(this, new TableViewAdapter.OnClickHandlers() {
             @Override
             public void OnTimelineItemClick(BoardTimelineItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
@@ -136,15 +123,66 @@ public class BoardActivity extends AppCompatActivity {
                 showTaskStatusPopup(itemModel, columnPos, rowPos);
             }
         });
-
         activityBinding.tableView.setAdapter(boardAdapter);
-        // populate data
-        projectModel = new ProjectModel(0, BoardTemplates.sampleBoardContent());
-        boardAdapter.setBoardContent(projectModel.getBoards().get(projectModel.getChosenPosition()));
 
-        activityBinding.btnShowTables.setText(projectModel.getBoards().get(projectModel.getChosenPosition()).getBoardTitle());
+        boardActivityViewModel.getProjectModelLiveData().observe(this, projectModel -> {
+            if (projectModel == null) return;
+            // set cells content
+            boardAdapter.setBoardContent(projectModel.getBoards().get(projectModel.getChosenPosition()));
+            // set board title for "more table" drop down
+            activityBinding.btnShowTables.setText(
+                    projectModel.getBoards()
+                            .get(projectModel.getChosenPosition())
+                            .getBoardTitle());
+        });
+
+        getDataForActivity();
         activityBinding.btnBack.setOnClickListener((view) -> onBackPressed());
         setContentView(activityBinding.getRoot());
+    }
+
+    /**
+     * TODO: better way to handle this ("fetch", "createNew")
+     * @whatToDo is the thing that specify how the activity should handle
+     * the case
+     * One is create new board, it needs to send and get data from server ("createNew")
+     * Two is fetch the board which is created before ("fetch")
+     */
+    private void getDataForActivity() {
+        Intent intent = getIntent();
+        String whatToDo = intent.getStringExtra("whatToDo");
+        Dialog loadingDialog = DialogUtils.GetLoadingDialog(this);
+        loadingDialog.show();
+        if (whatToDo.equals("createNew")) {
+            boardActivityViewModel.saveNewProjectToRemote(new BoardActivityViewModel.OnGettingProjectFromRemote() {
+                @Override
+                public void onSuccess() {
+                    loadingDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    Toast.makeText(BoardActivity.this, "Failed to create new project, please try again", Toast.LENGTH_LONG).show();
+                    loadingDialog.dismiss();
+                    finish();
+                }
+            });
+        } else {
+            String projectId = intent.getStringExtra("projectId");
+            boardActivityViewModel.getProjectById(projectId, new BoardActivityViewModel.OnGettingProjectFromRemote() {
+                @Override
+                public void onSuccess() {
+                    loadingDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    loadingDialog.dismiss();
+                    Toast.makeText(BoardActivity.this, message, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            });
+        }
     }
 
     private void showTables() {
@@ -153,20 +191,20 @@ public class BoardActivity extends AppCompatActivity {
         BoardEditBoardsViewBinding binding = BoardEditBoardsViewBinding.inflate(getLayoutInflater());
         dialog.setContentView(binding.getRoot());
 
-        EditBoardsAdapter editBoardsAdapter = new EditBoardsAdapter(this.projectModel, this);
+        EditBoardsAdapter editBoardsAdapter = new EditBoardsAdapter(this.boardActivityViewModel.getProjectModel(), this);
         editBoardsAdapter.setHandlers(new EditBoardsAdapter.ClickHandlers() {
             @Override
             public void onRemoveClick(int position) {
-                projectModel.removeBoardAt(position);
+                boardActivityViewModel.getProjectModel().removeBoardAt(position);
                 editBoardsAdapter.notifyItemRemoved(position);
-                editBoardsAdapter.notifyItemRangeChanged(position, projectModel.getBoards().size());
+                editBoardsAdapter.notifyItemRangeChanged(position, boardActivityViewModel.getProjectModel().getBoards().size());
             }
 
             @Override
             public void onRenameClick(int position, String newTitle) {
-                projectModel.getBoards().get(position).setBoardTitle(newTitle);
+                boardActivityViewModel.getProjectModel().getBoards().get(position).setBoardTitle(newTitle);
                 editBoardsAdapter.notifyItemChanged(position);
-                if (position == projectModel.getChosenPosition()) {
+                if (position == boardActivityViewModel.getProjectModel().getChosenPosition()) {
                     boardAdapter.renameBoard(newTitle);
                     activityBinding.btnShowTables.setText(newTitle);
                 }
@@ -174,12 +212,12 @@ public class BoardActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(int position) {
-                if (position == projectModel.getChosenPosition()) {
+                if (position == boardActivityViewModel.getProjectModel().getChosenPosition()) {
                     dialog.dismiss();
                     return;
                 }
-                projectModel.setChosenPosition(position);
-                BoardContentModel newContent = projectModel.getBoards().get(position);
+                boardActivityViewModel.getProjectModel().setChosenPosition(position);
+                BoardContentModel newContent = boardActivityViewModel.getProjectModel().getBoards().get(position);
                 boardAdapter.setBoardContent(newContent);
                 activityBinding.btnShowTables.setText(newContent.getBoardTitle());
                 dialog.dismiss();
@@ -190,8 +228,21 @@ public class BoardActivity extends AppCompatActivity {
 
         binding.btnClose.setOnClickListener(view -> dialog.dismiss());
         binding.btnNewBoard.setOnClickListener(view -> {
-            projectModel.addBoard(new BoardContentModel("New board", new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-            editBoardsAdapter.notifyItemInserted(projectModel.getBoards().size() - 1);
+            Dialog loadingDialog = DialogUtils.GetLoadingDialog(BoardActivity.this);
+            loadingDialog.show();
+            boardActivityViewModel.addNewBoardToProject(new BoardActivityViewModel.OnCreateAndSaveNewBoardToRemote() {
+                @Override
+                public void onSuccess() {
+                    editBoardsAdapter.notifyItemInserted(boardActivityViewModel.getProjectModel().getBoards().size() - 1);
+                    loadingDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    Toast.makeText(BoardActivity.this, "Unable to add new board, please try again", Toast.LENGTH_LONG).show();
+                    loadingDialog.dismiss();
+                }
+            });
         });
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -286,10 +337,10 @@ public class BoardActivity extends AppCompatActivity {
         });
         binding.rvStatusItems.setLayoutManager(new LinearLayoutManager(BoardActivity.this, LinearLayoutManager.VERTICAL, false));
         binding.rvStatusItems.setAdapter(statusEditItemAdapter);
-
         binding.btnAdd.setOnClickListener(view -> {
             showAddNewStatusDialog(clonedItemModel, statusEditItemAdapter);
         });
+
         binding.btnClose.setOnClickListener(view -> dialog.dismiss());
         binding.btnSave.setOnClickListener(view -> {
             statusItemModel.copyDataFromAnotherInstance(clonedItemModel);
