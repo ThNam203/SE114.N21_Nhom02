@@ -20,7 +20,7 @@ public class DialogUtils {
         View dialogView = LayoutInflater.from(context).inflate(R.layout.custom_loading_dialog, null, false);
         dialog.setContentView(dialogView);
         dialog.setCancelable(false);
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
         dialog.getWindow().setGravity(Gravity.CENTER);

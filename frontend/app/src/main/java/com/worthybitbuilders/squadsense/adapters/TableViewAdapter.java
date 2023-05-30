@@ -5,11 +5,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.evrencoskun.tableview.adapter.AbstractTableAdapter;
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder;
@@ -25,11 +25,9 @@ import com.worthybitbuilders.squadsense.adapters.holders.BoardTextItemViewHolder
 import com.worthybitbuilders.squadsense.adapters.holders.BoardTimelineItemViewHolder;
 import com.worthybitbuilders.squadsense.adapters.holders.BoardUpdateItemViewHolder;
 import com.worthybitbuilders.squadsense.adapters.holders.BoardUserItemViewHolder;
-import com.worthybitbuilders.squadsense.factory.BoardItemFactory;
 import com.worthybitbuilders.squadsense.models.board_models.BoardBaseItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardCheckboxItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardColumnHeaderModel;
-import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardDateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardNumberItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardRowHeaderModel;
@@ -39,9 +37,6 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardTimelineItemMod
 import com.worthybitbuilders.squadsense.models.board_models.BoardUpdateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUserItemModel;
 import com.worthybitbuilders.squadsense.viewmodels.BoardViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderModel, BoardRowHeaderModel, BoardBaseItemModel> {
     private final BoardViewModel boardViewModel;
@@ -62,10 +57,32 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
         void onNewRowHeaderClick();
     }
 
-    public TableViewAdapter(Context context, OnClickHandlers handlers) {
-        mContext = context;
-        this.boardViewModel = new BoardViewModel();
+    public TableViewAdapter(Context context, BoardViewModel boardViewModel, OnClickHandlers handlers) {
+        this.mContext = context;
+        this.boardViewModel = boardViewModel;
         this.handlers = handlers;
+
+        boardViewModel.getCellLiveData().observe((LifecycleOwner) mContext, lists -> {
+            if (lists == null) return;
+            setCellItems(lists);
+            notifyDataSetChanged();
+        });
+
+        boardViewModel.getColumnLiveData().observe((LifecycleOwner) mContext, boardColumnHeaderModels -> {
+            if (boardColumnHeaderModels == null) return;
+            setColumnHeaderItems(boardColumnHeaderModels);
+            notifyDataSetChanged();
+        });
+
+        boardViewModel.getRowLiveData().observe((LifecycleOwner) mContext, boardRowHeaderModels -> {
+            if (boardRowHeaderModels == null) return;
+            setRowHeaderItems(boardRowHeaderModels);
+            notifyDataSetChanged();
+        });
+
+        boardViewModel.getBoardTitleLiveData().observe((LifecycleOwner) mContext, newTitle -> {
+            if (newTitle != null && !newTitle.isEmpty() && this.tvBoardTitle != null) this.tvBoardTitle.setText(newTitle);
+        });
     }
 
     @NonNull
@@ -164,7 +181,7 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
     public View onCreateCornerView(@NonNull ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.board_corner_view, parent, false);
         this.tvBoardTitle = view.findViewById(R.id.tvBoardTitle);
-        tvBoardTitle.setText(boardViewModel.getBoardTitle());
+        this.tvBoardTitle.setText(boardViewModel.getBoardTitle());
 
         return view;
     }
@@ -177,43 +194,5 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
     @Override
     public int getColumnHeaderItemViewType(int columnPosition) {
         return boardViewModel.getCellItemViewType(columnPosition);
-    }
-
-    public void setBoardContent(BoardContentModel content) {
-        boardViewModel.setBoardTitle(content.getBoardTitle());
-        boardViewModel.generateDataForBoard(content);
-        setAllItems(
-                boardViewModel.getColumHeaderModeList(),
-                boardViewModel.getRowHeaderModelList(),
-                boardViewModel.getCellModelList()
-        );
-    }
-
-    public void renameBoard(String newTitle) {
-        if (!newTitle.isEmpty()) this.tvBoardTitle.setText(newTitle);
-    }
-
-    public void createNewColumn(BoardColumnHeaderModel.ColumnType columnType) {
-        BoardColumnHeaderModel newColumnModel = new BoardColumnHeaderModel(columnType, columnType.getName());
-        List<BoardBaseItemModel> itemModels = new ArrayList<>();
-
-        int columnPosition = mColumnHeaderItems.size() - 1;
-        for (int i = 0; i < mRowHeaderItems.size(); i++) {
-            BoardBaseItemModel newModel = BoardItemFactory.createNewItem(newColumnModel.getColumnType());
-            itemModels.add(newModel);
-        }
-        boardViewModel.addNewColumn(newColumnModel, itemModels, columnPosition);
-        setColumnHeaderItems(boardViewModel.getColumHeaderModeList());
-        setCellItems(boardViewModel.getCellModelList());
-        notifyDataSetChanged();
-    }
-
-    public void createNewRow(String title) {
-        BoardRowHeaderModel newRowHeaderModel = new BoardRowHeaderModel(title, false);
-        int columnPosition = mRowHeaderItems.size() - 1;
-        boardViewModel.addNewRow(newRowHeaderModel, columnPosition);
-        setCellItems(boardViewModel.getCellModelList());
-        setRowHeaderItems(boardViewModel.getRowHeaderModelList());
-        notifyDataSetChanged();
     }
 }

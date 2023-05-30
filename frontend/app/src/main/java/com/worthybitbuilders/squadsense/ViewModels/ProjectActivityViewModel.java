@@ -17,12 +17,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class BoardActivityViewModel extends ViewModel {
+public class ProjectActivityViewModel extends ViewModel {
     ProjectService projectService = RetrofitServices.getProjectService();
     private ProjectModel projectModel = null;
     private MutableLiveData<ProjectModel> projectModelLiveData = new MutableLiveData<>();
 
-    public BoardActivityViewModel() {}
+    public ProjectActivityViewModel() {}
 
     public void getProjectById(String projectId, OnGettingProjectFromRemote handler) {
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USERID);

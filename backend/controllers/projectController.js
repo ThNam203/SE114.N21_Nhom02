@@ -13,35 +13,100 @@ const createACell = async (cell) => {
     delete cell.cellType
     if (cell._id) delete cell._id
     switch (cellType) {
-        case 'Status':
+        case 'CellStatus':
             newCell = await cellModels.CellStatus.create(cell)
             break
-        case 'Upate':
+        case 'CellUpdate':
             newCell = await cellModels.CellUpdate.create(cell)
             break
-        case 'Text':
+        case 'CellText':
             newCell = await cellModels.CellText.create(cell)
             break
-        case 'Number':
+        case 'CellNumber':
             newCell = await cellModels.CellNumber.create(cell)
             break
-        case 'Timeline':
+        case 'CellTimeline':
             newCell = await cellModels.CellTimeline.create(cell)
             break
-        case 'Date':
+        case 'CellDate':
             newCell = await cellModels.CellDate.create(cell)
             break
-        case 'User':
+        case 'CellUser':
             newCell = await cellModels.CellUser.create({
                 ...cell,
                 userId: cell.userId ? cell.userId : null,
             })
             break
-        case 'Checkbox':
+        case 'CellCheckbox':
             newCell = await cellModels.CellCheckbox.create(cell)
             break
         default:
             throw new AppError('Unable to save a cell', 500)
+    }
+    return newCell
+}
+
+const updateACell = async (cell) => {
+    let newCell
+    switch (cell.cellType) {
+        case 'CellStatus':
+            newCell = await cellModels.CellStatus.findByIdAndUpdate(
+                cell._id,
+                cell,
+                { new: true }
+            )
+            break
+        case 'CellUpdate':
+            newCell = await cellModels.CellUpdate.findByIdAndUpdate(
+                cell._id,
+                cell,
+                { new: true }
+            )
+            break
+        case 'CellText':
+            newCell = await cellModels.CellText.findByIdAndUpdate(
+                cell._id,
+                cell,
+                { new: true }
+            )
+            break
+        case 'CellNumber':
+            newCell = await cellModels.CellNumber.findByIdAndUpdate(
+                cell._id,
+                cell,
+                { new: true }
+            )
+            break
+        case 'CellTimeline':
+            newCell = await cellModels.CellTimeline.findByIdAndUpdate(
+                cell._id,
+                cell,
+                { new: true }
+            )
+            break
+        case 'CellDate':
+            newCell = await cellModels.CellDate.findByIdAndUpdate(
+                cell._id,
+                cell,
+                { new: true }
+            )
+            break
+        case 'CellUser':
+            newCell = await cellModels.CellUser.findByIdAndUpdate(
+                cell._id,
+                cell,
+                { new: true }
+            )
+            break
+        case 'CellCheckbox':
+            newCell = await cellModels.CellCheckbox.findByIdAndUpdate(
+                cell._id,
+                cell,
+                { new: true }
+            )
+            break
+        default:
+            throw new AppError('Unable to update the cell', 500)
     }
     return newCell
 }
@@ -90,12 +155,9 @@ const deleteABoard = async (board) => {
 }
 
 exports.updateACell = asyncCatch(async (req, res, next) => {
-    const { cell } = req.body
-    const updatedCell = await cellModels.CellBase.findByIdAndUpdate(
-        cell._id,
-        cell,
-        { new: true }
-    )
+    const cell = req.body
+
+    const updatedCell = await updateACell(cell)
 
     if (!updatedCell)
         return next(new AppError('Unable to update the cell', 500))
@@ -138,13 +200,68 @@ exports.deleteColumn = asyncCatch(async (req, res, next) => {
     const { boardId, deletedColumnPosition } = req.body
     const board = await Board.findById(boardId)
     board.columnCells.splice(deletedColumnPosition, 1)
+
     await Promise.all(
         board.cells.map(async (cellRow) => {
             const cellId = cellRow.splice(deletedColumnPosition, 1)[0]
             await cellModels.CellBase.findByIdAndDelete(cellId)
         })
     )
+
     res.status(204).end()
+})
+
+exports.addNewRow = asyncCatch(async (req, res, next) => {
+    const { rowHeaderModel, cells } = req.body
+    const { projectId, boardId } = req.params
+
+    // update the updatedAt in project
+    Project.findById(projectId).then((project) => {
+        project.updatedAt = new Date().toISOString()
+        project.save()
+    })
+
+    const board = await Board.findById(boardId)
+    board.rowCells.push(rowHeaderModel.title)
+
+    const newCells = await Promise.all(
+        cells.map(async (cell) => await createACell(cell))
+    )
+
+    const newCellIds = newCells.map((cell) => cell._id)
+
+    board.cells.push(newCellIds)
+    board.markModified('cells')
+    await board.save()
+    res.status(200).json(newCellIds)
+})
+
+exports.addNewColumn = asyncCatch(async (req, res, next) => {
+    const { columnHeaderModel, cells } = req.body
+    const { projectId, boardId } = req.params
+
+    // update the updatedAt in project
+    Project.findById(projectId).then((project) => {
+        project.updatedAt = new Date().toISOString()
+        project.save()
+    })
+
+    const board = await Board.findById(boardId)
+    board.columnCells.push(columnHeaderModel)
+
+    const newCells = await Promise.all(
+        cells.map(async (cell) => await createACell(cell))
+    )
+
+    const newCellIds = newCells.map((cell) => cell._id)
+
+    for (let i = 0; i < board.cells.length; i += 1) {
+        board.cells[i].push(newCellIds[i])
+    }
+
+    board.markModified('cells')
+    await board.save()
+    res.status(200).json(newCellIds)
 })
 
 exports.saveNewProject = asyncCatch(async (req, res, next) => {

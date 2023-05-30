@@ -14,7 +14,7 @@ public class BoardDateItemModel extends BoardBaseItemModel {
     private int hour = -1;
     private int minute = -1;
     public BoardDateItemModel() {
-        super("", "Date");
+        super("", "CellDate");
     }
 
     public BoardDateItemModel(int year, int month, int day, int hour, int minute) {

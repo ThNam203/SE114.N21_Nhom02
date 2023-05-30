@@ -23,6 +23,22 @@ public abstract class BoardBaseItemModel {
         this.cellType = cellType;
     }
 
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+
+    public String getCellType() {
+        return cellType;
+    }
+
+    public void setCellType(String cellType) {
+        this.cellType = cellType;
+    }
+
     public String getContent() {
         return content;
     }

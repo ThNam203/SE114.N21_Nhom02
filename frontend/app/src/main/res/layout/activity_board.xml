@@ -8,7 +8,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".activities.BoardActivity"
+        tools:context=".activities.ProjectActivity"
         android:background="@color/primary_color"
         android:orientation="vertical">
         <LinearLayout

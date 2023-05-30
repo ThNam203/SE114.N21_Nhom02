@@ -4,7 +4,7 @@ public class BoardRowHeaderModel {
     private String title;
 
     // the "+ New row" row
-    private Boolean isAddNewRowRow = false;
+    private transient Boolean isAddNewRowRow = false;
 
     public BoardRowHeaderModel(String title, Boolean isAddNewRowRow) {
         this.title = title;

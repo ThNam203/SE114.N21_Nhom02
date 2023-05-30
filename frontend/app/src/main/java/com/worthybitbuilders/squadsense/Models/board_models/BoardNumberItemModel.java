@@ -5,7 +5,7 @@ import java.util.Locale;
 
 public class BoardNumberItemModel extends BoardBaseItemModel {
     public BoardNumberItemModel(String content) {
-        super(content, "Number");
+        super(content, "CellNumber");
     }
 
     @Override

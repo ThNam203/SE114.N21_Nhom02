@@ -8,26 +8,26 @@ public class BoardStatusItemModel extends BoardBaseItemModel {
     private List<String> contents;
     private List<String> colors;
     public BoardStatusItemModel() {
-        super("", "Status");
+        super("", "CellStatus");
         this.contents = new ArrayList<>();
         this.colors = new ArrayList<>();
     }
 
     // TODO: JUST FOR SAMPLE DATA BOARD, REMOVE IT IF SAMPLE BOARD IS NOT USED
     public BoardStatusItemModel(String content, List<String> contents) {
-        super(content, "Status");
+        super(content, "CellStatus");
         this.contents = contents;
         this.colors = new ArrayList<>();
         for (int i = 0; i < contents.size(); i++) colors.add("#9c9c9c");
     }
 
     public BoardStatusItemModel(String content, List<String> contents, List<String> colors) {
-        super(content, "Status");
+        super(content, "CellStatus");
         this.contents = contents;
         this.colors = colors;
     }
     public BoardStatusItemModel(BoardStatusItemModel itemModel) {
-        super(itemModel.getContent(), "Status");
+        super(itemModel.getContent(), "CellStatus");
         this.contents = itemModel.getContents();
         this.colors = itemModel.getColors();
     }

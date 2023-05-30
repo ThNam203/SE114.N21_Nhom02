@@ -10,11 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.models.MinimizedProjectModel;
+import com.worthybitbuilders.squadsense.utils.CustomUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -66,7 +71,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectI
         public void bind(MinimizedProjectModel projectModel) {
             tvTitle.setText(projectModel.getTitle());
 
-            DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
             Date formattedDate = null;
             try {
                 formattedDate = sdf.parse(projectModel.getUpdatedAt());
@@ -74,8 +79,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectI
                 throw new RuntimeException();
             }
 
-
-            tvLastUpdate.setText(formattedDate.toString());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(formattedDate);
+            String dateString = String.format(Locale.US, "%s %d, %d", CustomUtils.convertIntToMonth(calendar.get(Calendar.MONTH)),calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.YEAR));
+            tvLastUpdate.setText(dateString);
             itemView.setOnClickListener(view -> this.handler.onClick(projectModel.get_id()));
         }
 

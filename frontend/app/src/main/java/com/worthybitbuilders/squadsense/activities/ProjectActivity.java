@@ -3,6 +3,7 @@ package com.worthybitbuilders.squadsense.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -36,6 +37,7 @@ import com.worthybitbuilders.squadsense.databinding.BoardStatusEditViewBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardStatusItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTextItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTimelineItemPopupBinding;
+import com.worthybitbuilders.squadsense.databinding.CustomLoadingDialogBinding;
 import com.worthybitbuilders.squadsense.models.board_models.BoardCheckboxItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardColumnHeaderModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
@@ -46,10 +48,11 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardTextItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTimelineItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUpdateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUserItemModel;
-import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import com.worthybitbuilders.squadsense.utils.CustomUtils;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
-import com.worthybitbuilders.squadsense.viewmodels.BoardActivityViewModel;
+import com.worthybitbuilders.squadsense.viewmodels.ProjectActivityViewModel;
+import com.worthybitbuilders.squadsense.viewmodels.BoardViewModel;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -59,10 +62,15 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class BoardActivity extends AppCompatActivity {
+public class ProjectActivity extends AppCompatActivity {
     private TableViewAdapter boardAdapter;
-    private final BoardActivityViewModel boardActivityViewModel = new BoardActivityViewModel();
+    private ProjectActivityViewModel projectActivityViewModel;
+
+    // This differs from "projectActivityViewModel", this holds logic for only TableView
+    private BoardViewModel boardViewModel;
     private ActivityBoardBinding activityBinding;
 
     @Override
@@ -71,7 +79,11 @@ public class BoardActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).hide();
         activityBinding = ActivityBoardBinding.inflate(getLayoutInflater());
         activityBinding.btnShowTables.setOnClickListener(view -> showTables());
-        boardAdapter = new TableViewAdapter(this, new TableViewAdapter.OnClickHandlers() {
+
+        projectActivityViewModel = new ViewModelProvider(this).get(ProjectActivityViewModel.class);
+        boardViewModel = new ViewModelProvider(this).get(BoardViewModel.class);
+
+        boardAdapter = new TableViewAdapter(this, boardViewModel, new TableViewAdapter.OnClickHandlers() {
             @Override
             public void OnTimelineItemClick(BoardTimelineItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
                 showTimelineItemPopup(itemModel, columnTitle, columnPos, rowPos);
@@ -84,13 +96,33 @@ public class BoardActivity extends AppCompatActivity {
 
             @Override
             public void onCheckboxItemClick(BoardCheckboxItemModel itemModel, int columnPos, int rowPos) {
+                Dialog loadingDialog = DialogUtils.GetLoadingDialog(ProjectActivity.this);
+                loadingDialog.show();
                 itemModel.setChecked(!itemModel.getChecked());
-                boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
+                boardViewModel.updateACell(itemModel).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (response.isSuccessful()) {
+                            boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
+                        } else {
+                            Toast.makeText(ProjectActivity.this, "Unable to update the cell", Toast.LENGTH_LONG).show();
+                        }
+
+                        loadingDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        Toast.makeText(ProjectActivity.this, "Unable to update the cell", Toast.LENGTH_LONG).show();
+                        loadingDialog.dismiss();
+                    }
+                });
+
             }
 
             @Override
             public void onUpdateItemClick(BoardUpdateItemModel itemModel, String columnTitle) {
-                Toast.makeText(BoardActivity.this, "Update item clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProjectActivity.this, "Update item clicked", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -115,7 +147,7 @@ public class BoardActivity extends AppCompatActivity {
 
             @Override
             public void onUserItemClick(BoardUserItemModel userItemModel) {
-                Toast.makeText(BoardActivity.this, "User click item handler", Toast.LENGTH_LONG).show();
+                Toast.makeText(ProjectActivity.this, "User click item handler", Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -125,10 +157,11 @@ public class BoardActivity extends AppCompatActivity {
         });
         activityBinding.tableView.setAdapter(boardAdapter);
 
-        boardActivityViewModel.getProjectModelLiveData().observe(this, projectModel -> {
+        projectActivityViewModel.getProjectModelLiveData().observe(this, projectModel -> {
             if (projectModel == null) return;
-            // set cells content
-            boardAdapter.setBoardContent(projectModel.getBoards().get(projectModel.getChosenPosition()));
+            // set cells content, pass the adapter to let them call the set item
+            BoardContentModel content = projectModel.getBoards().get(projectModel.getChosenPosition());
+            boardViewModel.setBoardContent(content, projectModel.get_id(), boardAdapter);
             // set board title for "more table" drop down
             activityBinding.btnShowTables.setText(
                     projectModel.getBoards()
@@ -154,7 +187,7 @@ public class BoardActivity extends AppCompatActivity {
         Dialog loadingDialog = DialogUtils.GetLoadingDialog(this);
         loadingDialog.show();
         if (whatToDo.equals("createNew")) {
-            boardActivityViewModel.saveNewProjectToRemote(new BoardActivityViewModel.OnGettingProjectFromRemote() {
+            projectActivityViewModel.saveNewProjectToRemote(new ProjectActivityViewModel.OnGettingProjectFromRemote() {
                 @Override
                 public void onSuccess() {
                     loadingDialog.dismiss();
@@ -162,14 +195,14 @@ public class BoardActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(String message) {
-                    Toast.makeText(BoardActivity.this, "Failed to create new project, please try again", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProjectActivity.this, "Failed to create new project, please try again", Toast.LENGTH_LONG).show();
                     loadingDialog.dismiss();
                     finish();
                 }
             });
         } else {
             String projectId = intent.getStringExtra("projectId");
-            boardActivityViewModel.getProjectById(projectId, new BoardActivityViewModel.OnGettingProjectFromRemote() {
+            projectActivityViewModel.getProjectById(projectId, new ProjectActivityViewModel.OnGettingProjectFromRemote() {
                 @Override
                 public void onSuccess() {
                     loadingDialog.dismiss();
@@ -178,7 +211,7 @@ public class BoardActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(String message) {
                     loadingDialog.dismiss();
-                    Toast.makeText(BoardActivity.this, message, Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProjectActivity.this, message, Toast.LENGTH_LONG).show();
                     finish();
                 }
             });
@@ -191,34 +224,34 @@ public class BoardActivity extends AppCompatActivity {
         BoardEditBoardsViewBinding binding = BoardEditBoardsViewBinding.inflate(getLayoutInflater());
         dialog.setContentView(binding.getRoot());
 
-        EditBoardsAdapter editBoardsAdapter = new EditBoardsAdapter(this.boardActivityViewModel.getProjectModel(), this);
+        EditBoardsAdapter editBoardsAdapter = new EditBoardsAdapter(this.projectActivityViewModel.getProjectModel(), this);
         editBoardsAdapter.setHandlers(new EditBoardsAdapter.ClickHandlers() {
             @Override
             public void onRemoveClick(int position) {
-                boardActivityViewModel.getProjectModel().removeBoardAt(position);
+                projectActivityViewModel.getProjectModel().removeBoardAt(position);
                 editBoardsAdapter.notifyItemRemoved(position);
-                editBoardsAdapter.notifyItemRangeChanged(position, boardActivityViewModel.getProjectModel().getBoards().size());
+                editBoardsAdapter.notifyItemRangeChanged(position, projectActivityViewModel.getProjectModel().getBoards().size());
             }
 
             @Override
             public void onRenameClick(int position, String newTitle) {
-                boardActivityViewModel.getProjectModel().getBoards().get(position).setBoardTitle(newTitle);
+                projectActivityViewModel.getProjectModel().getBoards().get(position).setBoardTitle(newTitle);
                 editBoardsAdapter.notifyItemChanged(position);
-                if (position == boardActivityViewModel.getProjectModel().getChosenPosition()) {
-                    boardAdapter.renameBoard(newTitle);
+                if (position == projectActivityViewModel.getProjectModel().getChosenPosition()) {
+                    boardViewModel.setBoardTitle(newTitle);
                     activityBinding.btnShowTables.setText(newTitle);
                 }
             }
 
             @Override
             public void onItemClick(int position) {
-                if (position == boardActivityViewModel.getProjectModel().getChosenPosition()) {
+                if (position == projectActivityViewModel.getProjectModel().getChosenPosition()) {
                     dialog.dismiss();
                     return;
                 }
-                boardActivityViewModel.getProjectModel().setChosenPosition(position);
-                BoardContentModel newContent = boardActivityViewModel.getProjectModel().getBoards().get(position);
-                boardAdapter.setBoardContent(newContent);
+                projectActivityViewModel.getProjectModel().setChosenPosition(position);
+                BoardContentModel newContent = projectActivityViewModel.getProjectModel().getBoards().get(position);
+                boardViewModel.setBoardContent(newContent, projectActivityViewModel.getProjectModel().get_id(), boardAdapter);
                 activityBinding.btnShowTables.setText(newContent.getBoardTitle());
                 dialog.dismiss();
             }
@@ -228,18 +261,18 @@ public class BoardActivity extends AppCompatActivity {
 
         binding.btnClose.setOnClickListener(view -> dialog.dismiss());
         binding.btnNewBoard.setOnClickListener(view -> {
-            Dialog loadingDialog = DialogUtils.GetLoadingDialog(BoardActivity.this);
+            Dialog loadingDialog = DialogUtils.GetLoadingDialog(ProjectActivity.this);
             loadingDialog.show();
-            boardActivityViewModel.addNewBoardToProject(new BoardActivityViewModel.OnCreateAndSaveNewBoardToRemote() {
+            projectActivityViewModel.addNewBoardToProject(new ProjectActivityViewModel.OnCreateAndSaveNewBoardToRemote() {
                 @Override
                 public void onSuccess() {
-                    editBoardsAdapter.notifyItemInserted(boardActivityViewModel.getProjectModel().getBoards().size() - 1);
+                    editBoardsAdapter.notifyItemInserted(projectActivityViewModel.getProjectModel().getBoards().size() - 1);
                     loadingDialog.dismiss();
                 }
 
                 @Override
                 public void onFailure(String message) {
-                    Toast.makeText(BoardActivity.this, "Unable to add new board, please try again", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProjectActivity.this, "Unable to add new board, please try again", Toast.LENGTH_LONG).show();
                     loadingDialog.dismiss();
                 }
             });
@@ -262,7 +295,7 @@ public class BoardActivity extends AppCompatActivity {
         binding.btnAdd.setOnClickListener(view -> {
             String newRowTitle = binding.etContent.getText().toString();
             if (newRowTitle.isEmpty()) { dialog.dismiss(); return; }
-            boardAdapter.createNewRow(newRowTitle);
+            boardViewModel.createNewRow(newRowTitle);
             dialog.dismiss();
         });
 
@@ -313,7 +346,7 @@ public class BoardActivity extends AppCompatActivity {
         statusEditItemAdapter.setHandlers(new StatusEditItemAdapter.ClickHandlers() {
             @Override
             public void onChooseColorClick(int position, BoardStatusItemModel itemModel) {
-                new ColorPickerDialog.Builder(BoardActivity.this)
+                new ColorPickerDialog.Builder(ProjectActivity.this)
                         .setTitle("Choose color")
                         .setPositiveButton("SELECT", (ColorEnvelopeListener) (envelope, fromUser) -> {
                             itemModel.setColorAt(position, '#' + envelope.getHexCode());
@@ -335,7 +368,8 @@ public class BoardActivity extends AppCompatActivity {
                 statusEditItemAdapter.notifyItemRangeChanged(position, itemModel.getContents().size());
             }
         });
-        binding.rvStatusItems.setLayoutManager(new LinearLayoutManager(BoardActivity.this, LinearLayoutManager.VERTICAL, false));
+
+        binding.rvStatusItems.setLayoutManager(new LinearLayoutManager(ProjectActivity.this, LinearLayoutManager.VERTICAL, false));
         binding.rvStatusItems.setAdapter(statusEditItemAdapter);
         binding.btnAdd.setOnClickListener(view -> {
             showAddNewStatusDialog(clonedItemModel, statusEditItemAdapter);
@@ -344,9 +378,30 @@ public class BoardActivity extends AppCompatActivity {
         binding.btnClose.setOnClickListener(view -> dialog.dismiss());
         binding.btnSave.setOnClickListener(view -> {
             statusItemModel.copyDataFromAnotherInstance(clonedItemModel);
-            boardAdapter.changeCellItem(columnPos, rowPos, statusItemModel);
-            statusContentsAdapter.notifyDataSetChanged();
-            dialog.dismiss();
+
+            Dialog loadingDialog = DialogUtils.GetLoadingDialog(ProjectActivity.this);
+            loadingDialog.show();
+            boardViewModel.updateACell(statusItemModel).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        boardAdapter.changeCellItem(columnPos, rowPos, statusItemModel);
+                        statusContentsAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(ProjectActivity.this, "Unable to save", Toast.LENGTH_LONG).show();
+                    }
+
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(ProjectActivity.this, "Unable to save", Toast.LENGTH_LONG).show();
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+            });
         });
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -367,7 +422,7 @@ public class BoardActivity extends AppCompatActivity {
             String newContent = binding.etTextItem.getText().toString();
             for (int i = 0; i < itemModel.getContents().size(); i++) {
                 if (itemModel.getContents().get(i).equals(newContent)) {
-                    Toast.makeText(BoardActivity.this, "Already existed", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProjectActivity.this, "Already existed", Toast.LENGTH_LONG).show();
                     return;
                 }
             }
@@ -396,8 +451,29 @@ public class BoardActivity extends AppCompatActivity {
         binding.btnSaveTextItem.setOnClickListener(view -> {
             String newContent = String.valueOf(binding.etTextItem.getText());
             itemModel.setContent(newContent);
-            boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
-            dialog.dismiss();
+
+            Dialog loadingDialog = DialogUtils.GetLoadingDialog(ProjectActivity.this);
+            loadingDialog.show();
+            boardViewModel.updateACell(itemModel).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
+                    } else {
+                        Toast.makeText(ProjectActivity.this, "Unable to update the cell", Toast.LENGTH_LONG).show();
+                    }
+
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(ProjectActivity.this, "Unable to update the cell", Toast.LENGTH_LONG).show();
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+            });
         });
 
         binding.btnClearTextItem.setOnClickListener((view) -> binding.etTextItem.setText(""));
@@ -421,6 +497,30 @@ public class BoardActivity extends AppCompatActivity {
         binding.btnSaveNumberItem.setOnClickListener(view -> {
             String newContent = String.valueOf(binding.etNumberItem.getText());
             itemModel.setContent(newContent);
+
+            Dialog loadingDialog = DialogUtils.GetLoadingDialog(ProjectActivity.this);
+            loadingDialog.show();
+            boardViewModel.updateACell(itemModel).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
+                    } else {
+                        Toast.makeText(ProjectActivity.this, "Unable to update the cell", Toast.LENGTH_LONG).show();
+                    }
+
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(ProjectActivity.this, "Unable to update the cell", Toast.LENGTH_LONG).show();
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+            });
+
             boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
             dialog.dismiss();
         });
@@ -469,15 +569,38 @@ public class BoardActivity extends AppCompatActivity {
 
         binding.tvTimelineItemTitle.setText(title);
         binding.btnClosePopup.setOnClickListener((view) -> dialog.dismiss());
+
         binding.btnSaveTimelineItem.setOnClickListener(view -> {
+            Dialog loadingDialog = DialogUtils.GetLoadingDialog(ProjectActivity.this);
+            loadingDialog.show();
+
+            // TODO: The function expects no problems or exceptions, should not update the item if the call failed
             itemModel.setStartYear(dialogStartYear.get());
             itemModel.setStartMonth(dialogStartMonth.get());
             itemModel.setStartDay(dialogStartDay.get());
             itemModel.setEndYear(dialogEndYear.get());
             itemModel.setEndMonth(dialogEndMonth.get());
             itemModel.setEndDay(dialogEndDay.get());
-            boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
-            dialog.dismiss();
+
+            boardViewModel.updateACell(itemModel).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
+                    } else {
+                        Toast.makeText(ProjectActivity.this, "Unable to save the cell", Toast.LENGTH_LONG).show();
+                    }
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(ProjectActivity.this, "Unable to save the cell", Toast.LENGTH_LONG).show();
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+            });
         });
 
         binding.addTimeContainer.setOnClickListener((view) -> {
@@ -488,7 +611,7 @@ public class BoardActivity extends AppCompatActivity {
                 ))
                 .build();
 
-            materialDatePicker.addOnPositiveButtonClickListener((MaterialPickerOnPositiveButtonClickListener<Pair<Long, Long>>) selection -> {
+            materialDatePicker.addOnPositiveButtonClickListener(selection -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     String startDate = Instant
                             .ofEpochMilli(selection.first)
@@ -566,16 +689,13 @@ public class BoardActivity extends AppCompatActivity {
         BoardDateItemPopupBinding binding = BoardDateItemPopupBinding.inflate(getLayoutInflater());
         dialog.setContentView(binding.getRoot());
 
-        final AtomicInteger dialogYear = new AtomicInteger(-1);
-        final AtomicInteger dialogMonth = new AtomicInteger(-1);
-        final AtomicInteger dialogDay = new AtomicInteger(-1);
-        final AtomicInteger dialogHour = new AtomicInteger(-1);
-        final AtomicInteger dialogMinute = new AtomicInteger(-1);
+        final AtomicInteger dialogYear = new AtomicInteger(itemModel.getYear());
+        final AtomicInteger dialogMonth = new AtomicInteger(itemModel.getMonth());
+        final AtomicInteger dialogDay = new AtomicInteger(itemModel.getDay());
+        final AtomicInteger dialogHour = new AtomicInteger(itemModel.getHour());
+        final AtomicInteger dialogMinute = new AtomicInteger(itemModel.getMinute());
 
         if (!itemModel.getDate().isEmpty()) {
-            dialogYear.set(itemModel.getYear());
-            dialogMonth.set(itemModel.getMonth());
-            dialogDay.set(itemModel.getDay());
             binding.tvDateValue.setText(itemModel.getDate());
             binding.tvAddDateTitle.setText("Clear date");
             binding.tvAddDateTitle.setOnClickListener((view) -> {
@@ -588,8 +708,6 @@ public class BoardActivity extends AppCompatActivity {
             });
         }
         if (!itemModel.getTime().isEmpty()) {
-            dialogHour.set(itemModel.getMonth());
-            dialogMinute.set(itemModel.getDay());
             binding.tvTimeValue.setText(itemModel.getTime());
             binding.tvAddTimeTitle.setText("Clear time");
             binding.tvAddTimeTitle.setOnClickListener((view) -> {
@@ -609,14 +727,37 @@ public class BoardActivity extends AppCompatActivity {
             itemModel.setDay(dialogDay.get());
             itemModel.setHour(dialogHour.get());
             itemModel.setMinute(dialogMinute.get());
-            boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
-            dialog.dismiss();
+
+            Dialog loadingDialog = DialogUtils.GetLoadingDialog(ProjectActivity.this);
+            loadingDialog.show();
+            Call<Void> cellUpdateCall = boardViewModel.updateACell(itemModel);
+            cellUpdateCall.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        boardAdapter.changeCellItem(columnPos, rowPos, itemModel);
+                    } else {
+                        Toast.makeText(ProjectActivity.this, "Unable to update the cell", Toast.LENGTH_LONG).show();
+                    }
+
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(ProjectActivity.this, "Unable to update the cell", Toast.LENGTH_LONG).show();
+                    loadingDialog.dismiss();
+                    dialog.dismiss();
+                }
+            });
+
         });
 
         binding.dateItemDateContainer.setOnClickListener((view) -> {
             Calendar calendar = Calendar.getInstance();
             DatePickerDialog datePickerDialog = new DatePickerDialog(
-                    BoardActivity.this,
+                    ProjectActivity.this,
                     null,
                     dialogYear.get() == -1 ? calendar.get(Calendar.YEAR) : dialogYear.get(),
                     dialogMonth.get() == -1 ? calendar.get(Calendar.MONTH) : dialogMonth.get(),
@@ -642,7 +783,7 @@ public class BoardActivity extends AppCompatActivity {
 
         binding.dateItemTimeContainer.setOnClickListener((view) -> {
             Calendar calendar = Calendar.getInstance();
-            new TimePickerDialog(BoardActivity.this,
+            new TimePickerDialog(ProjectActivity.this,
                     (timePicker, newHour, newMinute) -> {
                         dialogHour.set(newHour);
                         dialogMinute.set(newMinute);
@@ -678,35 +819,35 @@ public class BoardActivity extends AppCompatActivity {
         binding.btnClosePopup.setOnClickListener((view) -> dialog.dismiss());
 
         binding.btnAddTextItem.setOnClickListener((view) -> {
-            boardAdapter.createNewColumn(BoardColumnHeaderModel.ColumnType.Text);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Text);
         });
 
         binding.btnAddUserItem.setOnClickListener((view) -> {
-            boardAdapter.createNewColumn(BoardColumnHeaderModel.ColumnType.User);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.User);
         });
 
         binding.btnAddStatusItem.setOnClickListener((view) -> {
-            boardAdapter.createNewColumn((BoardColumnHeaderModel.ColumnType.Status));
+            boardViewModel.createNewColumn((BoardColumnHeaderModel.ColumnType.Status));
         });
 
         binding.btnAddNumberItem.setOnClickListener((view -> {
-            boardAdapter.createNewColumn(BoardColumnHeaderModel.ColumnType.Number);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Number);
         }));
 
         binding.btnAddUpdateItem.setOnClickListener((view -> {
-            boardAdapter.createNewColumn(BoardColumnHeaderModel.ColumnType.Update);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Update);
         }));
 
         binding.btnAddCheckboxItem.setOnClickListener((view -> {
-            boardAdapter.createNewColumn(BoardColumnHeaderModel.ColumnType.Checkbox);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Checkbox);
         }));
 
         binding.btnAddDateItem.setOnClickListener((view) -> {
-            boardAdapter.createNewColumn(BoardColumnHeaderModel.ColumnType.Date);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Date);
         });
 
         binding.btnAddTimelineItem.setOnClickListener((view) -> {
-            boardAdapter.createNewColumn(BoardColumnHeaderModel.ColumnType.TimeLine);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.TimeLine);
         });
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

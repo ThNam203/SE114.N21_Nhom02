@@ -26,7 +26,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitServices {
     private static UserService userService = null;
     private static ProjectService projectService = null;
-    private final static String BASE_URL = "http://172.30.159.113:3000/";
+    private final static String BASE_URL = "http://10.0.140.194:3000/";
 
     private static Gson mGson = new GsonBuilder()
             .registerTypeAdapter(BoardBaseItemModel.class, new BoardCellDeserializer())

@@ -11,7 +11,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -21,27 +20,21 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.worthybitbuilders.squadsense.R;
-import com.worthybitbuilders.squadsense.activities.BoardActivity;
+import com.worthybitbuilders.squadsense.activities.ProjectActivity;
 import com.worthybitbuilders.squadsense.activities.page_add_board;
 import com.worthybitbuilders.squadsense.activities.page_search;
 import com.worthybitbuilders.squadsense.adapters.ProjectAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentHomeBinding;
-import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import com.worthybitbuilders.squadsense.utils.SwitchActivity;
 import com.worthybitbuilders.squadsense.viewmodels.MainActivityViewModel;
-
-import java.util.List;
 
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
@@ -68,7 +61,7 @@ public class HomeFragment extends Fragment {
         });
 
         projectAdapter = new ProjectAdapter(null, _id -> {
-            Intent intent = new Intent(getContext(), BoardActivity.class);
+            Intent intent = new Intent(getContext(), ProjectActivity.class);
             intent.putExtra("whatToDo", "fetch");
             intent.putExtra("projectId", _id);
             startActivity(intent);

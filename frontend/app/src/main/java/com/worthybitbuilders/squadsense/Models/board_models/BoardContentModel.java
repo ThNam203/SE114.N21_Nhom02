@@ -31,6 +31,10 @@ public class BoardContentModel {
         this.cells = cells;
     }
 
+    public String get_id() {
+        return _id;
+    }
+
     public String getBoardTitle() {
         return boardTitle;
     }

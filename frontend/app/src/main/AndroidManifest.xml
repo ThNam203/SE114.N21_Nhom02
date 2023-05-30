@@ -24,7 +24,7 @@
         <activity
             android:name=".activities.MessagingActivity"
             android:exported="false" />
-        <activity android:name=".activities.BoardActivity"
+        <activity android:name=".activities.ProjectActivity"
             android:exported="false"/>
         <activity
             android:name=".activities.LogInActivity"
