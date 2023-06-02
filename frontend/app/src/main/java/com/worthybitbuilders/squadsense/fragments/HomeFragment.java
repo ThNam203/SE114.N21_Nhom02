@@ -32,14 +32,13 @@ import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
 import com.worthybitbuilders.squadsense.activities.AddBoardActivity;
 import com.worthybitbuilders.squadsense.activities.SearchActivity;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
-import com.worthybitbuilders.squadsense.utils.Activity;
+import com.worthybitbuilders.squadsense.utils.ActivityUtils;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
     FriendViewModel friendViewModel;
     UserViewModel userViewModel;
-    String hello;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -214,7 +213,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void btn_add_board_showPopup() {
-        Activity.switchToActivity(getContext(), AddBoardActivity.class);
+        ActivityUtils.switchToActivity(getContext(), AddBoardActivity.class);
     }
 
     private void btn_myfavorities_showPopup() {
@@ -278,6 +277,6 @@ public class HomeFragment extends Fragment {
         else tick.setVisibility(View.INVISIBLE);
     }
     private void labelSearch_showActivity() {
-        Activity.switchToActivity(getContext(), SearchActivity.class);
+        ActivityUtils.switchToActivity(getContext(), SearchActivity.class);
     }
 }
