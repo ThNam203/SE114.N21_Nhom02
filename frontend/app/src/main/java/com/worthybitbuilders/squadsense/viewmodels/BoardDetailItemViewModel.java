@@ -29,17 +29,34 @@ public class BoardDetailItemViewModel extends ViewModel {
     private List<UpdateTask> updateTasks;
     private MutableLiveData<List<UpdateTask>> updateTasksLiveData = new MutableLiveData<>(null);
     private ProjectService projectService = RetrofitServices.getProjectService();
+    private String projectId;
+    private String boardId;
+    private String projectTitle;
+    private String boardTitle;
 
     /**
      * @param rowPosition is the position according to the board,
      *                    we need it to update the exact cell on the remote
      */
-    public BoardDetailItemViewModel(int rowPosition) {
+    public BoardDetailItemViewModel(int rowPosition, String projectId, String boardId, String projectTitle, String boardTitle) {
         this.rowPosition = rowPosition;
+        this.projectId = projectId;
+        this.boardId = boardId;
+        this.projectTitle = projectTitle;
+        this.boardTitle = boardTitle;
     }
     public int getRowPosition() {
         return rowPosition;
     }
+
+    public String getProjectId() { return projectId; }
+
+    public String getBoardId() { return boardId; }
+
+    public String getProjectTitle() { return projectTitle; }
+
+    public String getBoardTitle() { return boardTitle; }
+
     public MutableLiveData<BoardDetailItemModel> getItemsLiveData() {
         return itemsLiveData;
     }
@@ -47,7 +64,7 @@ public class BoardDetailItemViewModel extends ViewModel {
         return updateTasksLiveData;
     }
 
-    public void getDataFromRemote(String projectId, String boardId, int rowPosition, GetDataHandlers handlers) {
+    public void getDataFromRemote(GetDataHandlers handlers) {
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
         projectService.getCellsInARow(userId, projectId, boardId, rowPosition).enqueue(new Callback<BoardDetailItemModel>() {
             @Override
@@ -68,7 +85,7 @@ public class BoardDetailItemViewModel extends ViewModel {
         });
     }
 
-    public void getUpdateTasksByCellId(String projectId, String boardId, String cellId, GetDataHandlers handlers) {
+    public void getUpdateTasksByCellId(String cellId, GetDataHandlers handlers) {
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
         projectService.getAllUpdateTasksOfACell(userId, projectId, boardId, cellId).enqueue(new Callback<List<UpdateTask>>() {
             @Override
@@ -93,7 +110,7 @@ public class BoardDetailItemViewModel extends ViewModel {
      * This function DOESN'T update the board
      * Use it along with AN ADAPTER or pass it into the function
      */
-    public Call<Void> updateACell(BoardBaseItemModel cellModel, String projectId, String boardId) {
+    public Call<Void> updateACell(BoardBaseItemModel cellModel) {
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
         switch (cellModel.getCellType()) {
             case "CellStatus":

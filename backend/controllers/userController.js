@@ -1,3 +1,7 @@
+const { S3Client, DeleteObjectCommand } = require('@aws-sdk/client-s3')
+const multer = require('multer')
+const multerS3 = require('multer-s3')
+const uuid = require('uuid')
 const User = require('../models/User')
 const asyncCatch = require('../utils/asyncCatch')
 const AppError = require('../utils/AppError')

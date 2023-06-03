@@ -10,15 +10,20 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.worthybitbuilders.squadsense.adapters.FileUpdateAdapter;
@@ -26,6 +31,8 @@ import com.worthybitbuilders.squadsense.databinding.ActivityNewUpdateTaskBinding
 import com.worthybitbuilders.squadsense.models.UpdateTask;
 import com.worthybitbuilders.squadsense.services.ProjectService;
 import com.worthybitbuilders.squadsense.services.RetrofitServices;
+import com.worthybitbuilders.squadsense.utils.DialogUtils;
+import com.worthybitbuilders.squadsense.utils.ImageUtils;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 
 import java.io.File;
@@ -71,8 +78,11 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
                 if (result.getResultCode() == RESULT_OK) {
                     Intent data = result.getData();
                     if (data == null) return;
-                    Bundle extras = data.getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+//                    Bundle extras = data.getExtras();
+//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    fileUpdateAdapter.notifyItemInserted(fileUris.size() - 1);
+                } else {
+                    fileUris.remove(fileUris.size() - 1);
                 }
             }
     );
@@ -105,7 +115,7 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
         binding.updateColumnTitle.setText(columnTitle);
         binding.additionalTitle.setText(String.format(Locale.US, "%s in %s", boardTitle, projectTitle));
 
-        fileUpdateAdapter = new FileUpdateAdapter(new ArrayList<>(), position -> {
+        fileUpdateAdapter = new FileUpdateAdapter(fileUris, this, position -> {
             fileUris.remove(position);
             fileUpdateAdapter.notifyItemRemoved(position);
             fileUpdateAdapter.notifyItemRangeChanged(position, fileUris.size());
@@ -126,6 +136,11 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
         });
 
         binding.btnGetPhoto.setOnClickListener(view -> choosePhotoFromStorage());
+
+        binding.btnSendUpdate.setOnClickListener(view -> {
+            String content = binding.etUpdateContent.getText().toString();
+            uploadUpdateTask(fileUris, content);
+        });
 
         binding.btnClose.setOnClickListener(view -> finish());
         setContentView(binding.getRoot());
@@ -155,7 +170,9 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
 
     private void getPhotoFromCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+        // the "if" below not working on some phone
+//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+        try {
             File photoFile = null;
             try {
                 photoFile = createImageFile();
@@ -167,34 +184,21 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
                 Uri photoURI = FileProvider.getUriForFile(this,
                         "com.worthybitbuilders.squadsense.fileprovider",
                         photoFile);
+                fileUris.add(photoURI);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 takePhotoResultLauncher.launch(takePictureIntent);
             }
-        } else {
-            Toast.makeText(this, "No usable camera, operation failed", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+//            Toast.makeText(this, "No usable camera, operation failed", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Something wrong with camera", Toast.LENGTH_LONG).show();
         }
     }
 
     private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "IMG_" + timeStamp;
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        MediaScannerConnection.scanFile(this,
-                new String[] { image.getAbsolutePath() },
-                null,
-                (path, uri) -> {
-            fileUris.add(uri);
-            fileUpdateAdapter.notifyItemInserted(fileUris.size() - 1);
-        });
-
-        return image;
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     private void choosePhotoFromStorage() {
@@ -208,9 +212,14 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
     private void uploadUpdateTask(List<Uri> selectedUris, String content) {
         List<MultipartBody.Part> parts = new ArrayList<>();
         for (int i = 0; i < selectedUris.size(); i++) {
-            File file = new File(selectedUris.get(i).getPath());
-            RequestBody requestFile = RequestBody.create(MediaType.parse(getContentResolver().getType(selectedUris.get(i))), file);
-            parts.add(MultipartBody.Part.createFormData("file", file.getName(), requestFile));
+            try {
+                Uri fileUri = selectedUris.get(i);
+                String fileName = getFileName(fileUri);
+                Bitmap bitmap = ImageUtils.uriToBitmap(this, fileUri);
+                File file = ImageUtils.bitmapToFile(this, bitmap, fileName);
+                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                parts.add(MultipartBody.Part.createFormData("files", fileName, requestFile));
+            } catch (IOException ignored) {}
         }
 
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
@@ -223,16 +232,45 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
                 new UpdateTask(userId, content)
         );
 
+        Dialog loadingDialog = DialogUtils.GetLoadingDialog(this);
+        loadingDialog.show();
         call.enqueue(new Callback<UpdateTask>() {
             @Override
             public void onResponse(Call<UpdateTask> call, Response<UpdateTask> response) {
-
+                if (response.isSuccessful()) {
+                    finish();
+                } else Toast.makeText(NewUpdateTaskActivity.this, "Something went wrong, please try again", Toast.LENGTH_LONG).show();
+                loadingDialog.dismiss();
             }
 
             @Override
             public void onFailure(Call<UpdateTask> call, Throwable t) {
-                // Handle the upload failure here
+                Toast.makeText(NewUpdateTaskActivity.this, "Something went wrong, please try again", Toast.LENGTH_LONG).show();
+                loadingDialog.dismiss();
             }
         });
+    }
+
+    @SuppressLint("Range")
+    private String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 }

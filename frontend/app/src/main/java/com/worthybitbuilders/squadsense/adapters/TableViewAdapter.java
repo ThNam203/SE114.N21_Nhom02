@@ -133,7 +133,7 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
         } else if (holder instanceof BoardUserItemViewHolder) {
             ((BoardUserItemViewHolder) holder).setItemModel((BoardUserItemModel) cellItemModel, mContext);
         } else if (holder instanceof BoardUpdateItemViewHolder) {
-            ((BoardUpdateItemViewHolder) holder).setItemModel(rowPosition, rowTitle);
+            ((BoardUpdateItemViewHolder) holder).setItemModel((BoardUpdateItemModel) cellItemModel, rowPosition, rowTitle, columnTitle);
         } else if (holder instanceof BoardNumberItemViewHolder) {
             ((BoardNumberItemViewHolder) holder).setItemModel((BoardNumberItemModel) cellItemModel, columnTitle, columnPosition, rowPosition);
         } else if (holder instanceof BoardCheckboxItemViewHolder) {

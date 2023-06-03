@@ -1,29 +1,39 @@
 package com.worthybitbuilders.squadsense.adapters;
 
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.worthybitbuilders.squadsense.R;
+import com.worthybitbuilders.squadsense.utils.ImageUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class FileUpdateAdapter extends RecyclerView.Adapter<FileUpdateAdapter.FileUpdateItemViewHolder> {
     private List<Uri> data;
     ClickHandler handler;
+    Context mContext;
 
-    public FileUpdateAdapter(List<Uri> data, ClickHandler handler) {
+    public FileUpdateAdapter(List<Uri> data, Context context, ClickHandler handler) {
         this.data = data;
+        this.mContext = context;
         this.handler = handler;
     }
 
@@ -56,31 +66,49 @@ public class FileUpdateAdapter extends RecyclerView.Adapter<FileUpdateAdapter.Fi
         }
 
         public void bind(Uri fileUri, int position, ClickHandler handler) {
-            if (isImageFile(fileUri)) {
-                Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath());
-                this.ivFileImage.setImageBitmap(bitmap);
-            }
-
-            this.tvFileName.setText(new File(fileUri.getPath()).getName());
-            this.btnRemoveFile.setOnClickListener(view -> handler.onRemoveFile(position));
-        }
-
-        private boolean isImageFile(Uri fileUri) {
-            String filePath = fileUri.getPath();
-            String fileExtension = filePath.substring(filePath.lastIndexOf('.') + 1);
-            String[] imageExtensions = {"jpg", "jpeg", "png", "gif", "bmp"};
-
-            for (String extension : imageExtensions) {
-                if (extension.equalsIgnoreCase(fileExtension)) {
-                    return true;
+            ContentResolver resolver = mContext.getContentResolver();
+            String type = resolver.getType(fileUri);
+            if (type.startsWith("image/")) {
+                try {
+                    Bitmap bitmap = ImageUtils.uriToBitmap(mContext, fileUri);
+                    // Calculate the aspect ratio
+                    float ratio = Math.min((float)70 / bitmap.getHeight(), (float)70 / bitmap.getWidth());
+                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, Math.round(bitmap.getWidth() * ratio), Math.round(bitmap.getHeight() * ratio), true);
+                    this.ivFileImage.setImageBitmap(scaledBitmap);
+                } catch (IOException e) {
+                    Toast.makeText(mContext, "Unable to get the photo", Toast.LENGTH_LONG).show();
                 }
             }
 
-            return false;
+            this.tvFileName.setText(getFileName(fileUri));
+            this.btnRemoveFile.setOnClickListener(view -> handler.onRemoveFile(position));
         }
     }
 
     public interface ClickHandler {
         void onRemoveFile(int position);
+    }
+
+    @SuppressLint("Range")
+    private String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = mContext.getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 }

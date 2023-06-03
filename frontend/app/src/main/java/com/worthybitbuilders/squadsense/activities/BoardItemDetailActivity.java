@@ -47,15 +47,18 @@ public class BoardItemDetailActivity extends AppCompatActivity {
         String projectId = intent.getStringExtra("projectId");
         String boardId = intent.getStringExtra("boardId");
         String rowTitle = intent.getStringExtra("rowTitle");
+        String projectTitle = intent.getStringExtra("projectTitle");
+        String boardTitle = intent.getStringExtra("boardTitle");
 
         // updateCellId is only for when user tap the update item
         // which is because there could be more than 1 update item
         String updateCellId = intent.getStringExtra("updateCellId");
+        String updateCellTitle = intent.getStringExtra("updateCellTitle");
         int rowPosition = intent.getIntExtra("rowPosition", -1);
 
         binding.itemTitle.setText(rowTitle);
 
-        BoardItemDetailViewModelFactory viewModelFactory = new BoardItemDetailViewModelFactory(rowPosition);
+        BoardItemDetailViewModelFactory viewModelFactory = new BoardItemDetailViewModelFactory(rowPosition, projectId, boardId, projectTitle, boardTitle);
         viewModel = new ViewModelProvider(this, viewModelFactory).get(BoardDetailItemViewModel.class);
 
         // check if user press "update" column or "row header"
@@ -67,7 +70,7 @@ public class BoardItemDetailActivity extends AppCompatActivity {
         Dialog loadingDialog = DialogUtils.GetLoadingDialog(this);
         loadingDialog.show();
 
-        viewModel.getDataFromRemote(projectId, boardId, rowPosition, new BoardDetailItemViewModel.GetDataHandlers() {
+        viewModel.getDataFromRemote(new BoardDetailItemViewModel.GetDataHandlers() {
             @Override
             public void onSuccess() {
                 BoardDetailItemModel data = viewModel.getItemsLiveData().getValue();
@@ -79,10 +82,16 @@ public class BoardItemDetailActivity extends AppCompatActivity {
                     layoutParams.setMargins(16, 0, 16, 0);
                     updateButton.setLayoutParams(layoutParams);
                     String cellId = data.getCells().get(i).get_id();
+                    int finalI = i;
+
+                    if (isFromUpdateColumn && Objects.equals(updateCellId, cellId)) {
+                        DrawableCompat.setTint(updateButton.getBackground(), Color.parseColor("#0073ea"));
+                    }
+
                     updateButton.setOnClickListener(view -> {
                         changeAllButtonBackgroundToDefault();
                         DrawableCompat.setTint(updateButton.getBackground(), Color.parseColor("#0073ea"));
-                        changeToUpdateFragment(cellId);
+                        changeToUpdateFragment(cellId, data.getColumnTitles().get(finalI));
                     });
                     buttons.add((Button)updateButton);
                     binding.buttonsContainer.addView(updateButton);
@@ -98,7 +107,7 @@ public class BoardItemDetailActivity extends AppCompatActivity {
             }
         });
 
-        if (isFromUpdateColumn) changeToUpdateFragment(updateCellId);
+        if (isFromUpdateColumn) changeToUpdateFragment(updateCellId, updateCellTitle);
         else changeToColumnFragment(projectId, boardId);
 
         binding.btnShowColumns.setOnClickListener(view -> changeToColumnFragment(projectId, boardId));
@@ -109,10 +118,10 @@ public class BoardItemDetailActivity extends AppCompatActivity {
         buttons.forEach(button -> DrawableCompat.setTint(button.getBackground(), Color.parseColor("#2b2b2b")));
     }
 
-    private void changeToUpdateFragment(String cellId) {
+    private void changeToUpdateFragment(String cellId, String columnTitle) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(binding.fragmentContainer.getId(), BoardDetailUpdateFragment.newInstance(cellId))
+                .replace(binding.fragmentContainer.getId(), BoardDetailUpdateFragment.newInstance(cellId, columnTitle))
                 .commit();
     }
 
@@ -121,7 +130,7 @@ public class BoardItemDetailActivity extends AppCompatActivity {
         DrawableCompat.setTint(binding.btnShowColumns.getBackground(), Color.parseColor("#0073ea"));
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(binding.fragmentContainer.getId(), new BoardDetailColumnFragment(viewModel, projectId, boardId))
+                .replace(binding.fragmentContainer.getId(), BoardDetailColumnFragment.newInstance())
                 .commit();
     }
 }

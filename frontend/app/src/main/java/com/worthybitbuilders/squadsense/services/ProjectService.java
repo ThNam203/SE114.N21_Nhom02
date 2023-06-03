@@ -20,6 +20,7 @@ import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import java.util.List;
 
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -60,7 +61,7 @@ public interface ProjectService {
     // CELL UPDATES
     @Multipart
     @POST("{userId}/project/{projectId}/board/{boardId}/cell/{cellId}")
-    Call<UpdateTask> createNewUpdateTaskToRemote(@Path("userId") String userId, @Path("projectId") String projectId, @Path("boardId") String boardId, @Path("cellId") String cellId, @Part List<MultipartBody.Part> files, @Part UpdateTask taskContent);
+    Call<UpdateTask> createNewUpdateTaskToRemote(@Path("userId") String userId, @Path("projectId") String projectId, @Path("boardId") String boardId, @Path("cellId") String cellId, @Part List<MultipartBody.Part> files, @Part("taskContent") UpdateTask taskContent);
     @PUT("{userId}/project/{projectId}/board/{boardId}/cell/{cellId}")
     Call<Void> updateCellToRemote(@Path("userId") String userId, @Path("projectId") String projectId, @Path("boardId") String boardId, @Path("cellId") String cellId, @Body BoardStatusItemModel cellModel);
     @PUT("{userId}/project/{projectId}/board/{boardId}/cell/{cellId}")

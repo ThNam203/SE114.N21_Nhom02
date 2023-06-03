@@ -28,8 +28,10 @@ public class BoardDetailUpdateFragment extends Fragment {
     private BoardDetailItemViewModel viewModel;
     private FragmentBoardDetailUpdateBinding binding;
     private String updateCellId;
-    public static BoardDetailUpdateFragment newInstance(String updateCellId) {
+    private String columnTitle;
+    public static BoardDetailUpdateFragment newInstance(String updateCellId, String columnTitle) {
         Bundle args = new Bundle();
+        args.putString("columnTitle", columnTitle);
         args.putString("updateCellId", updateCellId);
         BoardDetailUpdateFragment fragment = new BoardDetailUpdateFragment();
         fragment.setArguments(args);
@@ -42,14 +44,20 @@ public class BoardDetailUpdateFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentBoardDetailUpdateBinding.inflate(getLayoutInflater());
         updateCellId = getArguments().getString("updateCellId");
+        columnTitle = getArguments().getString("columnTitle");
         viewModel = new ViewModelProvider(getActivity()).get(BoardDetailItemViewModel.class);
-
 
         binding.rvUpdates.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.rvUpdates.setHasFixedSize(true);
 
         binding.writeUpdateContainer.setOnClickListener(view -> {
             Intent intent = new Intent(getActivity(), NewUpdateTaskActivity.class);
+            intent.putExtra("columnTitle", columnTitle);
+            intent.putExtra("projectTitle", viewModel.getProjectTitle());
+            intent.putExtra("boardTitle", viewModel.getBoardTitle());
+            intent.putExtra("projectId", viewModel.getProjectId());
+            intent.putExtra("boardId", viewModel.getBoardId());
+            intent.putExtra("cellId", updateCellId);
             startActivity(intent);
         });
 

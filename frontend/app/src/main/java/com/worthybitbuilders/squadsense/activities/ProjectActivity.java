@@ -99,12 +99,16 @@ public class ProjectActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onUpdateItemClick(int rowPosition, String rowTitle) {
+            public void onUpdateItemClick(BoardUpdateItemModel itemModel, int rowPosition, String rowTitle, String columnTitle) {
                 Intent updateIntent = new Intent(ProjectActivity.this, BoardItemDetailActivity.class);
                 updateIntent.putExtra("projectId", projectActivityViewModel.getProjectId());
                 updateIntent.putExtra("boardId", boardViewModel.getBoardId());
                 updateIntent.putExtra("rowPosition", rowPosition);
                 updateIntent.putExtra("rowTitle", rowTitle);
+                updateIntent.putExtra("projectTitle", projectActivityViewModel.getProjectModel().getTitle());
+                updateIntent.putExtra("boardTitle", boardViewModel.getBoardTitle());
+                updateIntent.putExtra("updateCellId", itemModel.get_id());
+                updateIntent.putExtra("updateCellTitle", columnTitle);
                 updateIntent.putExtra("isFromUpdateColumn", true);
                 startActivity(updateIntent);
             }

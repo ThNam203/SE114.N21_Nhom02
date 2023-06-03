@@ -33,4 +33,8 @@ router
         projectController.addNewUpdateTask
     )
 
+router
+    .route('/:projectId/board/:boardId/cell-update/:cellId')
+    .get(projectController.getAllUpdateTasksOfACell)
+
 module.exports = router

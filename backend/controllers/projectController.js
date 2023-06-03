@@ -215,9 +215,22 @@ exports.deleteColumn = asyncCatch(async (req, res, next) => {
 exports.addNewUpdateTask = asyncCatch(async (req, res, next) => {
     const { taskContent } = req.body
     const { cellId } = req.params
-    console.log(JSON.stringify(taskContent, null, 2))
-    console.log(JSON.stringify(req.files, null, 2))
-    res.status(500).end()
+
+    const fileLocations = []
+    if (req.files) {
+        req.files.array.forEach((file) => {
+            fileLocations.push(file.location)
+        })
+    }
+
+    const newTask = await UpdateTask.create({
+        authorId: taskContent.authorId,
+        cellId: cellId,
+        content: taskContent.content,
+        files: [],
+    })
+
+    res.status(200).json(newTask)
 })
 
 exports.getAllUpdateTasksOfACell = asyncCatch(async (req, res, next) => {
