@@ -36,7 +36,6 @@ exports.uploadProfileImage = multer({
 })
 
 exports.updateProfileImage = asyncCatch(async (req, res, next) => {
-    console.log(req.file)
     const { key: avatarFile } = req.file
     if (!avatarFile) {
         return next(new Error('Unable to upload profile image'))

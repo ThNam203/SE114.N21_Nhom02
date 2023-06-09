@@ -7,36 +7,38 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import android.util.Log;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.worthybitbuilders.squadsense.adapters.FileUpdateAdapter;
+import com.worthybitbuilders.squadsense.adapters.NewUpdateTaskFileAdapter;
 import com.worthybitbuilders.squadsense.databinding.ActivityNewUpdateTaskBinding;
 import com.worthybitbuilders.squadsense.models.UpdateTask;
 import com.worthybitbuilders.squadsense.services.ProjectService;
 import com.worthybitbuilders.squadsense.services.RetrofitServices;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
-import com.worthybitbuilders.squadsense.utils.ImageUtils;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,20 +56,33 @@ import retrofit2.Response;
 public class NewUpdateTaskActivity extends AppCompatActivity {
     private final int CAMERA_PERMISSION_REQUEST_CODE = 10;
     private ActivityNewUpdateTaskBinding binding;
-    private ProjectService projectService = RetrofitServices.getProjectService();
+    private final ProjectService projectService = RetrofitServices.getProjectService();
     private String projectId;
     private String boardId;
     private String cellId;
     private final List<Uri> fileUris = new ArrayList<>();
-    private FileUpdateAdapter fileUpdateAdapter;
+    private NewUpdateTaskFileAdapter newUpdateTaskFileAdapter;
     ActivityResultLauncher<Intent> getFileResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     Intent data = result.getData();
                     if (data == null) return;
-                    fileUris.add(data.getData());
-                    fileUpdateAdapter.notifyItemInserted(fileUris.size() - 1);
+                    Uri fileUri = data.getData();
+                    boolean isAdded = false;
+                    for (int i = 0; i < fileUris.size(); i++) {
+                        if (areUrisEqual(fileUris.get(i), fileUri)) {
+                            isAdded = true;
+                            break;
+                        }
+                    }
+
+                    if (!isAdded) {
+                        fileUris.add(fileUri);
+                        newUpdateTaskFileAdapter.notifyItemInserted(fileUris.size() - 1);
+                    } else {
+                        Toast.makeText(this, "File is already selected", Toast.LENGTH_LONG).show();
+                    }
                 }
             }
     );
@@ -78,9 +93,7 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
                 if (result.getResultCode() == RESULT_OK) {
                     Intent data = result.getData();
                     if (data == null) return;
-//                    Bundle extras = data.getExtras();
-//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    fileUpdateAdapter.notifyItemInserted(fileUris.size() - 1);
+                    newUpdateTaskFileAdapter.notifyItemInserted(fileUris.size() - 1);
                 } else {
                     fileUris.remove(fileUris.size() - 1);
                 }
@@ -93,8 +106,21 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
                 if (result.getResultCode() == RESULT_OK) {
                     Intent data = result.getData();
                     if (data == null) return;
-                    fileUris.add(data.getData());
-                    fileUpdateAdapter.notifyItemInserted(fileUris.size() - 1);
+                    Uri fileUri = data.getData();
+                    boolean isAdded = false;
+                    for (int i = 0; i < fileUris.size(); i++) {
+                        if (areUrisEqual(fileUris.get(i), fileUri)) {
+                            isAdded = true;
+                            break;
+                        }
+                    }
+
+                    if (!isAdded) {
+                        fileUris.add(fileUri);
+                        newUpdateTaskFileAdapter.notifyItemInserted(fileUris.size() - 1);
+                    } else {
+                        Toast.makeText(this, "File is already selected", Toast.LENGTH_LONG).show();
+                    }
                 }
             }
     );
@@ -115,14 +141,14 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
         binding.updateColumnTitle.setText(columnTitle);
         binding.additionalTitle.setText(String.format(Locale.US, "%s in %s", boardTitle, projectTitle));
 
-        fileUpdateAdapter = new FileUpdateAdapter(fileUris, this, position -> {
+        newUpdateTaskFileAdapter = new NewUpdateTaskFileAdapter(fileUris, this, position -> {
             fileUris.remove(position);
-            fileUpdateAdapter.notifyItemRemoved(position);
-            fileUpdateAdapter.notifyItemRangeChanged(position, fileUris.size());
+            newUpdateTaskFileAdapter.notifyItemRemoved(position);
+            newUpdateTaskFileAdapter.notifyItemRangeChanged(position, fileUris.size());
         });
 
         binding.rvFiles.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        binding.rvFiles.setAdapter(fileUpdateAdapter);
+        binding.rvFiles.setAdapter(newUpdateTaskFileAdapter);
 
         binding.btnAttachFile.setOnClickListener(view -> {
             Intent getFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -175,7 +201,7 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
         try {
             File photoFile = null;
             try {
-                photoFile = createImageFile();
+                photoFile = createTempImageFile();
             } catch (IOException ex) {
                 Toast.makeText(this, "Unable to take picture, please try again", Toast.LENGTH_LONG).show();
             }
@@ -194,13 +220,6 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
         }
     }
 
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "IMG_" + timeStamp;
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(imageFileName, ".jpg", storageDir);
-    }
-
     private void choosePhotoFromStorage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -208,22 +227,23 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
         choosePhotoFromStorageResultLauncher.launch(Intent.createChooser(intent, "Select photo"));
     }
 
-
     private void uploadUpdateTask(List<Uri> selectedUris, String content) {
         List<MultipartBody.Part> parts = new ArrayList<>();
         for (int i = 0; i < selectedUris.size(); i++) {
             try {
                 Uri fileUri = selectedUris.get(i);
                 String fileName = getFileName(fileUri);
-                Bitmap bitmap = ImageUtils.uriToBitmap(this, fileUri);
-                File file = ImageUtils.bitmapToFile(this, bitmap, fileName);
-                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+                InputStream inputStream = getContentResolver().openInputStream(fileUri);
+                File file = createTempFile(fileUri);
+                copyInputStreamToFile(inputStream, file);
+                RequestBody requestFile = RequestBody.create(MediaType.parse(getMimeType(fileUri)), file);
                 parts.add(MultipartBody.Part.createFormData("files", fileName, requestFile));
             } catch (IOException ignored) {}
         }
 
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
-        Call<UpdateTask> call = projectService.createNewUpdateTaskToRemote(
+        Call<Void> call = projectService.createNewUpdateTaskToRemote(
                 userId,
                 projectId,
                 boardId,
@@ -234,9 +254,9 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
 
         Dialog loadingDialog = DialogUtils.GetLoadingDialog(this);
         loadingDialog.show();
-        call.enqueue(new Callback<UpdateTask>() {
+        call.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<UpdateTask> call, Response<UpdateTask> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     finish();
                 } else Toast.makeText(NewUpdateTaskActivity.this, "Something went wrong, please try again", Toast.LENGTH_LONG).show();
@@ -244,7 +264,7 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<UpdateTask> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 Toast.makeText(NewUpdateTaskActivity.this, "Something went wrong, please try again", Toast.LENGTH_LONG).show();
                 loadingDialog.dismiss();
             }
@@ -272,5 +292,76 @@ public class NewUpdateTaskActivity extends AppCompatActivity {
             }
         }
         return result;
+    }
+
+    private File createTempImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "IMG_" + timeStamp;
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
+    }
+
+    private File createTempFile(Uri fileUri) throws IOException {
+        String fileName = getFileName(fileUri);
+        String fileExtension = MimeTypeMap.getSingleton().getExtensionFromMimeType(getContentResolver().getType(fileUri));
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        return File.createTempFile(fileName, fileExtension, storageDir);
+    }
+
+    private void copyInputStreamToFile(InputStream inputStream, File file) throws IOException {
+        OutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[4 * 1024]; // 4KB buffer
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+            if (outputStream != null) {
+                outputStream.close();
+            }
+        }
+    }
+
+    public String getMimeType(Uri uri) {
+        String mimeType = null;
+        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+            ContentResolver cr = getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+        }
+        return mimeType;
+    }
+
+    public boolean areUrisEqual(Uri firstUri, Uri secondUri) {
+        ContentResolver contentResolver = getContentResolver();
+
+        // Get the document IDs for the URIs
+        String documentId1 = DocumentsContract.getDocumentId(firstUri);
+        String documentId2 = DocumentsContract.getDocumentId(secondUri);
+
+        // Retrieve the DocumentFile instances using the document IDs
+        DocumentFile document1 = DocumentFile.fromSingleUri(this, firstUri);
+        DocumentFile document2 = DocumentFile.fromSingleUri(this, secondUri);
+
+        // Check if the documents are null or not
+        if (document1 == null || document2 == null) {
+            return false;
+        }
+
+        // Compare the document IDs
+        boolean areDocumentIdsEqual = documentId1.equals(documentId2);
+
+        // Compare the actual files using their content URIs
+        boolean areFilesEqual = document1.getUri().equals(document2.getUri());
+
+        // Return true if both the document IDs and files are equal
+        return areDocumentIdsEqual && areFilesEqual;
     }
 }

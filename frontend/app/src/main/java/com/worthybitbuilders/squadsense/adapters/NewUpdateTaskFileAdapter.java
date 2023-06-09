@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
@@ -22,16 +21,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.utils.ImageUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class FileUpdateAdapter extends RecyclerView.Adapter<FileUpdateAdapter.FileUpdateItemViewHolder> {
+public class NewUpdateTaskFileAdapter extends RecyclerView.Adapter<NewUpdateTaskFileAdapter.FileUpdateItemViewHolder> {
     private List<Uri> data;
     ClickHandler handler;
     Context mContext;
 
-    public FileUpdateAdapter(List<Uri> data, Context context, ClickHandler handler) {
+    public NewUpdateTaskFileAdapter(List<Uri> data, Context context, ClickHandler handler) {
         this.data = data;
         this.mContext = context;
         this.handler = handler;
@@ -40,7 +38,7 @@ public class FileUpdateAdapter extends RecyclerView.Adapter<FileUpdateAdapter.Fi
     @NonNull
     @Override
     public FileUpdateItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.update_task_file_view, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.new_update_task_file_view, parent, false);
         return new FileUpdateItemViewHolder(v);
     }
 
@@ -68,7 +66,7 @@ public class FileUpdateAdapter extends RecyclerView.Adapter<FileUpdateAdapter.Fi
         public void bind(Uri fileUri, int position, ClickHandler handler) {
             ContentResolver resolver = mContext.getContentResolver();
             String type = resolver.getType(fileUri);
-            if (type.startsWith("image/")) {
+            if (type != null && type.startsWith("image/")) {
                 try {
                     Bitmap bitmap = ImageUtils.uriToBitmap(mContext, fileUri);
                     // Calculate the aspect ratio

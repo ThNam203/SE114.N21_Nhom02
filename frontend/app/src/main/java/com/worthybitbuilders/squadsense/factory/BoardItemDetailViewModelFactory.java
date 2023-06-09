@@ -12,13 +12,15 @@ public class BoardItemDetailViewModelFactory implements ViewModelProvider.Factor
     private final String boardId;
     private final String projectTitle;
     private final String boardTitle;
+    private final String rowTitle;
 
-    public BoardItemDetailViewModelFactory(int rowPosition, String projectId, String boardId, String projectTitle, String boardTitle) {
+    public BoardItemDetailViewModelFactory(int rowPosition, String projectId, String boardId, String projectTitle, String boardTitle, String rowTitle) {
         this.rowPosition = rowPosition;
         this.projectId = projectId;
         this.boardId = boardId;
         this.projectTitle = projectTitle;
         this.boardTitle = boardTitle;
+        this.rowTitle = rowTitle;
     }
 
     @SuppressWarnings("unchecked")
@@ -26,7 +28,7 @@ public class BoardItemDetailViewModelFactory implements ViewModelProvider.Factor
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(BoardDetailItemViewModel.class)) {
-            return (T) new BoardDetailItemViewModel(rowPosition, projectId, boardId, projectTitle, boardTitle);
+            return (T) new BoardDetailItemViewModel(rowPosition, projectId, boardId, projectTitle, boardTitle, rowTitle);
         }
         throw new IllegalArgumentException("Unknown ViewModel class");
     }
