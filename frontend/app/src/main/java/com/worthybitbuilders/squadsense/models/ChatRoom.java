@@ -31,14 +31,20 @@ public class ChatRoom {
     private List<Member> members;
     private String logoPath;
     public String lastMessage;
+    public String lastMessageTime;
 
     public ChatRoom() {}
 
-    public ChatRoom(String _id, String title, List<Member> members, String logoPath) {
+    public ChatRoom(String _id, String title, List<Member> members, String logoPath, String lastMessageTime) {
         this._id = _id;
         this.title = title;
         this.members = members;
         this.logoPath = logoPath;
+        this.lastMessageTime = lastMessageTime;
+    }
+
+    public String get_id() {
+        return _id;
     }
 
     public String getTitle() {
@@ -57,4 +63,6 @@ public class ChatRoom {
     public String getLastMessage() {
         return lastMessage;
     }
+
+    public String getLastMessageTime() { return lastMessageTime; }
 }

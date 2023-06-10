@@ -55,25 +55,21 @@ io.on('connection', (socket) => {
                 .in(chatRoomId)
                 .emit('roomNotFound', 'Unable to find the chat room')
 
-        const newChatMessage = await Message.create({
+        let newChatMessage = await Message.create({
             chatRoomId,
             message,
-            senderId,
+            sender: senderId,
         })
 
         if (!newChatMessage)
             return socket.emit('messageError', 'Unable to send new message')
 
-        io.in(chatRoomId).emit(
-            'newMessage',
-            JSON.stringify({
-                _id: v4(),
-                chatRoomId,
-                message,
-                senderId,
-                createdAt: Date.now(),
-            })
+        newChatMessage = await newChatMessage.populate(
+            'sender',
+            '_id name profileImagePath'
         )
+
+        io.in(chatRoomId).emit('newMessage', newChatMessage)
     })
 
     socket.on('disconnect', () => {

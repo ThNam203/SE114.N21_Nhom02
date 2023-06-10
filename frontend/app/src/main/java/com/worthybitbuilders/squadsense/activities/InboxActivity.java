@@ -1,7 +1,9 @@
 package com.worthybitbuilders.squadsense.activities;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Message;
 import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
@@ -12,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.worthybitbuilders.squadsense.R;
+import com.worthybitbuilders.squadsense.adapters.ChatRoomAdapter;
 import com.worthybitbuilders.squadsense.adapters.FriendItemAdapter;
 import com.worthybitbuilders.squadsense.databinding.ActivityInboxBinding;
 import com.worthybitbuilders.squadsense.databinding.AddNewChatRoomPopupBinding;
@@ -32,6 +35,7 @@ public class InboxActivity extends AppCompatActivity {
     ChatRoomViewModel chatRoomViewModel;
     Dialog loadingDialog;
     private FriendItemAdapter friendItemAdapter;
+    private ChatRoomAdapter chatRoomAdapter;
     private final List<UserModel> friendList = new ArrayList<>();
 
     @Override
@@ -39,29 +43,18 @@ public class InboxActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Objects.requireNonNull(getSupportActionBar()).hide();
         binding = ActivityInboxBinding.inflate(getLayoutInflater());
+        loadingDialog = DialogUtils.GetLoadingDialog(this);
+        setContentView(binding.getRoot());
+
         friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
         chatRoomViewModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
 
-        friendItemAdapter = new FriendItemAdapter(this, friendList);
-        loadingDialog = DialogUtils.GetLoadingDialog(this);
-
+        binding.rvInbox.setLayoutManager(new LinearLayoutManager(this));
+        friendItemAdapter = new FriendItemAdapter(friendList);
         loadChatRooms();
 
-        binding.btnAddChat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showAddChatRoomPopup();
-            }
-        });
-
-        //set onclick buttons here
-        binding.btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                InboxActivity.super.onBackPressed();
-            }
-        });
-        setContentView(binding.getRoot());
+        binding.btnAddChat.setOnClickListener(view -> showAddChatRoomPopup());
+        binding.btnBack.setOnClickListener(view -> InboxActivity.super.onBackPressed());
     }
 
     private void showAddChatRoomPopup() {
@@ -70,7 +63,7 @@ public class InboxActivity extends AppCompatActivity {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(popupBinding.getRoot());
 
-        LoadFriends(popupBinding);
+        LoadFriends(popupBinding, dialog);
         popupBinding.btnBack.setOnClickListener(view -> dialog.dismiss());
 
         dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
@@ -80,11 +73,13 @@ public class InboxActivity extends AppCompatActivity {
 
     private void loadChatRooms()
     {
-        chatRoomViewModel.getChatRooms(new ChatRoomViewModel.ApiCallHandler() {
+        chatRoomViewModel.getChatRoomsRemotely(new ChatRoomViewModel.ApiCallHandler() {
             @Override
             public void onSuccess() {
                 loadingDialog.dismiss();
-                List<ChatRoom> chatRooms = chatRoomViewModel.getChatRoomsLiveData().getValue();
+                chatRoomAdapter = new ChatRoomAdapter(chatRoomViewModel.getChatRooms(), chatRoom -> onChatRoomClick(chatRoom));
+                updateChatRoomUI();
+                binding.rvInbox.setAdapter(chatRoomAdapter);
             }
 
             @Override
@@ -95,7 +90,13 @@ public class InboxActivity extends AppCompatActivity {
         });
     }
 
-    private void LoadFriends(AddNewChatRoomPopupBinding popupBinding)
+    private void onChatRoomClick(ChatRoom chatRoom) {
+        Intent messagingIntent = new Intent(InboxActivity.this, MessagingActivity.class);
+        messagingIntent.putExtra("chatRoomId", chatRoom.get_id());
+        startActivity(messagingIntent);
+    }
+
+    private void LoadFriends(AddNewChatRoomPopupBinding popupBinding, Dialog popupDialog)
     {
         loadingDialog.show();
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
@@ -119,23 +120,48 @@ public class InboxActivity extends AppCompatActivity {
         });
 
         friendItemAdapter.setOnClickListener(position -> {
+            popupDialog.dismiss();
+            List<String> otherMemberIds = new ArrayList<>();
+            otherMemberIds.add(friendList.get(position).getId());
+            chatRoomViewModel.createNewChatRoom(otherMemberIds, new ChatRoomViewModel.ApiCallHandler() {
+                @Override
+                public void onSuccess() {
+                    updateChatRoomUI();
+                    chatRoomAdapter.notifyItemInserted(0);
+                    chatRoomAdapter.notifyItemRangeChanged(0, chatRoomViewModel.getChatRooms().size());
+                }
 
+                @Override
+                public void onFailure(String message) {
+                    Toast.makeText(InboxActivity.this, "Unable to create the chat room, please try again", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 
-
-    private void updateFriendUI(AddNewChatRoomPopupBinding popupBinding)
-    {
-        if(friendList.size() > 0)
-        {
+    private void updateFriendUI(AddNewChatRoomPopupBinding popupBinding) {
+        if(friendList.size() > 0) {
             popupBinding.imageNoFriendFound.setVisibility(View.GONE);
             popupBinding.rvFriends.setVisibility(View.VISIBLE);
+
+        } else {
+            popupBinding.imageNoFriendFound.setVisibility(View.VISIBLE);
+            popupBinding.rvFriends.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateChatRoomUI()
+    {
+        if(chatRoomViewModel.getChatRooms().size() > 0)
+        {
+            binding.emptyChatsContainer.setVisibility(View.GONE);
+            binding.rvInbox.setVisibility(View.VISIBLE);
 
         }
         else
         {
-            popupBinding.imageNoFriendFound.setVisibility(View.VISIBLE);
-            popupBinding.rvFriends.setVisibility(View.GONE);
+            binding.emptyChatsContainer.setVisibility(View.VISIBLE);
+            binding.rvInbox.setVisibility(View.GONE);
         }
     }
 }
