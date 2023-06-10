@@ -46,16 +46,11 @@ public class ChatRoomViewModel extends ViewModel {
         });
     }
 
-    /**
-     * @param otherMemberIds: all other members id except current user
-     */
-    public void createNewChatRoom(List<String> otherMemberIds, ApiCallHandler handler) {
+    public void createNewChatRoom(List<String> memberIds, ApiCallHandler handler) {
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
-        // add the current user id
-        otherMemberIds.add(userId);
         JSONObject data = new JSONObject();
         try {
-            data.put("memberIds", otherMemberIds);
+            data.put("memberIds", memberIds);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

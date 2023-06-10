@@ -30,8 +30,8 @@ public class ChatRoom {
     private String title;
     private List<Member> members;
     private String logoPath;
-    public String lastMessage;
-    public String lastMessageTime;
+    private String lastMessage;
+    private String lastMessageTime;
 
     public ChatRoom() {}
 

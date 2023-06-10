@@ -13,7 +13,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.adapters.MessageAdapter;
 import com.worthybitbuilders.squadsense.databinding.ActivityMessagingBinding;
 import com.worthybitbuilders.squadsense.factory.MessageActivityViewModelFactory;
@@ -37,6 +39,16 @@ public class MessagingActivity extends AppCompatActivity {
 
         Intent getIntent = getIntent();
         String chatRoomId = getIntent.getStringExtra("chatRoomId");
+        String chatRoomImagePath = getIntent.getStringExtra("chatRoomImage");
+        String chatRoomTitle = getIntent.getStringExtra("chatRoomTitle");
+
+        binding.chatRoomTitle.setText(chatRoomTitle);
+        Glide
+            .with(this)
+            .load(chatRoomImagePath)
+            .placeholder(R.drawable.ic_user)
+            .into(binding.chatRoomImage);
+
 
         MessageActivityViewModelFactory factory = new MessageActivityViewModelFactory(chatRoomId);
         messageViewModel = new ViewModelProvider(this, factory).get(MessageActivityViewModel.class);
@@ -92,6 +104,8 @@ public class MessagingActivity extends AppCompatActivity {
             messageViewModel.sendNewMessage(message);
             binding.etEnterMessage.setText("");
         }));
+
+        binding.btnClose.setOnClickListener(view -> finish());
     }
 
     // the purpose is only to notify about the new message so we don't need "s"
