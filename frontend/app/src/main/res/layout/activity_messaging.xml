@@ -33,6 +33,7 @@
             android:textColor="@color/black"
             android:layout_marginHorizontal="16dp"/>
         <ImageButton
+            android:id="@+id/btnVoiceCall"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:scaleType="fitCenter"
@@ -41,6 +42,7 @@
             app:tint="@color/blue"
             android:background="?attr/selectableItemBackground"/>
         <ImageButton
+            android:id="@+id/btnVideoCall"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:scaleType="fitCenter"

@@ -3,6 +3,7 @@ package com.worthybitbuilders.squadsense.activities;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.telecom.InCallService;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -74,6 +75,10 @@ public class MessagingActivity extends AppCompatActivity {
         messageAdapter = new MessageAdapter(this, messageViewModel.getMessageList());
         binding.rvMessage.setLayoutManager(new LinearLayoutManager(this));
         binding.rvMessage.setAdapter(messageAdapter);
+
+        binding.btnVideoCall.setOnClickListener(view -> {
+//            startActivity(new Intent(this, CallVideoActivity.class));
+        });
 
         binding.etEnterMessage.addTextChangedListener(new TextWatcher() {
             @Override
