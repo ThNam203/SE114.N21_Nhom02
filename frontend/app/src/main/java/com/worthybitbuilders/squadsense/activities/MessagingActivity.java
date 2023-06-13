@@ -77,7 +77,10 @@ public class MessagingActivity extends AppCompatActivity {
         binding.rvMessage.setAdapter(messageAdapter);
 
         binding.btnVideoCall.setOnClickListener(view -> {
-//            startActivity(new Intent(this, CallVideoActivity.class));
+            Intent callIntent = new Intent(this, CallVideoActivity.class);
+            callIntent.putExtra("chatRoomId", chatRoomId);
+            callIntent.putExtra("isCaller", true);
+            startActivity(callIntent);
         });
 
         binding.etEnterMessage.addTextChangedListener(new TextWatcher() {

@@ -10,7 +10,7 @@ import com.worthybitbuilders.squadsense.models.ChatMessageRequest;
 import com.worthybitbuilders.squadsense.services.ChatRoomService;
 import com.worthybitbuilders.squadsense.services.RetrofitServices;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
-import com.worthybitbuilders.squadsense.utils.SocketUtil;
+import com.worthybitbuilders.squadsense.utils.SocketClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class MessageActivityViewModel extends ViewModel {
     private final MutableLiveData<String> newMessageLiveData = new MutableLiveData<>(null);
     private final String chatRoomId;
     private final String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
-    private final Socket socket = SocketUtil.getInstance();
+    private final Socket socket = SocketClient.getInstance();
     private final ChatRoomService chatRoomService = RetrofitServices.getChatRoomService();
 
     private final Emitter.Listener onNewMessage = args -> {

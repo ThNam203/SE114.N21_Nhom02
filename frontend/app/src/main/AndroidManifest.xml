@@ -36,9 +36,6 @@
             android:name=".activities.CallVideoActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.InComingCallActivity"
-            android:exported="false" />
-        <activity
             android:name=".activities.ShowVideoActivity"
             android:exported="false" />
         <activity

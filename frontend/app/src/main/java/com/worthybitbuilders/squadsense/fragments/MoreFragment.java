@@ -28,10 +28,8 @@ import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.utils.ActivityUtils;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
-import com.worthybitbuilders.squadsense.utils.SocketUtil;
+import com.worthybitbuilders.squadsense.utils.SocketClient;
 import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
-
-import java.net.Socket;
 
 public class MoreFragment extends Fragment {
 
@@ -57,7 +55,7 @@ public class MoreFragment extends Fragment {
         binding.btnLogout.setOnClickListener(view -> {
             ActivityUtils.switchToActivity(getContext(), LogInActivity.class);
             SharedPreferencesManager.clearData();
-            SocketUtil.getInstance().disconnect();
+            SocketClient.getInstance().disconnect();
             getActivity().finish();
         });
         return binding.getRoot();
