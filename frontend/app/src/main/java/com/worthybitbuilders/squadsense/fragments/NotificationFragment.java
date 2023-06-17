@@ -80,7 +80,7 @@ public class NotificationFragment extends Fragment {
 
             @Override
             public void onFailure(String message) {
-                ToastUtils.showToastError(getContext(), message, Gravity.TOP);
+                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
             }
         });
 
@@ -154,14 +154,6 @@ public class NotificationFragment extends Fragment {
             }
         });
 
-        //set onclick buttons here
-        binding.btnInviteMember.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btn_invite_showDialog();
-            }
-        });
-
         return binding.getRoot();
     }
 
@@ -227,74 +219,12 @@ public class NotificationFragment extends Fragment {
         notificationViewModel.deleteNotification(notification.getId(), new NotificationViewModel.deleteNotificationCallback() {
             @Override
             public void onSuccess() {
-                ToastUtils.showToastSuccess(getContext(), "notification deleted", Gravity.TOP);
+                ToastUtils.showToastSuccess(getContext(), "notification deleted", Toast.LENGTH_SHORT);
             }
 
             @Override
             public void onFailure(String message) {
-                ToastUtils.showToastError(getContext(), message, Gravity.TOP);
-            }
-        });
-    }
-
-    //define function here
-    private void btn_invite_showDialog() {
-        final Dialog dialog = new Dialog(getActivity());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_btn_invite_by_email);
-
-        //Set activity of button in dialog here
-        EditText inputEmail = (EditText) dialog.findViewById(R.id.input_email);
-        inputEmail.requestFocus();
-        AppCompatButton btnInvite = (AppCompatButton) dialog.findViewById(R.id.btn_invite);
-
-        btnInvite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String receiverEmail = inputEmail.getText().toString();
-
-                if(!friendViewModel.IsValidEmail(receiverEmail))
-                {
-                    ToastUtils.showToastError(getContext(), "Invalid email", Gravity.TOP);
-                    return;
-                }
-
-                userViewModel.getUserByEmail(receiverEmail, new UserViewModel.UserCallback() {
-                    @Override
-                    public void onSuccess(UserModel user) {
-                        friendViewModel.createRequest(SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID), user.getId(), new FriendViewModel.FriendRequestCallback() {
-                            @Override
-                            public void onSuccess() {
-                                ToastUtils.showToastSuccess(getContext(), "request was sent to " + receiverEmail + "!!", Gravity.TOP);
-                            }
-
-                            @Override
-                            public void onFailure(String message) {
-                                ToastUtils.showToastError(getContext(), message, Gravity.TOP);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onFailure(String message) {
-                        ToastUtils.showToastError(getContext(), message, Gravity.TOP);
-                    }
-                });
-            }
-        });
-        //
-
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
-        dialog.show();
-
-        ImageButton btnClosePopupBtnInvite = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
-        btnClosePopupBtnInvite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
+                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
             }
         });
     }
@@ -317,12 +247,12 @@ public class NotificationFragment extends Fragment {
         friendViewModel.reply(replierId, requestSender, "Deny", new FriendViewModel.FriendRequestCallback() {
             @Override
             public void onSuccess() {
-                ToastUtils.showToastSuccess(getContext(), "you have just denied the request!!", Gravity.TOP);
+                ToastUtils.showToastSuccess(getContext(), "you have just denied the request!!", Toast.LENGTH_SHORT);
             }
 
             @Override
             public void onFailure(String message) {
-                ToastUtils.showToastError(getContext(), message, Gravity.TOP);
+                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
             }
         });
     }
