@@ -447,7 +447,8 @@ exports.removeRow = asyncCatch(async (req, res, next) => {
 })
 
 exports.saveNewProject = asyncCatch(async (req, res, next) => {
-    const { boards, chosenPosition, memberIds, creatorId, title } = req.body
+    const { boards, chosenPosition, memberIds, adminIds, creatorId, title } =
+        req.body
     const promises = await Promise.all(
         boards.map(async (board) => await saveABoard(board))
     )
@@ -456,6 +457,7 @@ exports.saveNewProject = asyncCatch(async (req, res, next) => {
         chosenPosition,
         boards: promises,
         memberIds,
+        adminIds,
         creatorId,
         title,
     })
@@ -538,4 +540,18 @@ exports.getAllProjectOfUser = asyncCatch(async (req, res, next) => {
         memberIds: { $in: [userId] },
     }).select('_id title updatedAt')
     res.status(200).json(projects)
+})
+
+exports.removeProject = asyncCatch(async (req, res, next) => {
+    const { projectId } = req.params
+
+    const project = await Project.findById(projectId)
+    const promises = project.boards.map((boardId) => Board.findById(boardId))
+    const listBoard = await Promise.all(promises)
+    listBoard.forEach(async (board) => {
+        await deleteABoard(board)
+    })
+
+    await Project.findByIdAndDelete(projectId)
+    res.status(204).end()
 })

@@ -144,6 +144,24 @@ public class ProjectActivityViewModel extends ViewModel {
         });
     }
 
+    public void removeProject(ProjectModel project, ApiCallHandlers handlers) {
+        String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
+        Call<Void> call = projectService.removeProject(userId, project.get_id());
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    handlers.onSuccess();
+                } else handlers.onFailure(response.message());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                handlers.onFailure(t.getMessage());
+            }
+        });
+    }
+
     public ProjectModel getProjectModel() {
         return projectModelLiveData.getValue();
     }

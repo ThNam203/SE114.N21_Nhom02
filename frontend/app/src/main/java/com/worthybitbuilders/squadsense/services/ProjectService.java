@@ -51,6 +51,9 @@ public interface ProjectService {
     @DELETE("{userId}/project/{projectId}/board/{boardId}")
     Call<Void> removeBoard(@Path("userId") String userId, @Path("projectId") String projectId, @Path("boardId") String boardId);
 
+    @DELETE("{userId}/project/delete/{projectId}")
+    Call<Void> removeProject(@Path("userId") String userId, @Path("projectId") String projectId);
+
     /** The List<String> is the cell ids that are returned from server */
     @PUT("{userId}/project/{projectId}/board/{boardId}/column")
     Call<List<String>> addNewColumnToRemote(@Path("userId") String userId, @Path("projectId") String projectId, @Path("boardId") String boardId, @Body NewColumnRequestModel newColumn);

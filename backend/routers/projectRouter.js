@@ -20,6 +20,8 @@ router
     .put(projectController.updateBoard)
     .delete(projectController.removeBoard)
 
+router.route('/delete/:projectId').delete(projectController.removeProject)
+
 router
     .route('/:projectId/board/:boardId/column')
     .put(projectController.addNewColumn)

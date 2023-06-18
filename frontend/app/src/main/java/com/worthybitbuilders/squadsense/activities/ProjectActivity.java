@@ -46,7 +46,7 @@ import com.worthybitbuilders.squadsense.databinding.BoardStatusItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTextItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTimelineItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.ColumnMoreOptionsBinding;
-import com.worthybitbuilders.squadsense.databinding.ConfirmDeleteSecondaryBinding;
+import com.worthybitbuilders.squadsense.databinding.ProjectMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.models.board_models.BoardCheckboxItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardColumnHeaderModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
@@ -190,6 +190,13 @@ public class ProjectActivity extends AppCompatActivity {
             activityBinding.tvProjectTitle.setText(projectModel.getTitle());
         });
 
+        activityBinding.btnMoreOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showProjectOptions(view);
+            }
+        });
+
         activityBinding.btnBack.setOnClickListener((view) -> onBackPressed());
         setContentView(activityBinding.getRoot());
     }
@@ -197,7 +204,7 @@ public class ProjectActivity extends AppCompatActivity {
     private void showColumnHeaderOptions(BoardColumnHeaderModel headerModel, int columnPosition, View anchor) {
         ColumnMoreOptionsBinding binding = ColumnMoreOptionsBinding.inflate(getLayoutInflater());
         PopupWindow popupWindow = new PopupWindow(binding.getRoot(), LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, false);
-        popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(this, R.color.primary_color));
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         popupWindow.setElevation(50);
 
         if (headerModel.getColumnType() == BoardColumnHeaderModel.ColumnType.Update) {
@@ -289,6 +296,74 @@ public class ProjectActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    private void showProjectOptions(View anchor) {
+        ProjectMoreOptionsBinding binding = ProjectMoreOptionsBinding.inflate(getLayoutInflater());
+        PopupWindow popupWindow = new PopupWindow(binding.getRoot(), LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, false);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popupWindow.setElevation(50);
+
+        binding.btnShowMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        binding.btnAddMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        binding.btnRenameProject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        binding.btnDeleteProject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String titleConfirmDialog = "Delete";
+                String contentConfirmDialog = "Do you want to delete this project ?";
+                DialogUtils.showConfirmDialog(ProjectActivity.this, titleConfirmDialog, contentConfirmDialog, new DialogUtils.ConfirmAction() {
+                    @Override
+                    public void onAcceptToDo(Dialog thisDialog) {
+                        thisDialog.dismiss();
+                        Dialog loadingDialog = DialogUtils.GetLoadingDialog(ProjectActivity.this);
+                        loadingDialog.show();
+                        projectActivityViewModel.removeProject(projectActivityViewModel.getProjectModel(), new ProjectActivityViewModel.ApiCallHandlers() {
+                            @Override
+                            public void onSuccess() {
+                                ToastUtils.showToastSuccess(ProjectActivity.this, "Project deleted", Toast.LENGTH_SHORT);
+                                loadingDialog.dismiss();
+                                ProjectActivity.this.onBackPressed();
+                            }
+
+                            @Override
+                            public void onFailure(String message) {
+                                ToastUtils.showToastSuccess(ProjectActivity.this, "You are not allowed to delete this project", Toast.LENGTH_SHORT);
+                                loadingDialog.dismiss();
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onCancel(Dialog thisDialog) {
+                        thisDialog.dismiss();
+                    }
+                });
+            }
+        });
+
+        popupWindow.setTouchable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.showAsDropDown(anchor, 0, 0);
+    }
+
     private void showColumnDescription(BoardColumnHeaderModel itemModel, int columnPos) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -343,33 +418,29 @@ public class ProjectActivity extends AppCompatActivity {
     }
 
     private void showConfirmDeleteColumn(BoardColumnHeaderModel headerModel, int columnPosition) {
-        final Dialog confirmDialog = new Dialog(this);
-        confirmDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        ConfirmDeleteSecondaryBinding binding = ConfirmDeleteSecondaryBinding.inflate(getLayoutInflater());
-        confirmDialog.setContentView(binding.getRoot());
+        String titleConfirmDialog = String.format(Locale.US, "Delete column \"%s\"?", headerModel.getTitle());
+        String contentConfirmDialog = "This column will be removed from the board";
+        DialogUtils.showConfirmDialog(this, titleConfirmDialog, contentConfirmDialog, new DialogUtils.ConfirmAction() {
+            @Override
+            public void onAcceptToDo(Dialog thisDialog) {
+                boardViewModel.deleteColumn(columnPosition, new BoardViewModel.ApiCallHandler() {
+                    @Override
+                    public void onSuccess() {
+                        thisDialog.dismiss();
+                    }
 
-        binding.tvTitle.setText(String.format(Locale.US, "Delete column \"%s\"?", headerModel.getTitle()));
-        binding.tvAdditionalContent.setText("This column will be removed from the board");
-        binding.btnCancel.setOnClickListener(view -> confirmDialog.dismiss());
-        binding.btnConfirm.setOnClickListener(view -> {
-            boardViewModel.deleteColumn(columnPosition, new BoardViewModel.ApiCallHandler() {
-                @Override
-                public void onSuccess() {
-                    confirmDialog.dismiss();
-                }
+                    @Override
+                    public void onFailure(String message) {
+                        ToastUtils.showToastError(ProjectActivity.this, "Something went wrong", Toast.LENGTH_SHORT);
+                    }
+                });
+            }
 
-                @Override
-                public void onFailure(String message) {
-                    ToastUtils.showToastError(ProjectActivity.this, "Something went wrong", Toast.LENGTH_SHORT);
-                }
-            });
+            @Override
+            public void onCancel(Dialog thisDialog) {
+                thisDialog.dismiss();
+            }
         });
-
-        confirmDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        confirmDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        confirmDialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
-        confirmDialog.getWindow().setGravity(Gravity.CENTER);
-        confirmDialog.show();
     }
 
     private void onCheckboxItemClicked(BoardCheckboxItemModel itemModel, int columnPos, int rowPos) {

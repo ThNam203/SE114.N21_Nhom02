@@ -58,37 +58,7 @@ public class HomeFragment extends Fragment {
         friendViewModel = new ViewModelProvider(getActivity()).get(FriendViewModel.class);
         userViewModel = new ViewModelProvider(getActivity()).get(UserViewModel.class);
 
-        // THERE IS ONLY "ONFAILURE" method
-        Dialog loadingDialog = DialogUtils.GetLoadingDialog(getContext());
-        loadingDialog.show();
-        viewModel.getAllProjects(new MainActivityViewModel.GetProjectsFromRemoteHandlers() {
-            @Override
-            public void onSuccess() {
-                loadingDialog.dismiss();
-            }
-            @Override
-            public void onFailure(String message) {
-                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_LONG);
-                loadingDialog.dismiss();
-            }
-        });
-
-        viewModel.getProjectsLiveData().observe(getViewLifecycleOwner(), minimizedProjectModels -> {
-            if (minimizedProjectModels == null || minimizedProjectModels.size() == 0)
-                binding.emptyProjectsContainer.setVisibility(View.VISIBLE);
-            else binding.emptyProjectsContainer.setVisibility(View.GONE);
-            projectAdapter.setData(minimizedProjectModels);
-        });
-
-        projectAdapter = new ProjectAdapter(null, _id -> {
-            Intent intent = new Intent(getContext(), ProjectActivity.class);
-            intent.putExtra("whatToDo", "fetch");
-            intent.putExtra("projectId", _id);
-            startActivity(intent);
-        });
-        binding.rvProjects.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.rvProjects.setHasFixedSize(true);
-        binding.rvProjects.setAdapter(projectAdapter);
+        LoadData();
 
         binding.btnMyfavorites.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +93,48 @@ public class HomeFragment extends Fragment {
     }
 
     //define function here
+
+    private void LoadData()
+    {
+        // THERE IS ONLY "ONFAILURE" method
+        Dialog loadingDialog = DialogUtils.GetLoadingDialog(getContext());
+        loadingDialog.show();
+        viewModel.getAllProjects(new MainActivityViewModel.GetProjectsFromRemoteHandlers() {
+            @Override
+            public void onSuccess() {
+                loadingDialog.dismiss();
+            }
+            @Override
+            public void onFailure(String message) {
+                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_LONG);
+                loadingDialog.dismiss();
+            }
+        });
+
+        viewModel.getProjectsLiveData().observe(getViewLifecycleOwner(), minimizedProjectModels -> {
+            if (minimizedProjectModels == null || minimizedProjectModels.size() == 0)
+                binding.emptyProjectsContainer.setVisibility(View.VISIBLE);
+            else binding.emptyProjectsContainer.setVisibility(View.GONE);
+            projectAdapter.setData(minimizedProjectModels);
+        });
+
+        projectAdapter = new ProjectAdapter(null, _id -> {
+            Intent intent = new Intent(getContext(), ProjectActivity.class);
+            intent.putExtra("whatToDo", "fetch");
+            intent.putExtra("projectId", _id);
+            startActivity(intent);
+        });
+        binding.rvProjects.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.rvProjects.setHasFixedSize(true);
+        binding.rvProjects.setAdapter(projectAdapter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LoadData();
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private void btnAdd_showPopup() {
         View popupView = getLayoutInflater().inflate(R.layout.popup_btn_add, null);
