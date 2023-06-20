@@ -18,8 +18,8 @@ import com.worthybitbuilders.squadsense.adapters.FriendItemAdapter;
 import com.worthybitbuilders.squadsense.databinding.ActivityAddMemberBinding;
 import com.worthybitbuilders.squadsense.databinding.ActivityMemberBinding;
 import com.worthybitbuilders.squadsense.databinding.AddMemberMoreOptionsBinding;
-import com.worthybitbuilders.squadsense.databinding.PopupAddMemberBinding;
 import com.worthybitbuilders.squadsense.models.UserModel;
+import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.ToastUtils;
@@ -72,7 +72,13 @@ public class AddMemberActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<UserModel> friends) {
                 listFriend.clear();
-                listFriend.addAll(friends);
+                listFriend.forEach(friend -> {
+                    ProjectModel project = projectActivityViewModel.getProjectModel();
+                    if(!project.getMemberIds().contains(friend.getId()))
+                    {
+                        listFriend.add(friend);
+                    }
+                });
 
                 binding.rvFriends.setAdapter(friendItemAdapter);
                 LoadListFriendView();

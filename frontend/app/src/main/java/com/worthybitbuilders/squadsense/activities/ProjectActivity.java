@@ -46,6 +46,7 @@ import com.worthybitbuilders.squadsense.databinding.BoardStatusItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTextItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTimelineItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.ColumnMoreOptionsBinding;
+import com.worthybitbuilders.squadsense.databinding.PopupRenameBinding;
 import com.worthybitbuilders.squadsense.databinding.ProjectMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.models.board_models.BoardCheckboxItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardColumnHeaderModel;
@@ -57,6 +58,7 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardTextItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTimelineItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUpdateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUserItemModel;
+import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import com.worthybitbuilders.squadsense.utils.ActivityUtils;
 import com.worthybitbuilders.squadsense.utils.CustomUtils;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
@@ -327,7 +329,7 @@ public class ProjectActivity extends AppCompatActivity {
         binding.btnRenameProject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                showRenamePopup();
             }
         });
 
@@ -370,6 +372,51 @@ public class ProjectActivity extends AppCompatActivity {
         popupWindow.setTouchable(true);
         popupWindow.setOutsideTouchable(true);
         popupWindow.showAsDropDown(anchor, 0, 0);
+    }
+
+    private void showRenamePopup()
+    {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        PopupRenameBinding popupRenameBinding = PopupRenameBinding.inflate(getLayoutInflater());
+        dialog.setContentView(popupRenameBinding.getRoot());
+
+        popupRenameBinding.input.setText(projectActivityViewModel.getProjectModel().getTitle());
+        popupRenameBinding.input.requestFocus();
+
+        popupRenameBinding.btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ProjectModel projectToUpdate = projectActivityViewModel.getProjectModel();
+                projectToUpdate.setTitle(popupRenameBinding.input.getText().toString());
+                projectActivityViewModel.updateProject(projectToUpdate, new ProjectActivityViewModel.ApiCallHandlers() {
+                    @Override
+                    public void onSuccess() {
+                        activityBinding.tvProjectTitle.setText(popupRenameBinding.input.getText().toString());
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        ToastUtils.showToastError(ProjectActivity.this, message, Toast.LENGTH_SHORT);
+                    }
+                });
+            }
+        });
+
+        popupRenameBinding.btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
+        dialog.getWindow().setGravity(Gravity.CENTER);
+        dialog.show();
     }
 
     private void showColumnDescription(BoardColumnHeaderModel itemModel, int columnPos) {

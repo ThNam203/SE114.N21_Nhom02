@@ -23,6 +23,8 @@ router
     .route('/reply-join-project/:projectId/:receiverId/:response')
     .post(projectController.replyToJoinProject)
 
+router.route('/update-project/:projectId').post(projectController.updateProject)
+
 router
     .route('/:projectId/board/:boardId')
     .put(projectController.updateBoard)

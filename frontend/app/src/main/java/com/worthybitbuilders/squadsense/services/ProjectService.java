@@ -45,11 +45,14 @@ public interface ProjectService {
     @POST("{userId}/project")
     Call<ProjectModel> saveProject(@Path("userId") String userId, @Body ProjectModel projectModel);
 
+    @POST("{userId}/project/update-project/{projectId}")
+    Call<Void> updateProject(@Path("userId") String userId, @Path("projectId") String projectId, @Body ProjectModel projectModel);
+
     @POST("{userId}/project/request-member/{projectId}/{receiverId}")
-    Call<Void> requestMemberToJoinProject(@Path("userId") String userId, @Path("projectId") String projectId, @Path("receiverId") String receiverId);
+    Call<String> requestMemberToJoinProject(@Path("userId") String userId, @Path("projectId") String projectId, @Path("receiverId") String receiverId);
 
     @POST("{userId}/project/reply-join-project/{projectId}/{receiverId}/{response}")
-    Call<Void> replyToJoinProject(@Path("userId") String userId, @Path("projectId") String projectId, @Path("receiverId") String receiverId, @Path("response") String response);
+    Call<String> replyToJoinProject(@Path("userId") String userId, @Path("projectId") String projectId, @Path("receiverId") String receiverId, @Path("response") String response);
     /** Send a request and get a new empty board from server */
     @POST("{userId}/project/{projectId}/board")
     Call<BoardContentModel> createAndGetNewBoardToProject(@Path("userId") String userId, @Path("projectId") String projectId);

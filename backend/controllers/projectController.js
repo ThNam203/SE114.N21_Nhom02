@@ -686,3 +686,22 @@ exports.replyToJoinProject = asyncCatch(async (req, res, next) => {
 
     res.status(204).end()
 })
+
+exports.updateProject = asyncCatch(async (req, res, next) => {
+    const { projectId } = req.params
+    const { boards, chosenPosition, memberIds, adminIds, creatorId, title } =
+        req.body
+
+    const project = await Project.findById(projectId)
+    if (!project) return next(new AppError('Unable to find project', 404))
+
+    project.boards = boards
+    project.chosenPosition = chosenPosition
+    project.memberIds = memberIds
+    project.adminIds = adminIds
+    project.creatorId = creatorId
+    project.title = title
+
+    await project.save()
+    res.status(200).end()
+})
