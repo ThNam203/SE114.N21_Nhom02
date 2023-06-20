@@ -169,7 +169,7 @@ public class HomeFragment extends Fragment {
     private void btn_addperson_showPopup() {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_btn_invite_by_email);
+        dialog.setContentView(R.layout.popup_invite_by_email);
 
         //Set activity of button in dialog here
         ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
@@ -251,7 +251,7 @@ public class HomeFragment extends Fragment {
     private void btn_myfavorities_showPopup() {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_btn_myfavorite);
+        dialog.setContentView(R.layout.popup_favorite_project);
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

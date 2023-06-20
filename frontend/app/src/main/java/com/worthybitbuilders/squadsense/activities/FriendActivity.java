@@ -18,11 +18,8 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.worthybitbuilders.squadsense.R;
-import com.worthybitbuilders.squadsense.adapters.FriendRequestAdapter;
 import com.worthybitbuilders.squadsense.adapters.FriendItemAdapter;
 import com.worthybitbuilders.squadsense.databinding.ActivityFriendBinding;
-import com.worthybitbuilders.squadsense.models.FriendRequest;
-import com.worthybitbuilders.squadsense.models.Notification;
 import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.utils.ActivityUtils;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
@@ -109,7 +106,7 @@ public class FriendActivity extends AppCompatActivity {
 
         friendItemAdapter.setOnClickListener(new FriendItemAdapter.OnActionCallback() {
             @Override
-            public void OnClick(int position) {
+            public void OnMoreOptionsClick(int position) {
 
             }
         });
@@ -132,7 +129,7 @@ public class FriendActivity extends AppCompatActivity {
     private void btn_invite_showDialog() {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_btn_invite_by_email);
+        dialog.setContentView(R.layout.popup_invite_by_email);
 
         //Set activity of button in dialog here
         EditText inputEmail = (EditText) dialog.findViewById(R.id.input_email);

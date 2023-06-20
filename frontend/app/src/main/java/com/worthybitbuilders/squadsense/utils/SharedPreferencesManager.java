@@ -8,7 +8,8 @@ public class SharedPreferencesManager {
     public enum KEYS {
         USER_ID("userid"),
         JWT("jwt"),
-        USER_EMAIL("useremail");
+        USER_EMAIL("useremail"),
+        CURRENT_PROJECT_ID("current_project_id");
         private final String key;
 
         KEYS(String key) {

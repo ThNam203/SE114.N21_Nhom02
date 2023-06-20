@@ -3,6 +3,7 @@ package com.worthybitbuilders.squadsense.viewmodels;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
 import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import com.worthybitbuilders.squadsense.services.ProjectService;
@@ -162,6 +163,62 @@ public class ProjectActivityViewModel extends ViewModel {
         });
     }
 
+    public void getMember(String projectId, ApiCallMemberHandlers handlers) {
+        String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
+        Call<List<UserModel>> call = projectService.getMember(userId, projectId);
+        call.enqueue(new Callback<List<UserModel>>() {
+            @Override
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
+                if (response.isSuccessful()) {
+                    List<UserModel> listMember = response.body();
+                    handlers.onSuccess(listMember);
+                } else handlers.onFailure(response.message());
+            }
+
+            @Override
+            public void onFailure(Call<List<UserModel>> call, Throwable t) {
+                handlers.onFailure(t.getMessage());
+            }
+        });
+    }
+
+    public void requestMemberToJoinProject(String projectId, String receiverId, ApiCallHandlers handlers) {
+        String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
+        Call<Void> call = projectService.requestMemberToJoinProject(userId, projectId, receiverId);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    handlers.onSuccess();
+                } else handlers.onFailure(response.message());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                handlers.onFailure(t.getMessage());
+            }
+        });
+    }
+
+    public void replyToJoinProject(String projectId, String receiverId, String response, ApiCallHandlers handlers) {
+        String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
+        Call<Void> call = projectService.replyToJoinProject(userId, projectId, receiverId, response);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    handlers.onSuccess();
+                } else handlers.onFailure(response.message());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                handlers.onFailure(t.getMessage());
+            }
+        });
+    }
+
+
     public ProjectModel getProjectModel() {
         return projectModelLiveData.getValue();
     }
@@ -172,6 +229,11 @@ public class ProjectActivityViewModel extends ViewModel {
 
     public interface ApiCallHandlers {
         void onSuccess();
+        void onFailure(String message);
+    }
+
+    public interface ApiCallMemberHandlers {
+        void onSuccess(List<UserModel> listMember);
         void onFailure(String message);
     }
 }

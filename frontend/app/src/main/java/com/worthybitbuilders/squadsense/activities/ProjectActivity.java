@@ -57,6 +57,7 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardTextItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTimelineItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUpdateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardUserItemModel;
+import com.worthybitbuilders.squadsense.utils.ActivityUtils;
 import com.worthybitbuilders.squadsense.utils.CustomUtils;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
@@ -70,6 +71,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -178,6 +180,7 @@ public class ProjectActivity extends AppCompatActivity {
 
         projectActivityViewModel.getProjectModelLiveData().observe(this, projectModel -> {
             if (projectModel == null) return;
+            SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID, projectModel.get_id());
             // set cells content, pass the adapter to let them call the set item
             BoardContentModel content = projectModel.getBoards().get(projectModel.getChosenPosition());
             boardViewModel.setBoardContent(content, projectModel.get_id(), boardAdapter);
@@ -302,17 +305,22 @@ public class ProjectActivity extends AppCompatActivity {
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         popupWindow.setElevation(50);
 
+        //change view if user a member -> hide btnDeleteProject
+        List<String> AdminIds = projectActivityViewModel.getProjectModel().getAdminIds();
+        String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
+        if(!AdminIds.contains(userId))
+        {
+            binding.btnDeleteProject.setVisibility(View.GONE);
+        }
+        else
+        {
+            binding.btnLeaveProject.setVisibility(View.GONE);
+        }
+
         binding.btnShowMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-            }
-        });
-
-        binding.btnAddMember.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
+                ActivityUtils.switchToActivity(ProjectActivity.this, MemberActivity.class);
             }
         });
 
@@ -344,7 +352,7 @@ public class ProjectActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(String message) {
-                                ToastUtils.showToastSuccess(ProjectActivity.this, "You are not allowed to delete this project", Toast.LENGTH_SHORT);
+                                ToastUtils.showToastError(ProjectActivity.this, "You are not allowed to delete this project", Toast.LENGTH_SHORT);
                                 loadingDialog.dismiss();
                             }
                         });

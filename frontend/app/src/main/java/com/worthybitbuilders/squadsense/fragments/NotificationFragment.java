@@ -35,6 +35,7 @@ import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.ToastUtils;
 import com.worthybitbuilders.squadsense.viewmodels.FriendViewModel;
 import com.worthybitbuilders.squadsense.viewmodels.NotificationViewModel;
+import com.worthybitbuilders.squadsense.viewmodels.ProjectActivityViewModel;
 import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ public class NotificationFragment extends Fragment {
     private FragmentNotificationBinding binding;
     private NotificationViewModel notificationViewModel;
     private FriendViewModel friendViewModel;
+    private ProjectActivityViewModel projectActivityViewModel;
     private NotificationAdapter notificationAdapter;
     private UserViewModel userViewModel;
     private List<Notification> listNotification = new ArrayList<>(); //work as data to put in recyclerview
@@ -59,6 +61,7 @@ public class NotificationFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentNotificationBinding.inflate(getLayoutInflater());
         friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
+        projectActivityViewModel = new ViewModelProvider(this).get(ProjectActivityViewModel.class);
         notificationViewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
@@ -70,10 +73,8 @@ public class NotificationFragment extends Fragment {
         notificationViewModel.getNotification(SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID), new NotificationViewModel.getNotificationCallback() {
             @Override
             public void onSuccess(List<Notification> notificationsData) {
-                for (Notification item : notificationsData) {
-                    listNotification.add(item);
-                    tempListNotification.add(item);
-                }
+                listNotification.addAll(notificationsData);
+                tempListNotification.addAll(notificationsData);
                 binding.recyclerviewNotification.setAdapter(notificationAdapter);
                 ReloadNotificationView();
             }
@@ -84,7 +85,7 @@ public class NotificationFragment extends Fragment {
             }
         });
 
-        notificationAdapter.setOnReplyListener(new NotificationAdapter.OnActionCallback() {
+        notificationAdapter.setOnActionListener(new NotificationAdapter.OnActionCallback() {
             @Override
             public void OnClick(int position) {
                 ActivityUtils.switchToActivity(getContext(), FriendRequestActivity.class);
@@ -99,16 +100,54 @@ public class NotificationFragment extends Fragment {
             }
         });
 
+        notificationAdapter.setOnReplyListener(new NotificationAdapter.OnReplyCallback() {
+            @Override
+            public void OnAccept(int position) {
+                String projectId = listNotification.get(position).getLink();
+                String senderId = listNotification.get(position).getSenderId();
+                projectActivityViewModel.replyToJoinProject(projectId, senderId, "Accept", new ProjectActivityViewModel.ApiCallHandlers() {
+                    @Override
+                    public void onSuccess() {
+                        ToastUtils.showToastSuccess(getContext(), "You are added to this project, check it now!", Toast.LENGTH_SHORT);
+                        listNotification.remove(position);
+                        tempListNotification.remove(position);
+                        binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                        ReloadNotificationView();
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
+                    }
+                });
+            }
+
+            @Override
+            public void OnDeny(int position) {
+                String projectId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID);
+                String senderId = listNotification.get(position).getSenderId();
+                projectActivityViewModel.replyToJoinProject(projectId, senderId, "Deny", new ProjectActivityViewModel.ApiCallHandlers() {
+                    @Override
+                    public void onSuccess() {
+                        listNotification.remove(position);
+                        tempListNotification.remove(position);
+                        binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                        ReloadNotificationView();
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
+                    }
+                });
+            }
+        });
+
         binding.btnAllNotification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 listNotification.clear();
-
-                //get all notification
-                for (Notification item : tempListNotification)
-                {
-                    listNotification.add(item);
-                }
+                listNotification.addAll(tempListNotification);
 
                 //reload view of list
                 binding.recyclerviewNotification.setAdapter(notificationAdapter);

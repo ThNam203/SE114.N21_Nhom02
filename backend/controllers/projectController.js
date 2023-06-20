@@ -1,11 +1,14 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
 const Board = require('../models/Board')
 const Project = require('../models/Project')
+const User = require('../models/User')
+const Notification = require('../models/Notification')
 const cellModels = require('../models/Cell')
 const UpdateTask = require('../models/UpdateTask')
 const AppError = require('../utils/AppError')
 const asyncCatch = require('../utils/asyncCatch')
 const s3Controller = require('./awsS3Controllers')
+const MemberRequest = require('../models/MemberRequest')
 
 const removeUpdateTaskFunc = async (updateTaskId) => {
     const deletedUpdateTask = await UpdateTask.findByIdAndDelete(updateTaskId)
@@ -477,21 +480,6 @@ exports.saveNewProject = asyncCatch(async (req, res, next) => {
     res.status(200).json(newProject)
 })
 
-exports.deleteProjectById = asyncCatch(async (req, res, next) => {
-    const { projectId } = req.body
-    const project = await Project.findById(projectId)
-    const populatedProject = await project.populate({
-        path: 'boards',
-    })
-
-    await Promise.all(
-        populatedProject.boards.map(async (board) => await deleteABoard(board))
-    )
-
-    await Project.findByIdAndDelete(projectId)
-    res.status(204).end()
-})
-
 exports.getCellsInARow = asyncCatch(async (req, res, next) => {
     const { boardId, rowPosition } = req.params
 
@@ -542,7 +530,7 @@ exports.getAllProjectOfUser = asyncCatch(async (req, res, next) => {
     res.status(200).json(projects)
 })
 
-exports.removeProject = asyncCatch(async (req, res, next) => {
+exports.deleteProjectById = asyncCatch(async (req, res, next) => {
     const { projectId } = req.params
 
     const project = await Project.findById(projectId)
@@ -553,5 +541,148 @@ exports.removeProject = asyncCatch(async (req, res, next) => {
     })
 
     await Project.findByIdAndDelete(projectId)
+    res.status(204).end()
+})
+
+exports.getMemberOfProject = asyncCatch(async (req, res, next) => {
+    const { projectId } = req.params
+    const project = await Project.findById(projectId)
+    if (!project) return next(new AppError('Unable to find project', 404))
+
+    const promises = project.memberIds.map((memberId) =>
+        User.findById(memberId)
+    )
+
+    const listMember = await Promise.all(promises)
+    console.log(listMember)
+    res.status(200).json(listMember)
+})
+
+const sendNotificationOnMemberRequest = async (sender, receiver, projectId) => {
+    const message = `${sender.name} has sent you a request to join project`
+
+    await Notification.create({
+        senderId: sender._id,
+        receiverId: receiver._id,
+        notificationType: 'MemberRequest',
+        title: sender.name,
+        content: message,
+        timestamp: Date.now(),
+        link: projectId,
+    })
+}
+
+const sendNotificationOnReply = async (
+    sender,
+    receiver,
+    projectId,
+    isAccept
+) => {
+    let message
+    const project = await Project.findById(projectId)
+    if (!project) throw new AppError('Unable to find project', 404)
+
+    if (isAccept) {
+        message = `${sender.name} joined your project`
+
+        // add member to project
+        project.memberIds.push(sender._id)
+        await project.save()
+        console.log(project.memberIds)
+    } else message = `${sender.name} denied to joined request`
+
+    await Notification.create({
+        senderId: sender._id,
+        receiverId: receiver._id,
+        notificationType: 'NewMessage',
+        title: sender.name,
+        content: message,
+        timestamp: Date.now(),
+    })
+
+    await Notification.findOneAndDelete({
+        senderId: receiver._id,
+        receiverId: sender._id,
+        notificationType: 'MemberRequest',
+    })
+}
+
+exports.requestMemberToJoinProject = asyncCatch(async (req, res, next) => {
+    const { userId, projectId, receiverId } = req.params
+
+    const senderId = userId
+    if (senderId === receiverId)
+        return next(new AppError('Unable to request to yourself', 400))
+
+    const sender = await User.findOne({ _id: senderId })
+    const receiver = await User.findOne({ _id: receiverId })
+    if (!receiver || !sender) return next(new AppError(`User not found`, 400))
+
+    // check if member request is pending
+    const isExisted = await MemberRequest.findOne({
+        senderId: sender._id,
+        receiverId: receiver._id,
+        projectId: projectId,
+    })
+
+    if (isExisted)
+        return next(new AppError('The request is already on pending', 400))
+
+    // check if receiver is a member of the project
+    const isMember = await Project.findOne({
+        _id: projectId,
+        memberIds: { $in: [receiver._id] },
+    })
+
+    if (isMember) return next(new AppError('Already member of project', 400))
+
+    // create the request in db
+    const newMemberRequest = await MemberRequest.create({
+        senderId: sender._id,
+        receiverId: receiver._id,
+        projectId: projectId,
+    })
+
+    if (!newMemberRequest)
+        return next(new AppError('Unable to create new member request', 500))
+
+    sendNotificationOnMemberRequest(sender, receiver, projectId)
+
+    res.status(200).json(newMemberRequest)
+})
+
+exports.replyToJoinProject = asyncCatch(async (req, res, next) => {
+    const { userId, projectId, receiverId, response } = req.params
+    console.log(userId, projectId, receiverId, response)
+    const senderId = userId
+
+    if (response !== 'Accept' && response !== 'Deny')
+        return next(new AppError('False response format', 400))
+
+    const replier = await User.findOne({ _id: senderId })
+    const requestSender = await User.findOne({ _id: receiverId })
+    if (!replier || !requestSender)
+        return next(new AppError(`User not found`, 400))
+
+    // check if friend request still existed or not
+    const isExisted = await MemberRequest.findOne({
+        senderId: requestSender._id,
+        receiverId: replier._id,
+        projectId: projectId,
+    })
+    if (isExisted) {
+        sendNotificationOnReply(
+            replier,
+            requestSender,
+            projectId,
+            response === 'Accept'
+        )
+        await MemberRequest.findOneAndDelete({
+            senderId: { $in: [requestSender._id, replier._id] },
+            receiverId: { $in: [requestSender._id, replier._id] },
+            projectId: projectId,
+        })
+    } else return next(new AppError('The request is not existed', 400))
+
     res.status(204).end()
 })

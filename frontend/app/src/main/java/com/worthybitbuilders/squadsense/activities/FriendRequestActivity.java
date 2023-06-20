@@ -18,13 +18,10 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.worthybitbuilders.squadsense.R;
-import com.worthybitbuilders.squadsense.adapters.FriendItemAdapter;
 import com.worthybitbuilders.squadsense.adapters.FriendRequestAdapter;
-import com.worthybitbuilders.squadsense.databinding.ActivityFriendBinding;
 import com.worthybitbuilders.squadsense.databinding.ActivityFriendRequestBinding;
 import com.worthybitbuilders.squadsense.models.Notification;
 import com.worthybitbuilders.squadsense.models.UserModel;
-import com.worthybitbuilders.squadsense.utils.ActivityUtils;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.ToastUtils;
@@ -57,7 +54,7 @@ public class FriendRequestActivity extends AppCompatActivity {
         loadingDialog = DialogUtils.GetLoadingDialog(this);
 
         binding.rvFriendRequest.setLayoutManager(new LinearLayoutManager(this));
-        friendRequestAdapter = new FriendRequestAdapter(this, listFriendRequest);
+        friendRequestAdapter = new FriendRequestAdapter(listFriendRequest);
 
         LoadListFriendRequest();
 
@@ -162,7 +159,7 @@ public class FriendRequestActivity extends AppCompatActivity {
     private void btn_invite_showDialog() {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_btn_invite_by_email);
+        dialog.setContentView(R.layout.popup_invite_by_email);
 
         //Set activity of button in dialog here
         EditText inputEmail = (EditText) dialog.findViewById(R.id.input_email);

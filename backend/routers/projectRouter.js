@@ -12,15 +12,23 @@ router
     .post(projectController.saveNewProject)
 
 router.route('/:projectId').get(projectController.getProjectById)
+router.route('/get-member/:projectId').get(projectController.getMemberOfProject)
 
 router.route('/:projectId/board').post(projectController.createAndGetNewBoard)
+router
+    .route('/request-member/:projectId/:receiverId')
+    .post(projectController.requestMemberToJoinProject)
+
+router
+    .route('/reply-join-project/:projectId/:receiverId/:response')
+    .post(projectController.replyToJoinProject)
 
 router
     .route('/:projectId/board/:boardId')
     .put(projectController.updateBoard)
     .delete(projectController.removeBoard)
 
-router.route('/delete/:projectId').delete(projectController.removeProject)
+router.route('/delete/:projectId').delete(projectController.deleteProjectById)
 
 router
     .route('/:projectId/board/:boardId/column')
