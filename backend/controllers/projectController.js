@@ -559,7 +559,8 @@ exports.getMemberOfProject = asyncCatch(async (req, res, next) => {
 })
 
 const sendNotificationOnMemberRequest = async (sender, receiver, projectId) => {
-    const message = `${sender.name} has sent you a request to join project`
+    const project = await Project.findById(projectId)
+    const message = `${sender.name} has sent you a request to join project ${project.title}`
 
     await Notification.create({
         senderId: sender._id,
@@ -711,8 +712,11 @@ exports.deleteMember = asyncCatch(async (req, res, next) => {
     const project = await Project.findById(projectId)
     if (!project) return next(new AppError('Unable to find project', 404))
 
-    const index = project.memberIds.indexOf(memberId)
-    if (index > -1) project.memberIds.splice(index, 1)
+    const indexMember = project.memberIds.indexOf(memberId)
+    if (indexMember > -1) project.memberIds.splice(indexMember, 1)
+
+    const indexAdmin = project.adminIds.indexOf(memberId)
+    if (indexAdmin > -1) project.memberIds.splice(indexAdmin, 1)
 
     await project.save()
     res.status(204).end()

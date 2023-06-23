@@ -186,7 +186,6 @@ public class ProjectActivity extends AppCompatActivity {
         projectActivityViewModel.getProjectModelLiveData().observe(this, projectModel -> {
             if (projectModel == null) return;
             SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID, projectModel.get_id());
-            SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_TITLE, projectModel.getTitle());
             // set cells content, pass the adapter to let them call the set item
             BoardContentModel content = projectModel.getBoards().get(projectModel.getChosenPosition());
             boardViewModel.setBoardContent(content, projectModel.get_id(), boardAdapter);
@@ -416,6 +415,7 @@ public class ProjectActivity extends AppCompatActivity {
             case ADMIN:
                 projectMoreOptionsBinding.btnRequestAdmin.setVisibility(View.GONE);
                 projectMoreOptionsBinding.btnDeleteProject.setVisibility(View.GONE);
+                projectMoreOptionsBinding.btnRenameProject.setVisibility(View.GONE);
                 break;
             case MEMBER:
                 projectMoreOptionsBinding.btnDeleteProject.setVisibility(View.GONE);

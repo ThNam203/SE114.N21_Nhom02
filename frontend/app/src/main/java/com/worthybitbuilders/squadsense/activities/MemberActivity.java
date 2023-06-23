@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -174,9 +175,19 @@ public class MemberActivity extends AppCompatActivity {
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         popupWindow.setElevation(50);
 
-        //if user is an admin -> show special btn for admin
+        //show view depended on role of user
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
-        if(listAdminId.contains(userId))
+        String creatorId = projectActivityViewModel.getProjectModel().getCreatorId();
+
+        if (seletedMember.getId().equals(userId))
+        {
+            memberMoreOptionsBinding.btnProfileInfo.setVisibility(View.VISIBLE);
+            memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
+            memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
+        }
+        else if(creatorId.equals(userId))
+            showMemberOptionsViewFor(Role.CREATOR, memberMoreOptionsBinding);
+        else if(listAdminId.contains(userId))
             showMemberOptionsViewFor(Role.ADMIN, memberMoreOptionsBinding);
         else
             showMemberOptionsViewFor(Role.MEMBER, memberMoreOptionsBinding);
@@ -210,6 +221,24 @@ public class MemberActivity extends AppCompatActivity {
             }
         });
 
+        memberMoreOptionsBinding.btnProfileInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+
+                if(seletedMember.getId().equals(userId))
+                {
+                    ActivityUtils.switchToActivity(MemberActivity.this, OpenProfileActivity.class);
+                }
+                else
+                {
+                    Intent memberInfoActivityIntent = new Intent(MemberActivity.this, MemberInfoActivity.class);
+                    memberInfoActivityIntent.putExtra("memberId", seletedMember.getId());
+                    startActivity(memberInfoActivityIntent);
+                }
+            }
+        });
+
         popupWindow.setTouchable(true);
         popupWindow.setOutsideTouchable(true);
         int xOffset = anchor.getWidth(); // Offset from the right edge of the anchor view
@@ -217,37 +246,54 @@ public class MemberActivity extends AppCompatActivity {
         popupWindow.showAsDropDown(anchor, xOffset, yOffset);
     }
 
-    enum Role{ ADMIN, MEMBER }
+    enum Role{ CREATOR, ADMIN, MEMBER }
 
     private void showMemberOptionsViewFor(Role role, MemberMoreOptionsBinding memberMoreOptionsBinding)
     {
-        if(role == Role.ADMIN)
+        memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.VISIBLE);
+        memberMoreOptionsBinding.btnProfileInfo.setVisibility(View.VISIBLE);
+        memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.VISIBLE);
+
+        String creatorId = projectActivityViewModel.getProjectModel().getCreatorId();
+        if(role == Role.CREATOR)
         {
             if(listAdminId.contains(seletedMember.getId()))
             {
+                memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
+            }
+        }
+        else if(role == Role.ADMIN)
+        {
+            if(creatorId.equals(seletedMember.getId()))
+            {
                 memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
-                memberMoreOptionsBinding.btnMemberInfo.setVisibility(View.VISIBLE);
+            }
+            else if(listAdminId.contains(seletedMember.getId()))
+            {
+                memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
+                memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
             }
             else
             {
-                memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.VISIBLE);
-                memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.VISIBLE);
-                memberMoreOptionsBinding.btnMemberInfo.setVisibility(View.VISIBLE);
+                memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
             }
         }
         else {
-            if(listAdminId.contains(seletedMember.getId()))
+            if(creatorId.equals(seletedMember.getId()))
             {
                 memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
-                memberMoreOptionsBinding.btnMemberInfo.setVisibility(View.VISIBLE);
+            }
+            else if(listAdminId.contains(seletedMember.getId()))
+            {
+                memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
+                memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
             }
             else
             {
                 memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
-                memberMoreOptionsBinding.btnMemberInfo.setVisibility(View.VISIBLE);
             }
         }
     }
