@@ -21,6 +21,7 @@ import com.worthybitbuilders.squadsense.databinding.AddMemberMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
+import com.worthybitbuilders.squadsense.utils.EventChecker;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.ToastUtils;
 import com.worthybitbuilders.squadsense.viewmodels.FriendViewModel;
@@ -28,18 +29,21 @@ import com.worthybitbuilders.squadsense.viewmodels.ProjectActivityViewModel;
 import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class AddMemberActivity extends AppCompatActivity {
 
     ActivityAddMemberBinding binding;
     List<UserModel> listFriend = new ArrayList<>();
+    List<UserModel> listMember = new ArrayList<>();
+
     FriendViewModel friendViewModel;
     ProjectActivityViewModel projectActivityViewModel;
     UserViewModel userViewModel;
     FriendItemAdapter friendItemAdapter;
-
-    UserModel selectedData = null;
+    UserModel selectedFriend = null;
+    EventChecker eventChecker = new EventChecker();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +53,7 @@ public class AddMemberActivity extends AppCompatActivity {
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         friendViewModel = new ViewModelProvider(this).get(FriendViewModel.class);
         friendItemAdapter = new FriendItemAdapter(listFriend);
+
         binding.rvFriends.setLayoutManager(new LinearLayoutManager(AddMemberActivity.this));
 
         LoadData();
@@ -67,28 +72,64 @@ public class AddMemberActivity extends AppCompatActivity {
     {
         Dialog loadingDialog = DialogUtils.GetLoadingDialog(AddMemberActivity.this);
         loadingDialog.show();
+        eventChecker.setActionWhenComplete(new EventChecker.CompleteCallback() {
+            @Override
+            public void Action() {
+                loadingDialog.dismiss();
+            }
+        });
+
+        int LOAD_MEMBER_CODE = eventChecker.addEventStatusAndGetCode();
+        String projectId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID);
+        if(!projectId.isEmpty())
+        {
+            projectActivityViewModel.getMember(projectId, new ProjectActivityViewModel.ApiCallMemberHandlers() {
+                @Override
+                public void onSuccess(List<UserModel> listMemberData) {
+                    listMember.clear();
+                    listMember.addAll(listMemberData);
+                    LoadFriendData();
+                    eventChecker.markEventAsCompleteAndDoActionIfNeeded(LOAD_MEMBER_CODE);
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    ToastUtils.showToastError(AddMemberActivity.this, message, Toast.LENGTH_SHORT);
+                    eventChecker.markEventAsCompleteAndDoActionIfNeeded(LOAD_MEMBER_CODE);
+                }
+            });
+
+        }
+    }
+
+    private void LoadFriendData()
+    {
+        int LOAD_FRIEND_CODE = eventChecker.addEventStatusAndGetCode();
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
         friendViewModel.getFriendById(userId, new FriendViewModel.getFriendCallback() {
             @Override
             public void onSuccess(List<UserModel> friends) {
+                List<String> memberIds = new ArrayList<>();
+                listMember.forEach(member -> memberIds.add(member.getId()));
+
                 listFriend.clear();
-                listFriend.forEach(friend -> {
-                    ProjectModel project = projectActivityViewModel.getProjectModel();
-                    if(!project.getMemberIds().contains(friend.getId()))
+                friends.forEach(friend -> {
+                    if(!memberIds.contains(friend.getId()))
                     {
                         listFriend.add(friend);
                     }
                 });
+                listFriend.sort(Comparator.comparing(UserModel::getName));
 
                 binding.rvFriends.setAdapter(friendItemAdapter);
                 LoadListFriendView();
-                loadingDialog.dismiss();
+                eventChecker.markEventAsCompleteAndDoActionIfNeeded(LOAD_FRIEND_CODE);
             }
 
             @Override
             public void onFailure(String message) {
                 ToastUtils.showToastError(AddMemberActivity.this, message, Toast.LENGTH_SHORT);
-                loadingDialog.dismiss();
+                eventChecker.markEventAsCompleteAndDoActionIfNeeded(LOAD_FRIEND_CODE);
             }
         });
 
@@ -96,7 +137,7 @@ public class AddMemberActivity extends AppCompatActivity {
             @Override
             public void OnMoreOptionsClick(int position) {
                 View anchor = binding.rvFriends.getLayoutManager().findViewByPosition(position);
-                selectedData = listFriend.get(position);
+                selectedFriend = listFriend.get(position);
                 showAddMemberOptions(anchor);
             }
         });
@@ -126,7 +167,7 @@ public class AddMemberActivity extends AppCompatActivity {
         addMemberMoreOptionsBinding.btnAddMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String receiverEmail = selectedData.getEmail();
+                String receiverEmail = selectedFriend.getEmail();
 
                 userViewModel.getUserByEmail(receiverEmail, new UserViewModel.UserCallback() {
                     @Override
@@ -155,6 +196,7 @@ public class AddMemberActivity extends AppCompatActivity {
         popupWindow.setTouchable(true);
         popupWindow.setOutsideTouchable(true);
         int xOffset = anchor.getWidth(); // Offset from the right edge of the anchor view
-        popupWindow.showAsDropDown(anchor, xOffset, 0);
+        int yOffset = - anchor.getHeight() / 2;
+        popupWindow.showAsDropDown(anchor, xOffset, yOffset);
     }
 }

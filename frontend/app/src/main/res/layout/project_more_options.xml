@@ -33,12 +33,12 @@
         android:background="@color/transparent"/>
 
     <Button
-        android:id="@+id/btnAdminSetting"
+        android:id="@+id/btnRequestAdmin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:icon="@drawable/ic_admin"
         app:iconTint="@color/primary_icon_second_color"
-        android:text="Admin Setting"
+        android:text="Request admin"
         android:textColor="@color/primary_word_second_color"
         android:textAllCaps="false"
         android:textStyle="normal"

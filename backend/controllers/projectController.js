@@ -554,7 +554,7 @@ exports.getMemberOfProject = asyncCatch(async (req, res, next) => {
     )
 
     const listMember = await Promise.all(promises)
-    console.log(listMember)
+    console.log('here is list member: ', listMember)
     res.status(200).json(listMember)
 })
 
@@ -572,7 +572,7 @@ const sendNotificationOnMemberRequest = async (sender, receiver, projectId) => {
     })
 }
 
-const sendNotificationOnReply = async (
+const sendNotificationOnReplyMemberRequest = async (
     sender,
     receiver,
     projectId,
@@ -583,13 +583,13 @@ const sendNotificationOnReply = async (
     if (!project) throw new AppError('Unable to find project', 404)
 
     if (isAccept) {
-        message = `${sender.name} joined your project`
+        message = `${sender.name} was added to project ${project.title}`
 
         // add member to project
         project.memberIds.push(sender._id)
         await project.save()
         console.log(project.memberIds)
-    } else message = `${sender.name} denied to joined request`
+    } else message = `${sender.name} denied to joined project ${project.title}`
 
     await Notification.create({
         senderId: sender._id,
@@ -648,7 +648,7 @@ exports.requestMemberToJoinProject = asyncCatch(async (req, res, next) => {
 
     sendNotificationOnMemberRequest(sender, receiver, projectId)
 
-    res.status(200).json(newMemberRequest)
+    res.status(200).end()
 })
 
 exports.replyToJoinProject = asyncCatch(async (req, res, next) => {
@@ -664,14 +664,14 @@ exports.replyToJoinProject = asyncCatch(async (req, res, next) => {
     if (!replier || !requestSender)
         return next(new AppError(`User not found`, 400))
 
-    // check if friend request still existed or not
+    // check if member request still existed or not
     const isExisted = await MemberRequest.findOne({
         senderId: requestSender._id,
         receiverId: replier._id,
         projectId: projectId,
     })
     if (isExisted) {
-        sendNotificationOnReply(
+        sendNotificationOnReplyMemberRequest(
             replier,
             requestSender,
             projectId,
@@ -704,4 +704,114 @@ exports.updateProject = asyncCatch(async (req, res, next) => {
 
     await project.save()
     res.status(200).end()
+})
+
+exports.deleteMember = asyncCatch(async (req, res, next) => {
+    const { projectId, memberId } = req.params
+    const project = await Project.findById(projectId)
+    if (!project) return next(new AppError('Unable to find project', 404))
+
+    const index = project.memberIds.indexOf(memberId)
+    if (index > -1) project.memberIds.splice(index, 1)
+
+    await project.save()
+    res.status(204).end()
+})
+
+const sendNotificationOnAdminRequest = async (senderId, projectId) => {
+    const project = await Project.findById(projectId)
+    const sender = await User.findById(senderId)
+
+    const message = `${sender.name} has sent a request to be an admin of project ${project.title}`
+
+    project.adminIds.forEach(async (adminId) => {
+        const isExisted = await Notification.findOne({
+            senderId: sender._id,
+            receiverId: adminId,
+            notificationType: 'AdminRequest',
+            link: projectId,
+        })
+
+        if (!isExisted) {
+            await Notification.create({
+                senderId: sender._id,
+                receiverId: adminId,
+                notificationType: 'AdminRequest',
+                title: sender.name,
+                content: message,
+                timestamp: Date.now(),
+                link: projectId,
+            })
+        }
+    })
+}
+
+exports.requestAdmin = asyncCatch(async (req, res, next) => {
+    const { userId, projectId } = req.params
+    const senderId = userId
+
+    await sendNotificationOnAdminRequest(senderId, projectId)
+    res.status(200).end()
+})
+
+const sendNotificationOnReplyAdminRequest = async (
+    sender,
+    receiver,
+    projectId,
+    isAccept
+) => {
+    let message
+    const project = await Project.findById(projectId)
+    if (!project) throw new AppError('Unable to find project', 404)
+
+    if (isAccept) {
+        message = `You was accepted to be an admin of project ${project.title}`
+
+        // add member to project
+        project.adminIds.push(receiver._id)
+        await project.save()
+    } else message = `You was denied to be an admin of project ${project.title}`
+
+    await Notification.create({
+        senderId: sender._id,
+        receiverId: receiver._id,
+        notificationType: 'NewMessage',
+        title: 'Admin',
+        content: message,
+        timestamp: Date.now(),
+    })
+
+    await Notification.findOneAndDelete({
+        senderId: receiver._id,
+        notificationType: 'AdminRequest',
+    })
+}
+
+exports.replyToAdminRequest = asyncCatch(async (req, res, next) => {
+    const { userId, projectId, memberId, response } = req.params
+
+    if (response !== 'Accept' && response !== 'Deny')
+        return next(new AppError('False response format', 400))
+
+    const replier = await User.findOne({ _id: userId })
+    const requestSender = await User.findOne({ _id: memberId })
+    if (!replier || !requestSender)
+        return next(new AppError(`User not found`, 400))
+
+    // check if admin request still existed or not
+    const isExisted = await Notification.findOne({
+        senderId: requestSender._id,
+        notificationType: 'AdminRequest',
+        link: projectId,
+    })
+    if (isExisted) {
+        sendNotificationOnReplyAdminRequest(
+            replier,
+            requestSender,
+            projectId,
+            response === 'Accept'
+        )
+    } else return next(new AppError('The request is not existed', 400))
+
+    res.status(204).end()
 })

@@ -3,6 +3,7 @@ package com.worthybitbuilders.squadsense.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,19 +13,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.models.UserModel;
+import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 
 import java.util.List;
 
 public class MemberAdapter extends RecyclerView.Adapter {
+    private final List<String> adminIds;
     private final List<UserModel> memberList;
     private OnActionCallback callback;
 
     public interface OnActionCallback {
         void OnClick(int position);
+
+        void OnMoreOptionsClick(int position);
     }
 
-    public MemberAdapter(List<UserModel> memberList) {
+    public MemberAdapter(List<UserModel> memberList, List<String> adminIds) {
         this.memberList = memberList;
+        this.adminIds = adminIds;
     }
 
     public void setOnClickListener(OnActionCallback callback) {
@@ -54,15 +60,29 @@ public class MemberAdapter extends RecyclerView.Adapter {
 
     private class MemberHolder extends RecyclerView.ViewHolder {
         TextView tvMemberName;
-        ImageView memberAvatar;
+        ImageView memberAvatar, iconAdmin;
+        ImageButton btnMore;
+
         MemberHolder(View itemView) {
             super(itemView);
             tvMemberName = itemView.findViewById(R.id.member_name);
             memberAvatar = itemView.findViewById(R.id.member_avatar);
+            iconAdmin = itemView.findViewById(R.id.icon_admin);
+            btnMore = itemView.findViewById(R.id.btn_more);
         }
 
         void bind(UserModel member, int position) {
+            //show icon admin
+            if(adminIds.contains(member.getId()))
+                iconAdmin.setVisibility(View.VISIBLE);
+            else
+                iconAdmin.setVisibility(View.GONE);
+
+            String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
+
             tvMemberName.setText(member.getName());
+            if(userId.equals(member.getId()))
+                tvMemberName.setText(tvMemberName.getText().toString() + " (You)");
 
             Glide.with(itemView.getContext())
                     .load(member.getProfileImagePath())
@@ -70,6 +90,7 @@ public class MemberAdapter extends RecyclerView.Adapter {
                     .into(memberAvatar);
 
             itemView.setOnClickListener(view -> callback.OnClick(position));
+            btnMore.setOnClickListener(view -> callback.OnMoreOptionsClick(position));
         }
     }
 }

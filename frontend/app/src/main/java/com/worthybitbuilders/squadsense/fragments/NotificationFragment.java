@@ -14,6 +14,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.AppCompatButton;
@@ -24,9 +26,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.activities.FriendRequestActivity;
 import com.worthybitbuilders.squadsense.activities.InboxActivity;
+import com.worthybitbuilders.squadsense.activities.MemberActivity;
 import com.worthybitbuilders.squadsense.activities.NotificationSettingActivity;
 import com.worthybitbuilders.squadsense.adapters.NotificationAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentNotificationBinding;
+import com.worthybitbuilders.squadsense.databinding.MemberMoreOptionsBinding;
+import com.worthybitbuilders.squadsense.databinding.NotificationMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.models.Notification;
 import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.utils.ActivityUtils;
@@ -66,7 +71,7 @@ public class NotificationFragment extends Fragment {
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         binding.recyclerviewNotification.setLayoutManager(new LinearLayoutManager(getContext()));
-        notificationAdapter = new NotificationAdapter(getContext(), listNotification);
+        notificationAdapter = new NotificationAdapter(listNotification);
 
         setupBtnList();
 
@@ -93,53 +98,98 @@ public class NotificationFragment extends Fragment {
 
             @Override
             public void OnShowingOption(int position) {
-                View notification = binding.recyclerviewNotification.getChildAt(position);
-                registerForContextMenu(notification);
-                getActivity().openContextMenu(notification);
+                View anchor = binding.recyclerviewNotification.getChildAt(position);
+                showNotificationMoreOptions(anchor);
                 selectedNotification = listNotification.get(position);
             }
         });
 
         notificationAdapter.setOnReplyListener(new NotificationAdapter.OnReplyCallback() {
             @Override
-            public void OnAccept(int position) {
+            public void OnAccept(int position, String NOTIFICATION_TYPE) {
                 String projectId = listNotification.get(position).getLink();
                 String senderId = listNotification.get(position).getSenderId();
-                projectActivityViewModel.replyToJoinProject(projectId, senderId, "Accept", new ProjectActivityViewModel.ApiCallHandlers() {
-                    @Override
-                    public void onSuccess() {
-                        ToastUtils.showToastSuccess(getContext(), "You are added to this project, check it now!", Toast.LENGTH_SHORT);
-                        listNotification.remove(position);
-                        tempListNotification.remove(position);
-                        binding.recyclerviewNotification.setAdapter(notificationAdapter);
-                        ReloadNotificationView();
-                    }
+                String senderName = listNotification.get(position).getTitle();
+                switch (NOTIFICATION_TYPE){
+                    case "MemberRequest":
+                        projectActivityViewModel.replyToJoinProject(projectId, senderId, "Accept", new ProjectActivityViewModel.ApiCallHandlers() {
+                            @Override
+                            public void onSuccess() {
+                                String projectTitle = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_TITLE);
+                                ToastUtils.showToastSuccess(getContext(), "You are added to project " + projectTitle + ", check it now!", Toast.LENGTH_SHORT);
+                                listNotification.remove(position);
+                                tempListNotification.remove(position);
+                                binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                                ReloadNotificationView();
+                            }
 
-                    @Override
-                    public void onFailure(String message) {
-                        ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
-                    }
-                });
+                            @Override
+                            public void onFailure(String message) {
+                                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
+                            }
+                        });
+                        break;
+                    case "AdminRequest":
+                        projectActivityViewModel.replyToAdminRequest(projectId, senderId, "Accept", new ProjectActivityViewModel.ApiCallHandlers() {
+                            @Override
+                            public void onSuccess() {
+                                ToastUtils.showToastSuccess(getContext(), "Request of " + senderName + " was accepted", Toast.LENGTH_SHORT);
+                                listNotification.remove(position);
+                                tempListNotification.remove(position);
+                                binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                                ReloadNotificationView();
+                            }
+
+                            @Override
+                            public void onFailure(String message) {
+                                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
+                            }
+                        });
+                        break;
+                }
+
             }
 
             @Override
-            public void OnDeny(int position) {
+            public void OnDeny(int position, String NOTIFICATION_TYPE) {
                 String projectId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID);
                 String senderId = listNotification.get(position).getSenderId();
-                projectActivityViewModel.replyToJoinProject(projectId, senderId, "Deny", new ProjectActivityViewModel.ApiCallHandlers() {
-                    @Override
-                    public void onSuccess() {
-                        listNotification.remove(position);
-                        tempListNotification.remove(position);
-                        binding.recyclerviewNotification.setAdapter(notificationAdapter);
-                        ReloadNotificationView();
-                    }
+                switch (NOTIFICATION_TYPE)
+                {
+                    case "MemberRequest":
 
-                    @Override
-                    public void onFailure(String message) {
-                        ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
-                    }
-                });
+                        projectActivityViewModel.replyToJoinProject(projectId, senderId, "Deny", new ProjectActivityViewModel.ApiCallHandlers() {
+                            @Override
+                            public void onSuccess() {
+                                listNotification.remove(position);
+                                tempListNotification.remove(position);
+                                binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                                ReloadNotificationView();
+                            }
+
+                            @Override
+                            public void onFailure(String message) {
+                                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
+                            }
+                        });
+                        break;
+                    case "AdminRequest":
+                        projectActivityViewModel.replyToAdminRequest(projectId, senderId, "Deny", new ProjectActivityViewModel.ApiCallHandlers() {
+                            @Override
+                            public void onSuccess() {
+                                listNotification.remove(position);
+                                tempListNotification.remove(position);
+                                binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                                ReloadNotificationView();
+                            }
+
+                            @Override
+                            public void onFailure(String message) {
+                                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
+                            }
+                        });
+                        break;
+                }
             }
         });
 
@@ -196,30 +246,6 @@ public class NotificationFragment extends Fragment {
         return binding.getRoot();
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        getActivity().getMenuInflater().inflate(R.menu.notification_context_menu, menu);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.option_setting:
-                ActivityUtils.switchToActivity(getContext(), NotificationSettingActivity.class);
-                return true;
-            case R.id.option_delete:
-                DeleteNotification(selectedNotification);
-                listNotification.remove(selectedNotification);
-                tempListNotification.remove(selectedNotification);
-                binding.recyclerviewNotification.setAdapter(notificationAdapter);
-                ReloadNotificationView();
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
-    }
-
     private void setSelectedBtnInScrollView(Button selectedButton, List<Button> listBtn)
     {
         //change color button unselected selected
@@ -236,6 +262,33 @@ public class NotificationFragment extends Fragment {
         selectedButton.setTextColor(color);
     }
 
+
+    private void showNotificationMoreOptions(View anchor)
+    {
+        NotificationMoreOptionsBinding notificationMoreOptionsBinding = NotificationMoreOptionsBinding.inflate(getLayoutInflater());
+        PopupWindow popupWindow = new PopupWindow(notificationMoreOptionsBinding.getRoot(), LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, false);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popupWindow.setElevation(50);
+
+        notificationMoreOptionsBinding.btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DeleteNotification(selectedNotification);
+                listNotification.remove(selectedNotification);
+                tempListNotification.remove(selectedNotification);
+                binding.recyclerviewNotification.setAdapter(notificationAdapter);
+                ReloadNotificationView();
+                ToastUtils.showToastSuccess(getContext(), "Notification deleted", Toast.LENGTH_SHORT);
+                popupWindow.dismiss();
+            }
+        });
+
+        popupWindow.setTouchable(true);
+        popupWindow.setOutsideTouchable(true);
+        int xOffset = anchor.getWidth(); // Offset from the right edge of the anchor view
+        int yOffset = - anchor.getHeight() / 2;
+        popupWindow.showAsDropDown(anchor, xOffset, yOffset);
+    }
 
     private void ReloadNotificationView()
     {

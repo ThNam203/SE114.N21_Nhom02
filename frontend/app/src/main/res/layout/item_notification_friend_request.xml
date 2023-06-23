@@ -74,7 +74,7 @@
                 android:textSize="20dp"
                 android:textColor="@color/primary_word_color"
                 android:ellipsize="end"
-                android:singleLine="true"
+                android:maxLines="2"
                 tools:text="Hihi"/>
         </LinearLayout>
     </LinearLayout>

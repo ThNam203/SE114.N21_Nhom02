@@ -183,6 +183,7 @@ public class ProjectActivity extends AppCompatActivity {
         projectActivityViewModel.getProjectModelLiveData().observe(this, projectModel -> {
             if (projectModel == null) return;
             SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID, projectModel.get_id());
+            SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_TITLE, projectModel.getTitle());
             // set cells content, pass the adapter to let them call the set item
             BoardContentModel content = projectModel.getBoards().get(projectModel.getChosenPosition());
             boardViewModel.setBoardContent(content, projectModel.get_id(), boardAdapter);
@@ -307,17 +308,17 @@ public class ProjectActivity extends AppCompatActivity {
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         popupWindow.setElevation(50);
 
-        //change view if user a member -> hide btnDeleteProject
-        List<String> AdminIds = projectActivityViewModel.getProjectModel().getAdminIds();
+        //change view for different roles in project like view for user, admin, creator
+        String creatorId = projectActivityViewModel.getProjectModel().getCreatorId();
+        List<String> adminIds = projectActivityViewModel.getProjectModel().getAdminIds();
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
-        if(!AdminIds.contains(userId))
-        {
-            binding.btnDeleteProject.setVisibility(View.GONE);
-        }
+        if(creatorId.equals(userId))
+            showProjectOptionFor(Role.CREATOR, binding);
+        else if(adminIds.contains(userId))
+            showProjectOptionFor(Role.ADMIN, binding);
         else
-        {
-            binding.btnLeaveProject.setVisibility(View.GONE);
-        }
+            showProjectOptionFor(Role.MEMBER, binding);
+
 
         binding.btnShowMember.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -330,6 +331,25 @@ public class ProjectActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showRenamePopup();
+            }
+        });
+
+        binding.btnRequestAdmin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String projectId = projectActivityViewModel.getProjectId();
+                projectActivityViewModel.requestAdmin(projectId, new ProjectActivityViewModel.ApiCallHandlers() {
+                    @Override
+                    public void onSuccess() {
+                        ToastUtils.showToastSuccess(ProjectActivity.this, "Your request was sent to admins of this project", Toast.LENGTH_SHORT);
+                        popupWindow.dismiss();
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        ToastUtils.showToastError(ProjectActivity.this, message, Toast.LENGTH_SHORT);
+                    }
+                });
             }
         });
 
@@ -372,6 +392,32 @@ public class ProjectActivity extends AppCompatActivity {
         popupWindow.setTouchable(true);
         popupWindow.setOutsideTouchable(true);
         popupWindow.showAsDropDown(anchor, 0, 0);
+    }
+
+    private enum Role{MEMBER, CREATOR, ADMIN}
+    private void showProjectOptionFor(Role role, ProjectMoreOptionsBinding projectMoreOptionsBinding)
+    {
+        projectMoreOptionsBinding.btnRequestAdmin.setVisibility(View.VISIBLE);
+        projectMoreOptionsBinding.btnLeaveProject.setVisibility(View.VISIBLE);
+        projectMoreOptionsBinding.btnDeleteProject.setVisibility(View.VISIBLE);
+        projectMoreOptionsBinding.btnRenameProject.setVisibility(View.VISIBLE);
+        projectMoreOptionsBinding.btnShowMember.setVisibility(View.VISIBLE);
+        projectMoreOptionsBinding.btnActivityLog.setVisibility(View.VISIBLE);
+        switch (role)
+        {
+            case CREATOR:
+                projectMoreOptionsBinding.btnLeaveProject.setVisibility(View.GONE);
+                projectMoreOptionsBinding.btnRequestAdmin.setVisibility(View.GONE);
+                break;
+            case ADMIN:
+                projectMoreOptionsBinding.btnRequestAdmin.setVisibility(View.GONE);
+                projectMoreOptionsBinding.btnDeleteProject.setVisibility(View.GONE);
+                break;
+            case MEMBER:
+                projectMoreOptionsBinding.btnDeleteProject.setVisibility(View.GONE);
+                projectMoreOptionsBinding.btnRenameProject.setVisibility(View.GONE);
+                break;
+        }
     }
 
     private void showRenamePopup()

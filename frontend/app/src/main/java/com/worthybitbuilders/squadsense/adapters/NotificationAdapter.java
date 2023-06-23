@@ -23,7 +23,7 @@ public class NotificationAdapter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE_FRIEND_REQUEST = 0;
     private static final int VIEW_TYPE_NEW_MESSAGE = 1;
     private static final int VIEW_TYPE_MEMBER_REQUEST = 2;
-    private Context context;
+    private static final int VIEW_TYPE_ADMIN_REQUEST = 3;
     private List<Notification> notificationList;
     private OnActionCallback actionCallback;
     private OnReplyCallback replyCallback;
@@ -34,12 +34,11 @@ public class NotificationAdapter extends RecyclerView.Adapter {
     }
 
     public interface OnReplyCallback{
-        void OnAccept(int position);
-        void OnDeny(int position);
+        void OnAccept(int position, String NOTIFICATION_TYPE);
+        void OnDeny(int position, String NOTIFICATION_TYPE);
     }
 
-    public NotificationAdapter(Context context, List<Notification> notificationList) {
-        this.context = context;
+    public NotificationAdapter(List<Notification> notificationList) {
         this.notificationList = notificationList;
     }
 
@@ -64,6 +63,9 @@ public class NotificationAdapter extends RecyclerView.Adapter {
         else if(notification.getNotificationType().equals("MemberRequest")) {
             return VIEW_TYPE_MEMBER_REQUEST;
         }
+        else if(notification.getNotificationType().equals("AdminRequest")) {
+            return VIEW_TYPE_ADMIN_REQUEST;
+        }
         return -1;
     }
 
@@ -87,6 +89,11 @@ public class NotificationAdapter extends RecyclerView.Adapter {
                     .inflate(R.layout.item_notification_member_request, parent, false);
             return new MemberRequestNotificationHolder(view);
         }
+        else if (viewType == VIEW_TYPE_ADMIN_REQUEST) {
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_notification_admin_request, parent, false);
+            return new AdminRequestNotificationHolder(view);
+        }
         return null;
     }
 
@@ -103,6 +110,9 @@ public class NotificationAdapter extends RecyclerView.Adapter {
                 break;
             case VIEW_TYPE_MEMBER_REQUEST:
                 ((NotificationAdapter.MemberRequestNotificationHolder) holder).bind(notification, position);
+                break;
+            case VIEW_TYPE_ADMIN_REQUEST:
+                ((NotificationAdapter.AdminRequestNotificationHolder) holder).bind(notification, position);
         }
     }
 
@@ -193,14 +203,50 @@ public class NotificationAdapter extends RecyclerView.Adapter {
             btnAccept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    replyCallback.OnAccept(position);
+                    replyCallback.OnAccept(position, notification.getNotificationType());
                 }
             });
 
             btnDeny.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    replyCallback.OnDeny(position);
+                    replyCallback.OnDeny(position, notification.getNotificationType());
+                }
+            });
+        }
+    }
+
+    private class AdminRequestNotificationHolder extends RecyclerView.ViewHolder {
+        TextView tvTitle, tvContent, tvTimestamps;
+
+        AppCompatButton btnAccept, btnDeny;
+
+        AdminRequestNotificationHolder(View itemView) {
+            super(itemView);
+            tvTitle = (TextView) itemView.findViewById(R.id.title);
+            tvContent = (TextView) itemView.findViewById(R.id.content);
+            tvTimestamps = (TextView) itemView.findViewById(R.id.timestamps);
+
+            btnAccept = (AppCompatButton) itemView.findViewById(R.id.btn_accept);
+            btnDeny =(AppCompatButton) itemView.findViewById(R.id.btn_deny);
+        }
+
+        void bind(Notification notification, int position) {
+            tvTitle.setText(notification.getTitle());
+            tvContent.setText(notification.getContent());
+            tvTimestamps.setText(notification.getTimeCreated());
+
+            btnAccept.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    replyCallback.OnAccept(position, notification.getNotificationType());
+                }
+            });
+
+            btnDeny.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    replyCallback.OnDeny(position, notification.getNotificationType());
                 }
             });
         }

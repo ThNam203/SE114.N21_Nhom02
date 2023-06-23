@@ -42,6 +42,9 @@ public interface ProjectService {
     @GET("{userId}/project/get-member/{projectId}")
     Call<List<UserModel>> getMember(@Path("userId") String userId, @Path("projectId") String projectId);
 
+    @DELETE("{userId}/project/delete-member/{projectId}/{memberId}")
+    Call<Void> deleteMember(@Path("userId") String userId, @Path("projectId") String projectId, @Path("memberId") String memberId);
+
     @POST("{userId}/project")
     Call<ProjectModel> saveProject(@Path("userId") String userId, @Body ProjectModel projectModel);
 
@@ -49,7 +52,13 @@ public interface ProjectService {
     Call<Void> updateProject(@Path("userId") String userId, @Path("projectId") String projectId, @Body ProjectModel projectModel);
 
     @POST("{userId}/project/request-member/{projectId}/{receiverId}")
-    Call<String> requestMemberToJoinProject(@Path("userId") String userId, @Path("projectId") String projectId, @Path("receiverId") String receiverId);
+    Call<Void> requestMemberToJoinProject(@Path("userId") String userId, @Path("projectId") String projectId, @Path("receiverId") String receiverId);
+
+    @POST("{userId}/project/request-admin/{projectId}")
+    Call<Void> requestAdmin(@Path("userId") String userId, @Path("projectId") String projectId);
+
+    @POST("{userId}/project/reply-to-admin-request/{projectId}/{memberId}/{response}")
+    Call<Void> replyToAdminRequest(@Path("userId") String userId, @Path("projectId") String projectId, @Path("memberId") String memberId, @Path("response") String response);
 
     @POST("{userId}/project/reply-join-project/{projectId}/{receiverId}/{response}")
     Call<String> replyToJoinProject(@Path("userId") String userId, @Path("projectId") String projectId, @Path("receiverId") String receiverId, @Path("response") String response);

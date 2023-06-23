@@ -22,6 +22,7 @@ const notificationSchema = new mongoose.Schema(
                 'Like',
                 'Share',
                 'MemberRequest',
+                'AdminRequest',
             ],
         },
         title: {
