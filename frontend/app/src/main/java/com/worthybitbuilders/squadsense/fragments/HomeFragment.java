@@ -4,14 +4,17 @@ package com.worthybitbuilders.squadsense.fragments;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,6 +38,7 @@ import com.worthybitbuilders.squadsense.adapters.ProjectAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentHomeBinding;
 import com.worthybitbuilders.squadsense.databinding.MemberMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.databinding.PopupBtnAddBinding;
+import com.worthybitbuilders.squadsense.databinding.PopupFavoriteProjectBinding;
 import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.utils.ActivityUtils;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
@@ -43,13 +48,18 @@ import com.worthybitbuilders.squadsense.viewmodels.FriendViewModel;
 import com.worthybitbuilders.squadsense.viewmodels.MainActivityViewModel;
 import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
     private ProjectAdapter projectAdapter;
     private MainActivityViewModel viewModel;
 
-    FriendViewModel friendViewModel;
-    UserViewModel userViewModel;
+    private FriendViewModel friendViewModel;
+    private UserViewModel userViewModel;
+    private List<AppCompatButton> listOption = new ArrayList<>();
+    private int selectedOptionIndex = -1;
 
     @SuppressLint({"ClickableViewAccessibility", "NotifyDataSetChanged"})
     @Override
@@ -62,10 +72,10 @@ public class HomeFragment extends Fragment {
 
         LoadData();
 
-        binding.btnMyfavorites.setOnClickListener(new View.OnClickListener() {
+        binding.btnOptionView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btn_myfavorities_showPopup();
+                btnOptionView_showPopup();
             }
         });
         binding.btnAddperson.setOnClickListener(new View.OnClickListener() {
@@ -237,10 +247,11 @@ public class HomeFragment extends Fragment {
         ActivityUtils.switchToActivity(getContext(), AddBoardActivity.class);
     }
 
-    private void btn_myfavorities_showPopup() {
+    private void btnOptionView_showPopup() {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_favorite_project);
+        PopupFavoriteProjectBinding popupFavoriteProjectBinding = PopupFavoriteProjectBinding.inflate(getLayoutInflater());
+        dialog.setContentView(popupFavoriteProjectBinding.getRoot());
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -248,53 +259,83 @@ public class HomeFragment extends Fragment {
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         dialog.show();
 
+        setupListOption(popupFavoriteProjectBinding);
+
         //      Set activity of button in dialog here
-        ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
-        btnClosePopup.setOnClickListener(new View.OnClickListener() {
+        popupFavoriteProjectBinding.btnClosePopup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
             }
         });
 
-        LinearLayout optionRecent = (LinearLayout) dialog.findViewById(R.id.option_recent);
-        LinearLayout optionMyfavorite = (LinearLayout) dialog.findViewById(R.id.option_myfavorite);
-
-        ImageView iconRecent = (ImageView) dialog.findViewById(R.id.option_recent_icon);
-        TextView titleRecent = (TextView) dialog.findViewById(R.id.option_recent_title);
-        ImageView tickRecent = (ImageView) dialog.findViewById(R.id.option_recent_tick);
-        ImageView iconMyfavorite = (ImageView) dialog.findViewById(R.id.option_myfavorite_icon);
-        TextView titleMyfavorite = (TextView) dialog.findViewById(R.id.option_myfavorite_title);
-        ImageView tickMyfavorite = (ImageView) dialog.findViewById(R.id.option_myfavorite_tick);
-
-        int chosenColor = getResources().getColor(R.color.chosen_color);
-        int defaultColor = getResources().getColor(R.color.primary_icon_color);
-
-        updateButtonState(iconRecent, titleRecent, tickRecent, chosenColor, true);
-        optionRecent.setOnClickListener(new View.OnClickListener() {
+        popupFavoriteProjectBinding.optionRecent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateButtonState(iconRecent, titleRecent, tickRecent, chosenColor, true);
-                updateButtonState(iconMyfavorite, titleMyfavorite, tickMyfavorite, defaultColor, false);
+                setSelectedOption(popupFavoriteProjectBinding.optionRecent);
             }
         });
 
-        optionMyfavorite.setOnClickListener(new View.OnClickListener() {
+        popupFavoriteProjectBinding.optionAllPorject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateButtonState(iconRecent, titleRecent, tickRecent, defaultColor, false);
-                updateButtonState(iconMyfavorite, titleMyfavorite, tickMyfavorite, chosenColor, true);
+                setSelectedOption(popupFavoriteProjectBinding.optionAllPorject);
             }
         });
     }
 
-    private void updateButtonState(ImageView icon, TextView title, ImageView tick, int color, boolean tickState)
+    private void setupListOption(PopupFavoriteProjectBinding popupFavoriteProjectBinding)
     {
-        icon.setColorFilter(color);
-        title.setTextColor(color);
-        if(tickState)  tick.setVisibility(View.VISIBLE);
-        else tick.setVisibility(View.INVISIBLE);
+        listOption.clear();
+        listOption.add(popupFavoriteProjectBinding.optionRecent);
+        listOption.add(popupFavoriteProjectBinding.optionAllPorject);
+
+        if(selectedOptionIndex == -1)
+        {
+            setSelectedOption(popupFavoriteProjectBinding.optionAllPorject);
+            selectedOptionIndex = listOption.indexOf(popupFavoriteProjectBinding.optionAllPorject);
+        }
+        else
+        {
+            setSelectedOption(listOption.get(selectedOptionIndex));
+        }
     }
+
+
+    private void setSelectedOption(AppCompatButton option)
+    {
+        int chosenOptionColor = ContextCompat.getColor(getContext(), R.color.chosen_color);
+        int primaryOptionColor = ContextCompat.getColor(getContext(), R.color.primary_word_color);
+
+        listOption.forEach(item -> {
+            setDrawableRight(item, null);
+            changeColorButton(item, primaryOptionColor);
+        });
+
+        selectedOptionIndex = listOption.indexOf(option);
+        Drawable drawableRight = getResources().getDrawable(R.drawable.ic_tick, null);
+        setDrawableRight(option, drawableRight);
+        changeColorButton(option, chosenOptionColor);
+
+        binding.titleOptionView.setText(option.getText().toString());
+    }
+
+    private void changeColorButton(AppCompatButton btn, int color)
+    {
+        btn.setTextColor(color);
+        btn.setCompoundDrawableTintList(ColorStateList.valueOf(color));
+    }
+
+    private void setDrawableRight(AppCompatButton button, Drawable drawableRight) {
+        button.post(new Runnable() {
+            @Override
+            public void run() {
+                Drawable[] drawables = button.getCompoundDrawables();
+                button.setCompoundDrawablesRelativeWithIntrinsicBounds(drawables[0], drawables[1], drawableRight, drawables[3]);
+            }
+        });
+    }
+
     private void labelSearch_showActivity() {
         ActivityUtils.switchToActivity(getContext(), SearchActivity.class);
     }
