@@ -96,7 +96,6 @@ public class MemberActivity extends AppCompatActivity {
                 listMember.clear();
                 listMember.addAll(listMemberData);
                 listMember.sort(Comparator.comparing(UserModel::getName));
-                binding.rvMembers.setAdapter(memberAdapter);
                 LoadListMemberView();
                 eventChecker.markEventAsCompleteAndDoActionIfNeeded(LOAD_MEMBER_CODE);
             }
@@ -157,6 +156,9 @@ public class MemberActivity extends AppCompatActivity {
 
     private void LoadListMemberView()
     {
+        memberAdapter.notifyDataSetChanged();
+        binding.rvMembers.setAdapter(memberAdapter);
+
         if(listMember.size() > 0)
         {
             binding.rvMembers.setVisibility(View.VISIBLE);
@@ -184,6 +186,7 @@ public class MemberActivity extends AppCompatActivity {
             memberMoreOptionsBinding.btnProfileInfo.setVisibility(View.VISIBLE);
             memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
             memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
+            memberMoreOptionsBinding.btnChangeToMember.setVisibility(View.GONE);
         }
         else if(creatorId.equals(userId))
             showMemberOptionsViewFor(Role.CREATOR, memberMoreOptionsBinding);
@@ -201,7 +204,7 @@ public class MemberActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         listMember.remove(seletedMember);
-                        binding.rvMembers.setAdapter(memberAdapter);
+                        LoadListMemberView();
                         popupWindow.dismiss();
                         ToastUtils.showToastSuccess(MemberActivity.this, "Member deleted", Toast.LENGTH_SHORT);
                     }
@@ -217,7 +220,70 @@ public class MemberActivity extends AppCompatActivity {
         memberMoreOptionsBinding.btnMakeAdmin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String titleComfirmDialog = "Make admin";
+                String contentComfirmDialog = "Are you sure you want to change the role to Admin for this user?";
+                DialogUtils.showConfirmDialogYesNo(MemberActivity.this, titleComfirmDialog, contentComfirmDialog, new DialogUtils.ConfirmAction() {
+                    @Override
+                    public void onAcceptToDo(Dialog thisDialog) {
+                        String projectId = projectActivityViewModel.getProjectId();
+                        String memberId = seletedMember.getId();
+                        projectActivityViewModel.makeAdmin(projectId, memberId, new ProjectActivityViewModel.ApiCallHandlers() {
+                            @Override
+                            public void onSuccess() {
+                                ToastUtils.showToastSuccess(MemberActivity.this, seletedMember.getName() + " has been successfully changed to the Admin", Toast.LENGTH_SHORT);
+                                LoadData();
+                            }
 
+                            @Override
+                            public void onFailure(String message) {
+                                ToastUtils.showToastError(MemberActivity.this, message, Toast.LENGTH_SHORT);
+                            }
+                        });
+                        thisDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onCancel(Dialog thisDialog) {
+                        thisDialog.dismiss();
+                    }
+                });
+                popupWindow.dismiss();
+            }
+        });
+
+        memberMoreOptionsBinding.btnChangeToMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String titleComfirmDialog = "Change to member";
+                String contentComfirmDialog = "Are you sure you want to change the role to Member for this user?";
+                DialogUtils.showConfirmDialogYesNo(MemberActivity.this, titleComfirmDialog, contentComfirmDialog, new DialogUtils.ConfirmAction() {
+                    @Override
+                    public void onAcceptToDo(Dialog thisDialog) {
+                        thisDialog.dismiss();
+
+                        String projectId = projectActivityViewModel.getProjectId();
+                        String adminId = seletedMember.getId();
+                        projectActivityViewModel.changeAdminToMember(projectId, adminId, new ProjectActivityViewModel.ApiCallHandlers() {
+                            @Override
+                            public void onSuccess() {
+                                ToastUtils.showToastSuccess(MemberActivity.this, seletedMember.getName() + " has been successfully changed to the Member", Toast.LENGTH_SHORT);
+                                LoadData();
+                            }
+
+                            @Override
+                            public void onFailure(String message) {
+                                ToastUtils.showToastError(MemberActivity.this, message, Toast.LENGTH_SHORT);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancel(Dialog thisDialog) {
+                        thisDialog.dismiss();
+
+                    }
+                });
+                popupWindow.dismiss();
             }
         });
 
@@ -253,6 +319,7 @@ public class MemberActivity extends AppCompatActivity {
         memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.VISIBLE);
         memberMoreOptionsBinding.btnProfileInfo.setVisibility(View.VISIBLE);
         memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.VISIBLE);
+        memberMoreOptionsBinding.btnChangeToMember.setVisibility(View.VISIBLE);
 
         String creatorId = projectActivityViewModel.getProjectModel().getCreatorId();
         if(role == Role.CREATOR)
@@ -261,6 +328,9 @@ public class MemberActivity extends AppCompatActivity {
             {
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
             }
+            else{
+                memberMoreOptionsBinding.btnChangeToMember.setVisibility(View.GONE);
+            }
         }
         else if(role == Role.ADMIN)
         {
@@ -268,15 +338,18 @@ public class MemberActivity extends AppCompatActivity {
             {
                 memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
+                memberMoreOptionsBinding.btnChangeToMember.setVisibility(View.GONE);
             }
             else if(listAdminId.contains(seletedMember.getId()))
             {
                 memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
+                memberMoreOptionsBinding.btnChangeToMember.setVisibility(View.GONE);
             }
             else
             {
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
+                memberMoreOptionsBinding.btnChangeToMember.setVisibility(View.GONE);
             }
         }
         else {
@@ -284,16 +357,19 @@ public class MemberActivity extends AppCompatActivity {
             {
                 memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
+                memberMoreOptionsBinding.btnChangeToMember.setVisibility(View.GONE);
             }
             else if(listAdminId.contains(seletedMember.getId()))
             {
                 memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
+                memberMoreOptionsBinding.btnChangeToMember.setVisibility(View.GONE);
             }
             else
             {
                 memberMoreOptionsBinding.btnDeleteMember.setVisibility(View.GONE);
                 memberMoreOptionsBinding.btnMakeAdmin.setVisibility(View.GONE);
+                memberMoreOptionsBinding.btnChangeToMember.setVisibility(View.GONE);
             }
         }
     }

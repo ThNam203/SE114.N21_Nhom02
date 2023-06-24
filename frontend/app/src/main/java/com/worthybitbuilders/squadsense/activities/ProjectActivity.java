@@ -361,7 +361,7 @@ public class ProjectActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String titleConfirmDialog = "Delete";
                 String contentConfirmDialog = "Do you want to delete this project ?";
-                DialogUtils.showConfirmDialog(ProjectActivity.this, titleConfirmDialog, contentConfirmDialog, new DialogUtils.ConfirmAction() {
+                DialogUtils.showConfirmDialogDelete(ProjectActivity.this, titleConfirmDialog, contentConfirmDialog, new DialogUtils.ConfirmAction() {
                     @Override
                     public void onAcceptToDo(Dialog thisDialog) {
                         thisDialog.dismiss();
@@ -525,7 +525,7 @@ public class ProjectActivity extends AppCompatActivity {
     private void showConfirmDeleteColumn(BoardColumnHeaderModel headerModel, int columnPosition) {
         String titleConfirmDialog = String.format(Locale.US, "Delete column \"%s\"?", headerModel.getTitle());
         String contentConfirmDialog = "This column will be removed from the board";
-        DialogUtils.showConfirmDialog(this, titleConfirmDialog, contentConfirmDialog, new DialogUtils.ConfirmAction() {
+        DialogUtils.showConfirmDialogDelete(this, titleConfirmDialog, contentConfirmDialog, new DialogUtils.ConfirmAction() {
             @Override
             public void onAcceptToDo(Dialog thisDialog) {
                 boardViewModel.deleteColumn(columnPosition, new BoardViewModel.ApiCallHandler() {

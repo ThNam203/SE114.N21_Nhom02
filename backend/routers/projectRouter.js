@@ -21,6 +21,13 @@ router
 
 router.route('/request-admin/:projectId').post(projectController.requestAdmin)
 router
+    .route('/make-admin/:projectId/:memberId')
+    .post(projectController.makeAdmin)
+
+router
+    .route('/change-admin-to-member/:projectId/:adminId')
+    .post(projectController.changeAdminToMember)
+router
     .route('/reply-to-admin-request/:projectId/:memberId/:response')
     .post(projectController.replyToAdminRequest)
 

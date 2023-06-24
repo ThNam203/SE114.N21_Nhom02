@@ -32,6 +32,8 @@ import com.worthybitbuilders.squadsense.activities.ProjectActivity;
 import com.worthybitbuilders.squadsense.activities.SearchActivity;
 import com.worthybitbuilders.squadsense.adapters.ProjectAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentHomeBinding;
+import com.worthybitbuilders.squadsense.databinding.MemberMoreOptionsBinding;
+import com.worthybitbuilders.squadsense.databinding.PopupBtnAddBinding;
 import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.utils.ActivityUtils;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
@@ -76,7 +78,7 @@ public class HomeFragment extends Fragment {
         binding.btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnAdd_showPopup();
+                btnAdd_showPopup(view);
             }
         });
         binding.labelSearch.setOnTouchListener(new View.OnTouchListener() {
@@ -136,34 +138,21 @@ public class HomeFragment extends Fragment {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void btnAdd_showPopup() {
-        View popupView = getLayoutInflater().inflate(R.layout.popup_btn_add, null);
-        View layout = binding.getRoot();
-        int width = ViewGroup.LayoutParams.MATCH_PARENT;
-        int height = ViewGroup.LayoutParams.MATCH_PARENT;
-
-        PopupWindow popupWindow = new PopupWindow(popupView,width,height, true);
+    private void btnAdd_showPopup(View anchor) {
+        PopupBtnAddBinding popupBtnAddBinding = PopupBtnAddBinding.inflate(getLayoutInflater());
+        PopupWindow popupWindow = new PopupWindow(popupBtnAddBinding.getRoot(), LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         popupWindow.setAnimationStyle(R.style.PopupAnimationRight);
-        layout.post(new Runnable() {
-            @Override
-            public void run() {
-                popupWindow.showAtLocation(layout, Gravity.RIGHT, 0, 550);
-            }
-        });
+        popupWindow.setElevation(50);
 
-        popupView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                popupWindow.dismiss();
-                return true;
-            }
-        });
+        popupBtnAddBinding.btnAddItem.setOnClickListener(view -> btn_add_item_showPopup());
+        popupBtnAddBinding.btnAddBoard.setOnClickListener(view -> btn_add_board_showPopup());
 
-        LinearLayout btnAddItem = popupView.findViewById(R.id.btn_add_item);
-        btnAddItem.setOnClickListener(view -> btn_add_item_showPopup());
-
-        LinearLayout btnAddBoard = popupView.findViewById(R.id.btn_add_board);
-        btnAddBoard.setOnClickListener(view -> btn_add_board_showPopup());
+        popupWindow.setTouchable(true);
+        popupWindow.setOutsideTouchable(true);
+        int xOffset = - 3 * anchor.getWidth();
+        int yOffset = - 3 * anchor.getHeight();
+        popupWindow.showAsDropDown(anchor, xOffset, yOffset);
     }
 
     private void btn_addperson_showPopup() {
