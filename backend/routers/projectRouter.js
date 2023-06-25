@@ -13,7 +13,6 @@ router
 
 router.route('/:projectId').get(projectController.getProjectById)
 router.route('/get-member/:projectId').get(projectController.getMemberOfProject)
-
 router.route('/:projectId/board').post(projectController.createAndGetNewBoard)
 router
     .route('/request-member/:projectId/:receiverId')

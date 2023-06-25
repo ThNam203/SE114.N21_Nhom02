@@ -38,10 +38,13 @@ import com.worthybitbuilders.squadsense.adapters.ProjectAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentHomeBinding;
 import com.worthybitbuilders.squadsense.databinding.MemberMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.databinding.PopupBtnAddBinding;
-import com.worthybitbuilders.squadsense.databinding.PopupFavoriteProjectBinding;
+import com.worthybitbuilders.squadsense.databinding.PopupOptionViewProjectBinding;
+import com.worthybitbuilders.squadsense.models.MinimizedProjectModel;
 import com.worthybitbuilders.squadsense.models.UserModel;
+import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
 import com.worthybitbuilders.squadsense.utils.ActivityUtils;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
+import com.worthybitbuilders.squadsense.utils.EventChecker;
 import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.ToastUtils;
 import com.worthybitbuilders.squadsense.viewmodels.FriendViewModel;
@@ -59,7 +62,10 @@ public class HomeFragment extends Fragment {
     private FriendViewModel friendViewModel;
     private UserViewModel userViewModel;
     private List<AppCompatButton> listOption = new ArrayList<>();
-    private int selectedOptionIndex = -1;
+    private List<MinimizedProjectModel> listMinimizeProject = new ArrayList<>();
+    private enum OptionViewProject {ALLPROJECT, RECENT, MYPROJECT}
+    private OptionViewProject optionViewProject = OptionViewProject.ALLPROJECT;
+    private EventChecker eventChecker = new EventChecker();
 
     @SuppressLint({"ClickableViewAccessibility", "NotifyDataSetChanged"})
     @Override
@@ -69,8 +75,14 @@ public class HomeFragment extends Fragment {
         viewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         friendViewModel = new ViewModelProvider(getActivity()).get(FriendViewModel.class);
         userViewModel = new ViewModelProvider(getActivity()).get(UserViewModel.class);
+        binding.rvProjects.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        LoadData();
+        projectAdapter = new ProjectAdapter(listMinimizeProject, _id -> {
+            Intent intent = new Intent(getContext(), ProjectActivity.class);
+            intent.putExtra("whatToDo", "fetch");
+            intent.putExtra("projectId", _id);
+            startActivity(intent);
+        });
 
         binding.btnOptionView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,45 +117,54 @@ public class HomeFragment extends Fragment {
     }
 
     //define function here
-
     private void LoadData()
     {
-        // THERE IS ONLY "ONFAILURE" method
         Dialog loadingDialog = DialogUtils.GetLoadingDialog(getContext());
         loadingDialog.show();
+        eventChecker.setActionWhenComplete(new EventChecker.CompleteCallback() {
+            @Override
+            public void Action() {
+                loadingDialog.dismiss();
+            }
+        });
+
+        int GET_ALL_PROJECT_CODE = eventChecker.addEventStatusAndGetCode();
         viewModel.getAllProjects(new MainActivityViewModel.GetProjectsFromRemoteHandlers() {
             @Override
-            public void onSuccess() {
-                loadingDialog.dismiss();
+            public void onSuccess(List<MinimizedProjectModel> dataMinimizeProjects) {
+                listMinimizeProject.clear();
+                listMinimizeProject.addAll(dataMinimizeProjects);
+                setListMinimizeProjectOnOptionView();
+                eventChecker.markEventAsCompleteAndDoActionIfNeeded(GET_ALL_PROJECT_CODE);
             }
+
             @Override
             public void onFailure(String message) {
-                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_LONG);
-                loadingDialog.dismiss();
+                eventChecker.markEventAsCompleteAndDoActionIfNeeded(GET_ALL_PROJECT_CODE);
+                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
             }
         });
+    }
 
-        viewModel.getProjectsLiveData().observe(getViewLifecycleOwner(), minimizedProjectModels -> {
-            if (minimizedProjectModels == null || minimizedProjectModels.size() == 0)
-                binding.emptyProjectsContainer.setVisibility(View.VISIBLE);
-            else binding.emptyProjectsContainer.setVisibility(View.GONE);
-            projectAdapter.setData(minimizedProjectModels);
-        });
-
-        projectAdapter = new ProjectAdapter(null, _id -> {
-            Intent intent = new Intent(getContext(), ProjectActivity.class);
-            intent.putExtra("whatToDo", "fetch");
-            intent.putExtra("projectId", _id);
-            startActivity(intent);
-        });
-        binding.rvProjects.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.rvProjects.setHasFixedSize(true);
+    private void LoadListMinimizeProjectView()
+    {
         binding.rvProjects.setAdapter(projectAdapter);
+
+        if(listMinimizeProject.size() > 0)
+        {
+            binding.emptyProjectsContainer.setVisibility(View.GONE);
+            binding.rvProjects.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            binding.emptyProjectsContainer.setVisibility(View.VISIBLE);
+            binding.rvProjects.setVisibility(View.GONE);
+        }
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         LoadData();
     }
 
@@ -250,8 +271,8 @@ public class HomeFragment extends Fragment {
     private void btnOptionView_showPopup() {
         final Dialog dialog = new Dialog(getActivity());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        PopupFavoriteProjectBinding popupFavoriteProjectBinding = PopupFavoriteProjectBinding.inflate(getLayoutInflater());
-        dialog.setContentView(popupFavoriteProjectBinding.getRoot());
+        PopupOptionViewProjectBinding popupOptionViewProjectBinding = PopupOptionViewProjectBinding.inflate(getLayoutInflater());
+        dialog.setContentView(popupOptionViewProjectBinding.getRoot());
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -259,46 +280,60 @@ public class HomeFragment extends Fragment {
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         dialog.show();
 
-        setupListOption(popupFavoriteProjectBinding);
+        setupListOption(popupOptionViewProjectBinding);
 
         //      Set activity of button in dialog here
-        popupFavoriteProjectBinding.btnClosePopup.setOnClickListener(new View.OnClickListener() {
+        popupOptionViewProjectBinding.btnClosePopup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
             }
         });
 
-        popupFavoriteProjectBinding.optionRecent.setOnClickListener(new View.OnClickListener() {
+        popupOptionViewProjectBinding.optionRecent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setSelectedOption(popupFavoriteProjectBinding.optionRecent);
+                setSelectedOption(popupOptionViewProjectBinding.optionRecent);
+                optionViewProject = OptionViewProject.RECENT;
+                LoadData();
+                dialog.dismiss();
             }
         });
 
-        popupFavoriteProjectBinding.optionAllPorject.setOnClickListener(new View.OnClickListener() {
+        popupOptionViewProjectBinding.optionAllPorject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setSelectedOption(popupFavoriteProjectBinding.optionAllPorject);
+                setSelectedOption(popupOptionViewProjectBinding.optionAllPorject);
+                optionViewProject = OptionViewProject.ALLPROJECT;
+                LoadData();
+                dialog.dismiss();
+            }
+        });
+
+        popupOptionViewProjectBinding.optionMyPorject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setSelectedOption(popupOptionViewProjectBinding.optionMyPorject);
+                optionViewProject = OptionViewProject.MYPROJECT;
+                LoadData();
+                dialog.dismiss();
             }
         });
     }
 
-    private void setupListOption(PopupFavoriteProjectBinding popupFavoriteProjectBinding)
+    private void setupListOption(PopupOptionViewProjectBinding popupOptionViewProjectBinding)
     {
         listOption.clear();
-        listOption.add(popupFavoriteProjectBinding.optionRecent);
-        listOption.add(popupFavoriteProjectBinding.optionAllPorject);
+        listOption.add(popupOptionViewProjectBinding.optionRecent);
+        listOption.add(popupOptionViewProjectBinding.optionAllPorject);
+        listOption.add(popupOptionViewProjectBinding.optionMyPorject);
 
-        if(selectedOptionIndex == -1)
-        {
-            setSelectedOption(popupFavoriteProjectBinding.optionAllPorject);
-            selectedOptionIndex = listOption.indexOf(popupFavoriteProjectBinding.optionAllPorject);
-        }
-        else
-        {
-            setSelectedOption(listOption.get(selectedOptionIndex));
-        }
+        if(optionViewProject == OptionViewProject.ALLPROJECT)
+            setSelectedOption(popupOptionViewProjectBinding.optionAllPorject);
+        else if (optionViewProject == OptionViewProject.RECENT)
+            setSelectedOption(popupOptionViewProjectBinding.optionRecent);
+        else if (optionViewProject == OptionViewProject.MYPROJECT)
+            setSelectedOption(popupOptionViewProjectBinding.optionMyPorject);
     }
 
 
@@ -312,7 +347,6 @@ public class HomeFragment extends Fragment {
             changeColorButton(item, primaryOptionColor);
         });
 
-        selectedOptionIndex = listOption.indexOf(option);
         Drawable drawableRight = getResources().getDrawable(R.drawable.ic_tick, null);
         setDrawableRight(option, drawableRight);
         changeColorButton(option, chosenOptionColor);
@@ -334,6 +368,64 @@ public class HomeFragment extends Fragment {
                 button.setCompoundDrawablesRelativeWithIntrinsicBounds(drawables[0], drawables[1], drawableRight, drawables[3]);
             }
         });
+    }
+
+    private void setListMinimizeProjectOnOptionView()
+    {
+        if(optionViewProject == OptionViewProject.ALLPROJECT) {
+            LoadListMinimizeProjectView();
+        }
+        else if (optionViewProject == OptionViewProject.RECENT) {
+            int GET_RECENT_PROJECT_ID_CODE = eventChecker.addEventStatusAndGetCode();
+            userViewModel.getRecentProjectId(new UserViewModel.RecentProjectIdsCallback() {
+                @Override
+                public void onSuccess(List<String> dataRecentProjectIds) {
+                    List<MinimizedProjectModel> toRemove = new ArrayList<>();
+                    listMinimizeProject.forEach(minimizedProjectModel -> {
+                        if (!dataRecentProjectIds.contains(minimizedProjectModel.get_id()))
+                            toRemove.add(minimizedProjectModel);
+                    });
+
+                    toRemove.forEach(item -> {
+                        listMinimizeProject.remove(item);
+                    });
+                    LoadListMinimizeProjectView();
+                    eventChecker.markEventAsCompleteAndDoActionIfNeeded(GET_RECENT_PROJECT_ID_CODE);
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
+                    eventChecker.markEventAsCompleteAndDoActionIfNeeded(GET_RECENT_PROJECT_ID_CODE);
+                }
+            });
+        }
+        else if(optionViewProject == OptionViewProject.MYPROJECT)
+        {
+            int GET_MY_OWN_PROJECT_CODE = eventChecker.addEventStatusAndGetCode();
+            userViewModel.getMyOwnProject(new UserViewModel.ApiCallMyOwnProjectsHandlers() {
+                @Override
+                public void onSuccess(List<String> dataMyOwnProjectIds) {
+                    List<MinimizedProjectModel> toRemove = new ArrayList<>();
+                    listMinimizeProject.forEach(minimizedProjectModel -> {
+                        if (!dataMyOwnProjectIds.contains(minimizedProjectModel.get_id()))
+                            toRemove.add(minimizedProjectModel);
+                    });
+
+                    toRemove.forEach(item -> {
+                        listMinimizeProject.remove(item);
+                    });
+                    LoadListMinimizeProjectView();
+                    eventChecker.markEventAsCompleteAndDoActionIfNeeded(GET_MY_OWN_PROJECT_CODE);
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
+                    eventChecker.markEventAsCompleteAndDoActionIfNeeded(GET_MY_OWN_PROJECT_CODE);
+                }
+            });
+        }
     }
 
     private void labelSearch_showActivity() {
