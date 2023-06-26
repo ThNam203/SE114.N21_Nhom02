@@ -35,9 +35,11 @@ public class ProjectActivityViewModel extends ViewModel {
     public ProjectActivityViewModel(String projectId) {
         this.projectId = projectId;
     }
+    public ProjectActivityViewModel() {}
 
     public void getProjectById(ApiCallHandlers handler) {
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
+        String projectId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID);
         Call<ProjectModel> project = projectService.getProjectById(userId, projectId);
         project.enqueue(new Callback<ProjectModel>() {
             @Override
