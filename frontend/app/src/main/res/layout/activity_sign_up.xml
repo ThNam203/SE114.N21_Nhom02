@@ -55,13 +55,14 @@
                 app:hintTextAppearance="@style/CustomHintStyle"
                 app:passwordToggleTint="@color/first_screen_stroke_color"
                 app:boxStrokeColor="@color/primary_word_color">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/transparent"
-                    android:textColor="@color/primary_word_color"
-                    android:textSize="20dp" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/transparent"
+                        android:textColor="@color/primary_word_color"
+                        android:textSize="20dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -109,7 +110,7 @@
                 android:layout_height="match_parent"
                 app:passwordToggleEnabled="true"
                 android:background="@color/transparent"
-                android:hint="Password"
+                android:hint="Confirm password"
                 android:textColorHint="@color/primary_word_second_color"
                 app:hintTextColor="@color/primary_word_second_color"
                 app:hintTextAppearance="@style/CustomHintStyle"
@@ -127,7 +128,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnLogin"
+                android:id="@+id/btnSignup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:enabled="true"

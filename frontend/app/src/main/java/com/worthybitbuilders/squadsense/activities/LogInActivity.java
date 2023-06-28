@@ -78,6 +78,12 @@ public class LogInActivity extends AppCompatActivity {
         binding.btnLogin.setOnClickListener(view -> {
             String inputEmail = binding.loginEmail.getText().toString();
             String inputPassword = binding.loginPassword.getText().toString();
+            if(inputPassword.isEmpty())
+            {
+                ToastUtils.showToastError(LogInActivity.this, "Missing password!", Toast.LENGTH_SHORT);
+                return;
+            }
+
             if(!loginViewModel.isValidEmail(inputEmail))
             {
                 ToastUtils.showToastError(LogInActivity.this, "Invalid email", Toast.LENGTH_SHORT);
