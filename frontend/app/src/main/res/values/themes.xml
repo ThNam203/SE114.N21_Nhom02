@@ -42,7 +42,7 @@
     </style>
     <style name="CustomHintStyle" parent="TextAppearance.Design.Hint">
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">14dp</item>
         <!-- Các thuộc tính khác cho style -->
     </style>
 

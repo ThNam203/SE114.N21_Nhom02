@@ -15,7 +15,7 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="30dp"
         android:background="@color/transparent"
-        android:src="@drawable/image_login" />
+        android:src="@drawable/image_first_screen" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
