@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -61,23 +62,7 @@ public class LogInActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence content, int i, int i1, int i2) {
-                String inputEmail = content.toString();
-                if(loginViewModel.isValidEmail(inputEmail))
-                {
-                    int color = ResourcesCompat.getColor(getResources(), R.color.btn_enabled_color, null);
-                    Drawable drawable = binding.btnNext.getBackground();
-                    drawable.setTint(color);
-                    binding.btnNext.setBackground(drawable);
-                    binding.btnNext.setEnabled(true);
-                }
-                else
-                {
-                    int color = ResourcesCompat.getColor(getResources(), R.color.btn_disabled_color, null);
-                    Drawable drawable = binding.btnNext.getBackground();
-                    drawable.setTint(color);
-                    binding.btnNext.setBackground(drawable);
-                    binding.btnNext.setEnabled(false);
-                }
+
             }
 
             @Override
@@ -86,11 +71,11 @@ public class LogInActivity extends AppCompatActivity {
             }
         });
 
-        binding.btnGoToSignUp.setOnClickListener((view) -> {
+        binding.btnGotoSignup.setOnClickListener((view) -> {
             ActivityUtils.switchToActivity(this, SignUpActivity.class);
         });
 
-        binding.btnNext.setOnClickListener(view -> {
+        binding.btnLogin.setOnClickListener(view -> {
             String inputEmail = binding.loginEmail.getText().toString();
             String inputPassword = binding.loginPassword.getText().toString();
             if(!loginViewModel.isValidEmail(inputEmail))
@@ -108,7 +93,7 @@ public class LogInActivity extends AppCompatActivity {
                         SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.USER_EMAIL, inputEmail);
                         ToastUtils.showToastSuccess(LogInActivity.this, "Welcome back!", Toast.LENGTH_SHORT);
                         ActivityUtils.switchToActivity(LogInActivity.this, MainActivity.class);
-                        finish();
+                        LogInActivity.this.finish();
                     }
 
                 @Override
@@ -146,7 +131,7 @@ public class LogInActivity extends AppCompatActivity {
 
         binding.btnLoginGoogle.setOnClickListener(view -> {
             Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-            startActivityForResult(signInIntent, 1);
+            startActivityIfNeeded(signInIntent, 1);
         });
     }
 

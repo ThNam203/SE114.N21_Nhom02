@@ -654,6 +654,7 @@ public class ProjectActivity extends AppCompatActivity {
                 if (position == projectActivityViewModel.getProjectModel().getChosenPosition()) {
                     boardViewModel.setBoardTitle(newTitle);
                     activityBinding.btnShowTables.setText(newTitle);
+
                 }
             }
 

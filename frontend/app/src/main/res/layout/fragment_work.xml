@@ -92,6 +92,7 @@
                 app:cardCornerRadius="15dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
                 android:backgroundTint="@color/primary_second_color">
                 <LinearLayout
                     android:layout_width="match_parent"

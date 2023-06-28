@@ -103,7 +103,7 @@ public class HomeFragment extends Fragment {
         binding.btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnAdd_showPopup(view);
+                ActivityUtils.switchToActivity(getContext(), AddBoardActivity.class);
             }
         });
         binding.labelSearch.setOnTouchListener(new View.OnTouchListener() {
@@ -173,22 +173,6 @@ public class HomeFragment extends Fragment {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void btnAdd_showPopup(View anchor) {
-        PopupBtnAddBinding popupBtnAddBinding = PopupBtnAddBinding.inflate(getLayoutInflater());
-        PopupWindow popupWindow = new PopupWindow(popupBtnAddBinding.getRoot(), LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        popupWindow.setAnimationStyle(R.style.PopupAnimationRight);
-        popupWindow.setElevation(50);
-
-        popupBtnAddBinding.btnAddItem.setOnClickListener(view -> btn_add_item_showPopup());
-        popupBtnAddBinding.btnAddBoard.setOnClickListener(view -> btn_add_board_showPopup());
-
-        popupWindow.setTouchable(true);
-        popupWindow.setOutsideTouchable(true);
-        int xOffset = - 3 * anchor.getWidth();
-        int yOffset = - 3 * anchor.getHeight();
-        popupWindow.showAsDropDown(anchor, xOffset, yOffset);
-    }
 
     private void btn_addperson_showPopup() {
         final Dialog dialog = new Dialog(getActivity());
@@ -245,31 +229,6 @@ public class HomeFragment extends Fragment {
         dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         dialog.show();
-    }
-
-    private void btn_add_item_showPopup() {
-        final Dialog dialog = new Dialog(getActivity());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_add_new_item);
-
-        //Set activity of button in dialog here
-        ImageButton btnClosePopup = (ImageButton) dialog.findViewById(R.id.btn_close_popup);
-        btnClosePopup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
-        dialog.show();
-    }
-
-    private void btn_add_board_showPopup() {
-        ActivityUtils.switchToActivity(getContext(), AddBoardActivity.class);
     }
 
     private void btnOptionView_showPopup() {

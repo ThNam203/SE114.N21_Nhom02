@@ -17,7 +17,7 @@
             android:text="Your teammates"
             android:gravity="center_horizontal"
             android:layout_gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/primary_word_color"
             android:textSize="28dp"
             android:textStyle="bold" />
         <ImageButton
