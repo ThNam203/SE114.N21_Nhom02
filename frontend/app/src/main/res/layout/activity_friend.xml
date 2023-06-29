@@ -16,10 +16,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerInParent="true"
-            android:layout_marginRight="5dp"
+            android:layout_marginRight="5sp"
             android:backgroundTint="@color/transparent"
             android:contentDescription="btn add person"
-            android:minHeight="48dp"
+            android:minHeight="48sp"
             android:src="@drawable/ic_arrow_back"
             app:tint="@color/primary_icon_color" />
 
@@ -30,7 +30,7 @@
             android:text="Your friends"
             android:textAlignment="center"
             android:textColor="@color/primary_word_color"
-            android:textSize="24dp"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <ImageButton
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
-            android:layout_marginRight="5dp"
+            android:layout_marginRight="5sp"
             android:backgroundTint="@color/transparent"
             android:contentDescription="btn add person"
             android:minHeight="48dp"

@@ -7,10 +7,10 @@
     android:orientation="vertical">
         <LinearLayout
             android:id="@+id/btn_add_item"
-            android:layout_width="200dp"
-            android:layout_height="55dp"
+            android:layout_width="200sp"
+            android:layout_height="55sp"
             android:orientation="horizontal"
-            android:padding="10dp">
+            android:padding="10sp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -19,10 +19,10 @@
                 android:text="Add Item"
                 android:textAlignment="center"
                 android:textColor="@color/primary_word_color"
-                android:textSize="24dp" />
+                android:textSize="24sp" />
 
             <ImageView
-                android:layout_width="30dp"
+                android:layout_width="30sp"
                 android:layout_height="30dp"
                 android:layout_alignParentStart="true"
                 android:layout_gravity="center"
