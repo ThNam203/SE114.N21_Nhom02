@@ -33,13 +33,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.worthybitbuilders.squadsense.MainActivity;
 import com.worthybitbuilders.squadsense.R;
 import com.worthybitbuilders.squadsense.activities.AddBoardActivity;
+import com.worthybitbuilders.squadsense.activities.MemberActivity;
 import com.worthybitbuilders.squadsense.activities.ProjectActivity;
 import com.worthybitbuilders.squadsense.activities.SearchActivity;
 import com.worthybitbuilders.squadsense.adapters.ProjectAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentHomeBinding;
 import com.worthybitbuilders.squadsense.databinding.MemberMoreOptionsBinding;
+import com.worthybitbuilders.squadsense.databinding.MinimizeProjectMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.databinding.PopupBtnAddBinding;
 import com.worthybitbuilders.squadsense.databinding.PopupOptionViewProjectBinding;
+import com.worthybitbuilders.squadsense.databinding.ProjectMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.models.MinimizedProjectModel;
 import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.models.board_models.ProjectModel;
@@ -50,6 +53,7 @@ import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.ToastUtils;
 import com.worthybitbuilders.squadsense.viewmodels.FriendViewModel;
 import com.worthybitbuilders.squadsense.viewmodels.MainActivityViewModel;
+import com.worthybitbuilders.squadsense.viewmodels.ProjectActivityViewModel;
 import com.worthybitbuilders.squadsense.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
@@ -60,6 +64,7 @@ public class HomeFragment extends Fragment {
     private ProjectAdapter projectAdapter;
     private MainActivityViewModel viewModel;
 
+    private ProjectActivityViewModel projectActivityViewModel;
     private FriendViewModel friendViewModel;
     private UserViewModel userViewModel;
     private List<AppCompatButton> listOption = new ArrayList<>();
@@ -76,16 +81,20 @@ public class HomeFragment extends Fragment {
         viewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         friendViewModel = new ViewModelProvider(getActivity()).get(FriendViewModel.class);
         userViewModel = new ViewModelProvider(getActivity()).get(UserViewModel.class);
+        projectActivityViewModel = new ViewModelProvider(getActivity()).get(ProjectActivityViewModel.class);
         binding.rvProjects.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        projectAdapter = new ProjectAdapter(listMinimizeProject, _id -> {
+        projectAdapter = new ProjectAdapter(
+                listMinimizeProject,
+                _id -> {
             SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID, _id);
             saveRecentAccessProject(_id);
             Intent intent = new Intent(getContext(), ProjectActivity.class);
             intent.putExtra("whatToDo", "fetch");
             intent.putExtra("projectId", _id);
             startActivity(intent);
-        });
+        },
+                (view, _id) -> showMinimizeProjectOptions(view, _id));
 
         binding.btnOptionView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,7 +106,6 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 btn_addperson_showPopup();
-
             }
         });
         binding.btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -358,6 +366,12 @@ public class HomeFragment extends Fragment {
                     toRemove.forEach(item -> {
                         listMinimizeProject.remove(item);
                     });
+
+                    listMinimizeProject.sort((project1, project2) -> {
+                        int index1 = dataRecentProjectIds.indexOf(project1.get_id());
+                        int index2 = dataRecentProjectIds.indexOf(project2.get_id());
+                        return Integer.compare(index1, index2);
+                    });
                     LoadListMinimizeProjectView();
                     eventChecker.markEventAsCompleteAndDoActionIfNeeded(GET_RECENT_PROJECT_ID_CODE);
                 }
@@ -400,6 +414,54 @@ public class HomeFragment extends Fragment {
 
     private void labelSearch_showActivity() {
         ActivityUtils.switchToActivity(getContext(), SearchActivity.class);
+    }
+
+    private void showMinimizeProjectOptions(View anchor, String projectId) {
+        MinimizeProjectMoreOptionsBinding binding = MinimizeProjectMoreOptionsBinding.inflate(getLayoutInflater());
+        PopupWindow popupWindow = new PopupWindow(binding.getRoot(), LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, false);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popupWindow.setElevation(50);
+        popupWindow.setTouchable(true);
+        popupWindow.setOutsideTouchable(true);
+        int xOffset = anchor.getWidth(); // Offset from the right edge of the anchor view
+        int yOffset = - anchor.getHeight() / 2;
+        popupWindow.showAsDropDown(anchor, xOffset, yOffset);
+
+        binding.btnDeleteProject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String titleConfirmDialog = "Delete";
+                String contentConfirmDialog = "Do you want to delete this project ?";
+                DialogUtils.showConfirmDialogDelete(getContext(), titleConfirmDialog, contentConfirmDialog, new DialogUtils.ConfirmAction() {
+                    @Override
+                    public void onAcceptToDo(Dialog thisDialog) {
+                        thisDialog.dismiss();
+                        Dialog loadingDialog = DialogUtils.GetLoadingDialog(getContext());
+                        loadingDialog.show();
+                        projectActivityViewModel.removeProject(projectId, new ProjectActivityViewModel.ApiCallHandlers() {
+                            @Override
+                            public void onSuccess() {
+                                ToastUtils.showToastSuccess(getContext(), "Project deleted", Toast.LENGTH_SHORT);
+                                loadingDialog.dismiss();
+                                getActivity().onBackPressed();
+                            }
+
+                            @Override
+                            public void onFailure(String message) {
+                                ToastUtils.showToastError(getContext(), "You are not allowed to delete this project", Toast.LENGTH_SHORT);
+                                loadingDialog.dismiss();
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onCancel(Dialog thisDialog) {
+                        thisDialog.dismiss();
+                    }
+                });
+            }
+        });
     }
 
     private void saveRecentAccessProject(String projectId)

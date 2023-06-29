@@ -97,7 +97,6 @@ public class LogInActivity extends AppCompatActivity {
                         stopLoadingIndicator();
                         SocketClient.InitializeIO(getApplication(), userId);
                         SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.USER_EMAIL, inputEmail);
-                        ToastUtils.showToastSuccess(LogInActivity.this, "Welcome back!", Toast.LENGTH_SHORT);
                         ActivityUtils.switchToActivity(LogInActivity.this, MainActivity.class);
                         LogInActivity.this.finish();
                     }

@@ -90,7 +90,7 @@
                 android:drawableTint="@color/primary_icon_color"
                 android:text="Checkbox"
                 android:textColor="@color/primary_word_color"
-                android:textAllCaps="false"/>
+                android:textAllCaps="false" />
         </LinearLayout>
         <LinearLayout
             android:orientation="vertical"

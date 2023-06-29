@@ -12,31 +12,31 @@ router
     .post(projectController.saveNewProject)
 
 router.route('/:projectId').get(projectController.getProjectById)
-router.route('/get-member/:projectId').get(projectController.getMemberOfProject)
+router.route('/:projectId/get-member').get(projectController.getMemberOfProject)
 router.route('/:projectId/board').post(projectController.createAndGetNewBoard)
 router
-    .route('/request-member/:projectId/:receiverId')
+    .route('/:projectId/request-member/:receiverId')
     .post(projectController.requestMemberToJoinProject)
 
-router.route('/request-admin/:projectId').post(projectController.requestAdmin)
+router.route('/:projectId/request-admin').post(projectController.requestAdmin)
 router
-    .route('/make-admin/:projectId/:memberId')
+    .route('/:projectId/make-admin/:memberId')
     .post(projectController.makeAdmin)
 
 router
-    .route('/change-admin-to-member/:projectId/:adminId')
+    .route('/:projectId/change-admin-to-member/:adminId')
     .post(projectController.changeAdminToMember)
 router
-    .route('/reply-to-admin-request/:projectId/:memberId/:response')
+    .route('/:projectId/reply-to-admin-request/:memberId/:response')
     .post(projectController.replyToAdminRequest)
 
 router
-    .route('/reply-join-project/:projectId/:receiverId/:response')
+    .route('/:projectId/reply-join-project/:receiverId/:response')
     .post(projectController.replyToJoinProject)
 
-router.route('/update-project/:projectId').post(projectController.updateProject)
+router.route('/:projectId/update-project').post(projectController.updateProject)
 router
-    .route('/delete-member/:projectId/:memberId')
+    .route('/:projectId/delete-member/:memberId')
     .delete(projectController.deleteMember)
 
 router
@@ -44,7 +44,9 @@ router
     .put(projectController.updateBoard)
     .delete(projectController.removeBoard)
 
-router.route('/delete/:projectId').delete(projectController.deleteProjectById)
+router
+    .route('/:projectId/delete-project')
+    .delete(projectController.deleteProjectById)
 
 router
     .route('/:projectId/board/:boardId/column')

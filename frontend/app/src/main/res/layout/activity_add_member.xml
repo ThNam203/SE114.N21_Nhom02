@@ -34,10 +34,6 @@
             android:textSize="28dp"
             android:textStyle="bold" />
     </RelativeLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/primary_splitter_color" />
 
     <ScrollView
         android:layout_width="match_parent"
