@@ -51,8 +51,8 @@
                     android:text="N"
                     android:textAllCaps="true"
                     android:textStyle="bold"
-                    android:textColor="@color/primary_word_color"
-                    android:textSize="32sp"
+                    android:textColor="@color/white"
+                    android:textSize="36sp"
                     android:visibility="visible"/>
 
                 <TextView
@@ -62,7 +62,7 @@
                     android:layout_gravity="center"
                     android:text="Name"
                     android:textColor="@color/primary_word_color"
-                    android:textSize="24sp"
+                    android:textSize="@dimen/large_textsize"
                     android:textStyle="bold" />
 
                 <TextView
@@ -72,7 +72,7 @@
                     android:layout_marginBottom="25sp"
                     android:text="View Profile"
                     android:textColor="@color/primary_word_second_color"
-                    android:textSize="24sp" />
+                    android:textSize="@dimen/large_textsize" />
             </LinearLayout>
 
             <LinearLayout
@@ -108,7 +108,7 @@
                             android:layout_marginLeft="5dp"
                             android:text="Inbox"
                             android:textColor="@color/primary_word_color"
-                            android:textSize="24dp" />
+                            android:textSize="@dimen/normal_textsize" />
 
                         <TextView
                             android:id="@+id/desc_inbox"
@@ -117,7 +117,7 @@
                             android:layout_marginLeft="5dp"
                             android:text="No new updates"
                             android:textColor="@color/primary_word_second_color"
-                            android:textSize="24dp" />
+                            android:textSize="@dimen/small_textsize" />
 
                     </LinearLayout>
 
@@ -162,7 +162,7 @@
                         android:layout_marginLeft="5dp"
                         android:text="Your Friends"
                         android:textColor="@color/primary_word_color"
-                        android:textSize="24dp" />
+                        android:textSize="@dimen/normal_textsize" />
 
                     <TextView
                         android:id="@+id/desc_friend"
@@ -171,7 +171,7 @@
                         android:layout_marginLeft="5dp"
                         android:text="1 person"
                         android:textColor="@color/primary_word_second_color"
-                        android:textSize="24dp" />
+                        android:textSize="@dimen/small_textsize" />
 
                 </LinearLayout>
 
@@ -191,7 +191,7 @@
                 android:layout_marginTop="24dp"
                 android:text="Settings"
                 android:textColor="@color/primary_word_color"
-                android:textSize="28dp"
+                android:textSize="@dimen/large_textsize"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -368,7 +368,7 @@
                 android:paddingVertical="5dp"
                 android:text="Log out"
                 android:textColor="@color/white"
-                android:textSize="24dp"
+                android:textSize="@dimen/normal_textsize"
                 android:paddingHorizontal="10dp"/>
         </LinearLayout>
 

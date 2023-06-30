@@ -43,7 +43,7 @@
                     android:layout_gravity="center"
                     android:text="Name"
                     android:textColor="@color/primary_word_color"
-                    android:textSize="24dp"
+                    android:textSize="@dimen/normal_textsize"
                     android:textStyle="bold" />
                 <TextView
                     android:visibility="gone"

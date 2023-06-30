@@ -40,7 +40,6 @@ import com.worthybitbuilders.squadsense.adapters.ProjectAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentHomeBinding;
 import com.worthybitbuilders.squadsense.databinding.MemberMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.databinding.MinimizeProjectMoreOptionsBinding;
-import com.worthybitbuilders.squadsense.databinding.PopupBtnAddBinding;
 import com.worthybitbuilders.squadsense.databinding.PopupOptionViewProjectBinding;
 import com.worthybitbuilders.squadsense.databinding.ProjectMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.models.MinimizedProjectModel;

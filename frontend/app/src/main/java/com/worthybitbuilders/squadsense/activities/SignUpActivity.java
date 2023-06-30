@@ -51,24 +51,30 @@ public class SignUpActivity extends AppCompatActivity {
 
         binding.btnSignup.setOnClickListener((view) -> {
             if(binding.etEmail.getText().toString().isEmpty()){
+                ToastUtils.showToastError(SignUpActivity.this, "Email cannot be empty!", Toast.LENGTH_SHORT);
+                return;
+            }
+            else if(!viewModel.IsValidEmail(binding.etEmail.getText().toString())){
                 ToastUtils.showToastError(SignUpActivity.this, "Invalid email!", Toast.LENGTH_SHORT);
+                return;
+            }
+            else if(binding.name.getText().toString().isEmpty())
+            {
+                ToastUtils.showToastError(SignUpActivity.this, "Username cannot be empty!", Toast.LENGTH_SHORT);
                 return;
             }
             else if(binding.etPassword.getText().toString().isEmpty())
             {
-                ToastUtils.showToastError(SignUpActivity.this, "Invalid password!", Toast.LENGTH_SHORT);
+                ToastUtils.showToastError(SignUpActivity.this, "Password cannot be empty!", Toast.LENGTH_SHORT);
                 return;
             }
-
-            if (!binding.etPassword.getText().toString().equals(binding.etRePassword.getText().toString())) {
+            else if (!binding.etPassword.getText().toString().equals(binding.etRePassword.getText().toString())) {
                 ToastUtils.showToastError(SignUpActivity.this, "The confirm password entered does not match", Toast.LENGTH_SHORT);
                 return;
             }
 
             startLoadingIndicator();
             String name = String.valueOf(binding.name.getText());
-            if(name == null || name.isEmpty())
-                name = "Anonymous";
             String email = String.valueOf(binding.etEmail.getText());
             String password = String.valueOf(binding.etPassword.getText());
             UserModel newUser = new UserModel(name, email, password);

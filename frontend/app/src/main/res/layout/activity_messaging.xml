@@ -31,8 +31,9 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="24dp"
+            android:textSize="@dimen/normal_textsize"
             android:textColor="@color/primary_word_color"
+            android:layout_gravity="center"
             android:layout_marginHorizontal="16dp"/>
         <ImageButton
             android:id="@+id/btnVoiceCall"
@@ -120,6 +121,7 @@
                 android:hint="Enter Message"
                 android:textColorHint="@color/primary_word_second_color"
                 android:textColor="@color/primary_word_color"
+                android:textSize="@dimen/normal_textsize"
                 android:inputType="text"
                 android:maxLines="6"
                 tools:ignore="Autofill"

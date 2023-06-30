@@ -163,7 +163,7 @@ exports.getRecentProjectId = asyncCatch(async (req, res, next) => {
     if (!user) return next(new AppError('No user found!', 400))
 
     const recentAccess = await RecentAccess.findOne({ userId: userId })
-    if (!recentAccess) res.status(200).json([])
+    if (!recentAccess) return res.status(200).json([])
 
     if (recentAccess.recentProjectIds.length === 0) res.status(200).json([])
     else res.status(200).json(recentAccess.recentProjectIds)

@@ -29,7 +29,7 @@
             android:text="Build Awesome Plans"
             android:textAlignment="center"
             android:textColor="@color/primary_word_color"
-            android:textSize="36dp"
+            android:textSize="@dimen/super_large_textsize"
             android:textStyle="bold"
             android:layout_marginBottom="5dp"/>
         <TextView
@@ -40,7 +40,7 @@
             android:textAlignment="center"
             android:background="@color/transparent"
             android:textColor="@color/primary_word_color"
-            android:textSize="24dp"
+            android:textSize="@dimen/normal_textsize"
             android:layout_marginBottom="30dp"/>
         <LinearLayout
             android:layout_width="match_parent"
@@ -56,7 +56,7 @@
                 android:text="Login"
                 android:textAllCaps="false"
                 android:textColor="@color/black"
-                android:textSize="20dp"
+                android:textSize="@dimen/normal_textsize"
                 android:layout_marginRight="10dp"/>
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnSignup"
@@ -67,7 +67,7 @@
                 android:text="Signup"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="20dp" />
+                android:textSize="@dimen/normal_textsize" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

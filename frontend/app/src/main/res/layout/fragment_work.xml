@@ -21,7 +21,7 @@
             android:layout_alignParentLeft="true"
             android:gravity="left"
             android:textColor="@color/primary_word_color"
-            android:textSize="32sp"
+            android:textSize="@dimen/large_textsize"
             android:textStyle="bold" />
 
         <ImageButton
@@ -52,7 +52,7 @@
                 android:drawableTint="@color/primary_icon_color"
                 android:text="Hide done items"
                 android:textAllCaps="false"
-                android:textSize="20sp"
+                android:textSize="@dimen/normal_textsize"
                 android:textColor="@color/primary_word_color"
                 android:layout_marginRight="10sp"
                 android:layout_marginLeft="10sp"/>
@@ -62,7 +62,7 @@
                 android:backgroundTint="@color/primary_second_color"
                 android:text="Board (0)"
                 android:textAllCaps="false"
-                android:textSize="20sp"
+                android:textSize="@dimen/normal_textsize"
                 android:textColor="@color/primary_word_color"
                 android:layout_marginRight="10sp"/>
             <Button
@@ -87,8 +87,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <androidx.cardview.widget.CardView
-                android:layout_width="120sp"
-                android:layout_height="120dp"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
                 app:cardCornerRadius="15dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
@@ -102,7 +102,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="40dp"
+                        android:textSize="@dimen/super_large_textsize"
                         android:textStyle="bold"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"/>
@@ -110,15 +110,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Past Day"
-                        android:textSize="24dp"
+                        android:textSize="@dimen/normal_textsize"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="20dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
                 app:cardCornerRadius="15dp"
                 android:layout_marginRight="10dp"
                 android:backgroundTint="@color/primary_second_color">
@@ -130,7 +130,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="40dp"
+                        android:textSize="@dimen/super_large_textsize"
                         android:textStyle="bold"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"/>
@@ -138,15 +138,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Today"
-                        android:textSize="24dp"
+                        android:textSize="@dimen/normal_textsize"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="20dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
                 app:cardCornerRadius="15dp"
                 android:layout_marginRight="10dp"
                 android:backgroundTint="@color/primary_second_color">
@@ -158,7 +158,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="40dp"
+                        android:textSize="@dimen/super_large_textsize"
                         android:textStyle="bold"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"/>
@@ -166,15 +166,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="This Week"
-                        android:textSize="24dp"
+                        android:textSize="@dimen/normal_textsize"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="20dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
                 app:cardCornerRadius="15dp"
                 android:layout_marginRight="10dp"
                 android:backgroundTint="@color/primary_second_color">
@@ -186,7 +186,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="40dp"
+                        android:textSize="@dimen/super_large_textsize"
                         android:textStyle="bold"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"/>
@@ -194,15 +194,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Next Week"
-                        android:textSize="24dp"
+                        android:textSize="@dimen/normal_textsize"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="20dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
                 app:cardCornerRadius="15dp"
                 android:layout_marginRight="10dp"
                 android:backgroundTint="@color/primary_second_color">
@@ -214,7 +214,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="40dp"
+                        android:textSize="@dimen/super_large_textsize"
                         android:textStyle="bold"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"/>
@@ -222,7 +222,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Later"
-                        android:textSize="24dp"
+                        android:textSize="@dimen/normal_textsize"
                         android:textColor="@color/primary_word_color"
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="20dp"/>
@@ -252,7 +252,7 @@
             android:textAlignment="center"
             android:background="@color/transparent"
             android:textColor="@color/primary_word_color"
-            android:textSize="32dp"
+            android:textSize="@dimen/large_textsize"
             android:textStyle="bold" />
         <TextView
             android:layout_weight="1"
@@ -264,7 +264,7 @@
             android:textAlignment="center"
             android:background="@color/transparent"
             android:textColor="@color/primary_word_color"
-            android:textSize="24dp" />
+            android:textSize="@dimen/normal_textsize" />
 
         <ImageButton
             android:id="@+id/btn_add_item"

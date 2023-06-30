@@ -22,7 +22,7 @@
             android:text="Dark theme"
             android:gravity="left"
             android:textColor="@color/primary_word_color"
-            android:textSize="24sp"
+            android:textSize="@dimen/normal_textsize"
             android:textStyle="bold" />
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggle_switch_theme"
