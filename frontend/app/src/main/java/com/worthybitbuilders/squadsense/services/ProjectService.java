@@ -39,6 +39,9 @@ public interface ProjectService {
     @GET("{userId}/project/{projectId}")
     Call<ProjectModel> getProjectById(@Path("userId") String userId, @Path("projectId") String projectId);
 
+    @DELETE("{userId}/project/{projectId}")
+    Call<Void> deleteProject(@Path("userId") String userId, @Path("projectId") String projectId);
+
     @GET("{userId}/project/{projectId}/get-member")
     Call<List<UserModel>> getMember(@Path("userId") String userId, @Path("projectId") String projectId);
 
@@ -48,7 +51,7 @@ public interface ProjectService {
     @POST("{userId}/project")
     Call<ProjectModel> saveProject(@Path("userId") String userId, @Body ProjectModel projectModel);
 
-    @POST("{userId}/project/{projectId}/update-project")
+    @POST("{userId}/project/{projectId}")
     Call<Void> updateProject(@Path("userId") String userId, @Path("projectId") String projectId, @Body ProjectModel projectModel);
 
     @POST("{userId}/project/{projectId}/request-member/{receiverId}")
@@ -77,9 +80,6 @@ public interface ProjectService {
 
     @DELETE("{userId}/project/{projectId}/board/{boardId}")
     Call<Void> removeBoard(@Path("userId") String userId, @Path("projectId") String projectId, @Path("boardId") String boardId);
-
-    @DELETE("{userId}/project/{projectId}/delete-project")
-    Call<Void> deleteProject(@Path("userId") String userId, @Path("projectId") String projectId);
 
     /** The List<String> is the cell ids that are returned from server */
     @PUT("{userId}/project/{projectId}/board/{boardId}/column")

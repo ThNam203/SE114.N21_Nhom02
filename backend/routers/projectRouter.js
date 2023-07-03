@@ -11,7 +11,12 @@ router
     .get(projectController.getAllProjectOfUser)
     .post(projectController.saveNewProject)
 
-router.route('/:projectId').get(projectController.getProjectById)
+router
+    .route('/:projectId')
+    .get(projectController.getProjectById)
+    .delete(projectController.deleteProjectById)
+    .post(projectController.updateProject)
+
 router.route('/:projectId/get-member').get(projectController.getMemberOfProject)
 router.route('/:projectId/board').post(projectController.createAndGetNewBoard)
 router
@@ -34,7 +39,6 @@ router
     .route('/:projectId/reply-join-project/:receiverId/:response')
     .post(projectController.replyToJoinProject)
 
-router.route('/:projectId/update-project').post(projectController.updateProject)
 router
     .route('/:projectId/delete-member/:memberId')
     .delete(projectController.deleteMember)
@@ -43,10 +47,6 @@ router
     .route('/:projectId/board/:boardId')
     .put(projectController.updateBoard)
     .delete(projectController.removeBoard)
-
-router
-    .route('/:projectId/delete-project')
-    .delete(projectController.deleteProjectById)
 
 router
     .route('/:projectId/board/:boardId/column')
