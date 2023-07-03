@@ -17,8 +17,13 @@ router
     .delete(projectController.deleteProjectById)
     .post(projectController.updateProject)
 
+
 router.route('/:projectId/get-member').get(projectController.getMemberOfProject)
+
 router.route('/:projectId/board').post(projectController.createAndGetNewBoard)
+
+router.route('/:projectId/activity-log').get(projectController.getActivityLogs)
+
 router
     .route('/:projectId/request-member/:receiverId')
     .post(projectController.requestMemberToJoinProject)
@@ -27,7 +32,6 @@ router.route('/:projectId/request-admin').post(projectController.requestAdmin)
 router
     .route('/:projectId/make-admin/:memberId')
     .post(projectController.makeAdmin)
-
 router
     .route('/:projectId/change-admin-to-member/:adminId')
     .post(projectController.changeAdminToMember)
@@ -61,8 +65,8 @@ router.route('/:projectId/board/:boardId/row').put(projectController.addNewRow)
 
 router
     .route('/:projectId/board/:boardId/row/:rowPosition')
-    .put(projectController.updateRow)
     .get(projectController.getCellsInARow)
+    .put(projectController.updateRow)
     .delete(projectController.removeRow)
 
 router

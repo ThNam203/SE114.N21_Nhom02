@@ -142,7 +142,6 @@ const saveAccess = async (userId, projectId, timeAccessed) => {
 }
 
 exports.saveRecentProjectId = asyncCatch(async (req, res, next) => {
-    console.log('saveRecentProjectId---------------------------------------')
     const { userId, projectId } = req.params
     const user = User.findById(userId)
     if (!user) return next(new AppError('No user found!', 400))
@@ -157,7 +156,6 @@ exports.saveRecentProjectId = asyncCatch(async (req, res, next) => {
 })
 
 exports.getRecentProjectId = asyncCatch(async (req, res, next) => {
-    console.log('getRecentProjectId---------------------------------------')
     const { userId } = req.params
     const user = User.findById(userId)
     if (!user) return next(new AppError('No user found!', 400))
