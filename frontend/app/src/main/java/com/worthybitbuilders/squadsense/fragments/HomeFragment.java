@@ -435,20 +435,17 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onAcceptToDo(Dialog thisDialog) {
                         thisDialog.dismiss();
-                        Dialog loadingDialog = DialogUtils.GetLoadingDialog(getContext());
-                        loadingDialog.show();
                         projectActivityViewModel.removeProject(projectId, new ProjectActivityViewModel.ApiCallHandlers() {
                             @Override
                             public void onSuccess() {
+                                popupWindow.dismiss();
                                 ToastUtils.showToastSuccess(getContext(), "Project deleted", Toast.LENGTH_SHORT);
-                                loadingDialog.dismiss();
-                                getActivity().onBackPressed();
+                                LoadData();
                             }
 
                             @Override
                             public void onFailure(String message) {
                                 ToastUtils.showToastError(getContext(), "You are not allowed to delete this project", Toast.LENGTH_SHORT);
-                                loadingDialog.dismiss();
                             }
                         });
 
