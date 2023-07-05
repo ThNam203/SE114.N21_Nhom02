@@ -435,7 +435,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onAcceptToDo(Dialog thisDialog) {
                         thisDialog.dismiss();
-                        projectActivityViewModel.removeProject(projectId, new ProjectActivityViewModel.ApiCallHandlers() {
+                        projectActivityViewModel.deleteProject(projectId, new ProjectActivityViewModel.ApiCallHandlers() {
                             @Override
                             public void onSuccess() {
                                 popupWindow.dismiss();

@@ -387,7 +387,7 @@ public class ProjectActivity extends AppCompatActivity {
                         Dialog loadingDialog = DialogUtils.GetLoadingDialog(ProjectActivity.this);
                         loadingDialog.show();
                         String projectId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID);
-                        projectActivityViewModel.removeProject(projectId, new ProjectActivityViewModel.ApiCallHandlers() {
+                        projectActivityViewModel.deleteProject(projectId, new ProjectActivityViewModel.ApiCallHandlers() {
                             @Override
                             public void onSuccess() {
                                 ToastUtils.showToastSuccess(ProjectActivity.this, "Project deleted", Toast.LENGTH_SHORT);
