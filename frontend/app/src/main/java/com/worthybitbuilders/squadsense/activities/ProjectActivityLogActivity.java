@@ -52,12 +52,16 @@ import retrofit2.Response;
 public class ProjectActivityLogActivity extends AppCompatActivity {
     ProjectService projectService = RetrofitServices.getProjectService();
     ActivityProjectActivityLogBinding binding;
-
     List<ActivityLog> listActivityLog = new ArrayList<>();
+    List<ActivityLog> listSearchActivityLog = new ArrayList<>();
+    List<ActivityLog> listFilterActivityLog = new ArrayList<>();
     List<String> listSelectedType = new ArrayList<>();
     List<String> listSelectedDate = new ArrayList<>();
     List<ActivityLog.ActivityLogCreator> listSelectedCreator = new ArrayList<>();
     List<ActivityLog.ActivityLogBoard> listSelectedBoard = new ArrayList<>();
+
+    boolean isSearching = false;
+    boolean isFiltering = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,24 +95,37 @@ public class ProjectActivityLogActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                List<ActivityLog> listSearchActivityLog = new ArrayList<>(listActivityLog);
+                listSearchActivityLog.clear();
+                if(isFiltering) listSearchActivityLog.addAll(listFilterActivityLog);
+                else listSearchActivityLog.addAll(listActivityLog);
+
                 String toSearch = binding.inputSearch.getText().toString();
 
                 if(toSearch.isEmpty())
                 {
                     Drawable[] drawables = binding.inputSearch.getCompoundDrawables();
                     binding.inputSearch.setCompoundDrawablesRelativeWithIntrinsicBounds(drawables[0], drawables[1], null, drawables[3]);
+
+                    //if user is not searching, change background of btn with this color
+                    isSearching = false;
+                    int color = ContextCompat.getColor(ProjectActivityLogActivity.this, R.color.chosen_color);
+                    binding.btnSearch.setBackgroundTintList(ColorStateList.valueOf(color));
                 }
                 else {
                     Drawable[] drawables = binding.inputSearch.getCompoundDrawables();
                     Drawable clearDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_close);
                     binding.inputSearch.setCompoundDrawablesRelativeWithIntrinsicBounds(drawables[0], drawables[1], clearDrawable, drawables[3]);
+
+                    //if user is searching, change background of btn with this color
+                    isSearching = true;
+                    int color = ContextCompat.getColor(ProjectActivityLogActivity.this, R.color.orange);
+                    binding.btnSearch.setBackgroundTintList(ColorStateList.valueOf(color));
                 }
 
                 List<ActivityLog> toRemove = new ArrayList<>();
                 listSearchActivityLog.forEach(activityLog ->
                 {
-                    if(!activityLog.getDescription().contains(toSearch)) toRemove.add(activityLog);
+                    if(!activityLog.getDescription().toLowerCase().contains(toSearch.toLowerCase())) toRemove.add(activityLog);
                 });
 
                 toRemove.forEach(item -> listSearchActivityLog.remove(item));
@@ -215,12 +232,28 @@ public class ProjectActivityLogActivity extends AppCompatActivity {
             listSelectedCreator.addAll(tempSelectedCreator);
             listSelectedBoard.addAll(tempSelectedBoard);
 
-            List<ActivityLog> listFilterActivityLog = new ArrayList<>(listActivityLog);
+            listFilterActivityLog.clear();
+            if(isSearching) listFilterActivityLog.addAll(listSearchActivityLog);
+            else listFilterActivityLog.addAll(listActivityLog);
 
             if(listSelectedType.size() > 0) filterType(listFilterActivityLog);
             if(listSelectedDate.size() > 0) filterDate(listFilterActivityLog);
             if(listSelectedCreator.size() > 0) filterCreator(listFilterActivityLog);
             if(listSelectedBoard.size() > 0) filterBoard(listFilterActivityLog);
+
+            if(listSelectedType.size() > 0 || listSelectedCreator.size() > 0 || listSelectedDate.size() > 0 || listSelectedBoard.size() > 0) {
+                //if user is filtering, change background of btn with this color
+                isFiltering = true;
+                int color = ContextCompat.getColor(ProjectActivityLogActivity.this, R.color.orange);
+                binding.btnFilter.setBackgroundTintList(ColorStateList.valueOf(color));
+            }
+            else
+            {
+                //if user is not filtering, change background of btn with this color
+                isFiltering = false;
+                int color = ContextCompat.getColor(ProjectActivityLogActivity.this, R.color.chosen_color);
+                binding.btnFilter.setBackgroundTintList(ColorStateList.valueOf(color));
+            }
 
             ActivityLogAdapter adapter = new ActivityLogAdapter(listFilterActivityLog);
             binding.rvActivityLogs.setAdapter(adapter);
@@ -297,10 +330,20 @@ public class ProjectActivityLogActivity extends AppCompatActivity {
     {
         popupFilterBinding.rvFilterType.setLayoutManager(new LinearLayoutManager(ProjectActivityLogActivity.this, LinearLayoutManager.HORIZONTAL, false));
         List<String> listType = new ArrayList<>();
-        listActivityLog.forEach(activityLog -> {
-            if(!listType.contains(activityLog.getType()))
-                listType.add(activityLog.getType());
-        });
+        if(isSearching)
+        {
+            listSearchActivityLog.forEach(activityLog -> {
+                if(!listType.contains(activityLog.getType()))
+                    listType.add(activityLog.getType());
+            });
+        }
+        else
+        {
+            listActivityLog.forEach(activityLog -> {
+                if(!listType.contains(activityLog.getType()))
+                    listType.add(activityLog.getType());
+            });
+        }
         FilterTypeAdapter filterTypeAdapter = new FilterTypeAdapter(listType, tempSelectedType);
         popupFilterBinding.rvFilterType.setAdapter(filterTypeAdapter);
     }
@@ -309,10 +352,21 @@ public class ProjectActivityLogActivity extends AppCompatActivity {
     {
         popupFilterBinding.rvFilterDate.setLayoutManager(new LinearLayoutManager(ProjectActivityLogActivity.this, LinearLayoutManager.HORIZONTAL, false));
         List<String> listDate = new ArrayList<>();
-        listActivityLog.forEach(activityLog -> {
-            String date = CustomUtils.mongooseDateToFormattedString(activityLog.getCreatedDate());
-            if(!listDate.contains(date)) listDate.add(date);
-        });
+        if(isSearching)
+        {
+            listSearchActivityLog.forEach(activityLog -> {
+                String date = CustomUtils.mongooseDateToFormattedString(activityLog.getCreatedDate());
+                if(!listDate.contains(date)) listDate.add(date);
+            });
+        }
+        else
+        {
+            listActivityLog.forEach(activityLog -> {
+                String date = CustomUtils.mongooseDateToFormattedString(activityLog.getCreatedDate());
+                if(!listDate.contains(date)) listDate.add(date);
+            });
+        }
+
         FilterDateAdapter filterDateAdapter = new FilterDateAdapter(listDate, tempSelectedDate);
         popupFilterBinding.rvFilterDate.setAdapter(filterDateAdapter);
     }
@@ -322,12 +376,25 @@ public class ProjectActivityLogActivity extends AppCompatActivity {
         popupFilterBinding.rvFilterCreator.setLayoutManager(new LinearLayoutManager(ProjectActivityLogActivity.this, LinearLayoutManager.HORIZONTAL, false));
         List<ActivityLog.ActivityLogCreator> listCreator = new ArrayList<>();
         List<String> listCreatorId = new ArrayList<>();
-        listActivityLog.forEach(activityLog -> {
-            if(!listCreatorId.contains(activityLog.getCreator()._id)) {
-                listCreatorId.add(activityLog.getCreator()._id);
-                listCreator.add(activityLog.getCreator());
-            }
-        });
+
+        if(isSearching)
+        {
+            listSearchActivityLog.forEach(activityLog -> {
+                if(!listCreatorId.contains(activityLog.getCreator()._id)) {
+                    listCreatorId.add(activityLog.getCreator()._id);
+                    listCreator.add(activityLog.getCreator());
+                }
+            });
+        }
+        else {
+            listActivityLog.forEach(activityLog -> {
+                if(!listCreatorId.contains(activityLog.getCreator()._id)) {
+                    listCreatorId.add(activityLog.getCreator()._id);
+                    listCreator.add(activityLog.getCreator());
+                }
+            });
+        }
+
 
         FilterCreatorAdapter filterCreatorAdapter = new FilterCreatorAdapter(listCreator, tempSelectedCreator);
         popupFilterBinding.rvFilterCreator.setAdapter(filterCreatorAdapter);
@@ -338,15 +405,31 @@ public class ProjectActivityLogActivity extends AppCompatActivity {
         popupFilterBinding.rvFilterBoard.setLayoutManager(new LinearLayoutManager(ProjectActivityLogActivity.this, LinearLayoutManager.HORIZONTAL, false));
         List<ActivityLog.ActivityLogBoard> listBoard = new ArrayList<>();
         List<String> listBoardId = new ArrayList<>();
-        listActivityLog.forEach(activityLog -> {
-            if(activityLog.getBoard() != null)
-            {
-                if(!listBoardId.contains(activityLog.getBoard()._id)) {
-                    listBoardId.add(activityLog.getBoard()._id);
-                    listBoard.add(activityLog.getBoard());
+        if(isSearching)
+        {
+            listSearchActivityLog.forEach(activityLog -> {
+                if(activityLog.getBoard() != null)
+                {
+                    if(!listBoardId.contains(activityLog.getBoard()._id)) {
+                        listBoardId.add(activityLog.getBoard()._id);
+                        listBoard.add(activityLog.getBoard());
+                    }
                 }
-            }
-        });
+            });
+        }
+        else
+        {
+            listActivityLog.forEach(activityLog -> {
+                if(activityLog.getBoard() != null)
+                {
+                    if(!listBoardId.contains(activityLog.getBoard()._id)) {
+                        listBoardId.add(activityLog.getBoard()._id);
+                        listBoard.add(activityLog.getBoard());
+                    }
+                }
+            });
+        }
+
 
         FilterBoardAdapter filterBoardAdapter = new FilterBoardAdapter(listBoard, tempSelectedBoard);
         popupFilterBinding.rvFilterBoard.setAdapter(filterBoardAdapter);
