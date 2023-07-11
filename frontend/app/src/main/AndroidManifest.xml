@@ -103,7 +103,7 @@
             android:exported="false">
         </activity>
         <activity
-            android:name=".activities.AddBoardActivity"
+            android:name=".activities.AddProjectActivity"
             android:exported="false" />
         <activity
             android:name=".activities.NotificationSettingActivity"
