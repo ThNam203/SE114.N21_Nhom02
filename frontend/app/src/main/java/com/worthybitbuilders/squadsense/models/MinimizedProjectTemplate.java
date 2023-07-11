@@ -5,7 +5,7 @@ public class MinimizedProjectTemplate {
     private String content;
     private int color;
 
-    public enum Type {IT_MANAGEMENT, MORE}
+    public enum Type {IT_MANAGEMENT, EVENT_MANAGEMENT}
     private Type type;
     public MinimizedProjectTemplate(String title, String content, int color, Type type) {
         this.title = title;
