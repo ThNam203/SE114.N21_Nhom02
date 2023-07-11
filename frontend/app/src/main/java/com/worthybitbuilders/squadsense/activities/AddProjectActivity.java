@@ -17,7 +17,10 @@ public class AddProjectActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         binding.ITManagement.setOnClickListener(view -> {
-
+            Intent boardIntent = new Intent(AddProjectActivity.this, ProjectActivity.class);
+            boardIntent.putExtra("whatToDo", "ITManagement");
+            finish();
+            startActivity(boardIntent);
         });
 
         binding.btnClose.setOnClickListener(view -> AddProjectActivity.super.onBackPressed());
