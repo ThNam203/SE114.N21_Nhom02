@@ -9,6 +9,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -33,6 +35,7 @@ import com.worthybitbuilders.squadsense.activities.AddProjectActivity;
 import com.worthybitbuilders.squadsense.activities.ProjectActivity;
 import com.worthybitbuilders.squadsense.activities.SearchActivity;
 import com.worthybitbuilders.squadsense.adapters.ProjectAdapter;
+import com.worthybitbuilders.squadsense.adapters.SearchingFriendAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentHomeBinding;
 import com.worthybitbuilders.squadsense.databinding.MinimizeProjectMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.databinding.PopupInviteByEmailBinding;
@@ -181,7 +184,72 @@ public class HomeFragment extends Fragment {
         PopupInviteByEmailBinding popupInviteByEmailBinding = PopupInviteByEmailBinding.inflate(getLayoutInflater());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(popupInviteByEmailBinding.getRoot());
+        popupInviteByEmailBinding.rvSearchFriend.setLayoutManager(new LinearLayoutManager(getContext()));
+        List<UserModel> listAllUser = new ArrayList<>();
+        List<UserModel> listSearchingUser = new ArrayList<>();
+        SearchingFriendAdapter searchingFriendAdapter = new SearchingFriendAdapter(listSearchingUser);
 
+        searchingFriendAdapter.setOnClickItemFriend(new SearchingFriendAdapter.ClickHandler() {
+            @Override
+            public void onClick(int position) {
+                popupInviteByEmailBinding.inputEmail.setText(listSearchingUser.get(position).getEmail());
+            }
+        });
+        userViewModel.getAllUser(new UserViewModel.CallListUserHandlers() {
+            @Override
+            public void onSuccess(List<UserModel> dataUsers) {
+                String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
+                dataUsers.forEach(user -> {
+                    if(!user.getId().equals(userId)) listAllUser.add(user);
+                });
+            }
+
+            @Override
+            public void onFailure(String message) {
+                ToastUtils.showToastError(getContext(), message, Toast.LENGTH_SHORT);
+            }
+        });
+
+        popupInviteByEmailBinding.inputEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String toSearch = popupInviteByEmailBinding.inputEmail.getText().toString();
+                listSearchingUser.clear();
+                if(!toSearch.isEmpty())
+                {
+                    listAllUser.forEach(user -> {
+                        if(user.getEmail().startsWith(toSearch)) listSearchingUser.add(user);
+                    });
+                }
+
+                popupInviteByEmailBinding.rvSearchFriend.setAdapter(searchingFriendAdapter);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        popupInviteByEmailBinding.inputEmail.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if(popupInviteByEmailBinding.inputEmail.getCompoundDrawables()[2] == null) return false;
+                    if (event.getRawX() >= (popupInviteByEmailBinding.inputEmail.getRight() - popupInviteByEmailBinding.inputEmail.getCompoundDrawables()[2].getBounds().width())) {
+                        // Người dùng đã chạm vào nút xóa
+                        popupInviteByEmailBinding.inputEmail.setText(""); // Xóa toàn bộ chữ trong EditText
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
 
 
         popupInviteByEmailBinding.btnInvite.setOnClickListener(view -> {
