@@ -42,6 +42,9 @@
             android:name=".activities.MapActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.UpdateTaskCommentActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.ProjectActivityLogActivity"
             android:exported="false" />
         <activity

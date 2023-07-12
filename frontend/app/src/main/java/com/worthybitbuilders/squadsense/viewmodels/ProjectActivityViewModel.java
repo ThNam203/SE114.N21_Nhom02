@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.gson.Gson;
+import com.worthybitbuilders.squadsense.activities.ProjectActivity;
 import com.worthybitbuilders.squadsense.models.ErrorResponse;
 import com.worthybitbuilders.squadsense.models.UserModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
@@ -70,12 +71,19 @@ public class ProjectActivityViewModel extends ViewModel {
      * The new project is automatically created by this method
      * which is then saved in the view model
      */
-    public void saveNewProjectToRemote(ApiCallHandlers handlers) {
+    public void saveNewProjectToRemote(ApiCallHandlers handlers, String templateName) {
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
         List<String> authors = new ArrayList<>();
         authors.add(userId);
+        ProjectModel unsetIdProjectModel;
+        if (templateName.equals("sampleProject"))
+            unsetIdProjectModel = new ProjectModel(0, ProjectTemplates.sampleProjectContent());
+        else if (templateName.equals("ITManagement"))
+            unsetIdProjectModel = new ProjectModel(0, ProjectTemplates.sampleITManagementContent());
+        else {
+            throw new RuntimeException("Illegal template name");
+        }
 
-        ProjectModel unsetIdProjectModel = new ProjectModel(0, ProjectTemplates.sampleProjectContent());
         Call<ProjectModel> saveProject = projectService.saveProject(userId, unsetIdProjectModel);
         saveProject.enqueue(new Callback<ProjectModel>() {
             @Override

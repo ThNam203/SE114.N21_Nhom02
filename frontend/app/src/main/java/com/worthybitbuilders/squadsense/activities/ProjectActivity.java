@@ -615,6 +615,12 @@ public class ProjectActivity extends AppCompatActivity {
         String whatToDo = intent.getStringExtra("whatToDo");
         Dialog loadingDialog = DialogUtils.GetLoadingDialog(this);
         if (whatToDo.equals("createNew")) {
+            String templateName = intent.getStringExtra("templateName");
+            if (templateName == null) {
+                ToastUtils.showToastError(ProjectActivity.this, "Something went wrong, please try again", Toast.LENGTH_LONG);
+                finish();
+                return;
+            }
             isNewProjectCreateRequest = true;
             loadingDialog.show();
             projectActivityViewModel.saveNewProjectToRemote(new ProjectActivityViewModel.ApiCallHandlers() {
@@ -631,7 +637,7 @@ public class ProjectActivity extends AppCompatActivity {
                     loadingDialog.dismiss();
                     finish();
                 }
-            });
+            }, templateName);
         }
     }
 
