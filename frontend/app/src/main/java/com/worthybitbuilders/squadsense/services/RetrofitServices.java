@@ -30,8 +30,8 @@ public class RetrofitServices {
     private static NotificationService notificationService = null;
     private static ProjectService projectService = null;
 
-    private final static String BASE_URL = "http://10.0.233.62:3000/";
-
+    private final static String BASE_URL = "http://192.168.1.7:3000/";
+  
     private static final Gson mGson = new GsonBuilder()
             .registerTypeAdapter(BoardBaseItemModel.class, new BoardCellDeserializer())
             .create();

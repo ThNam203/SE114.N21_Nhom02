@@ -23,7 +23,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.skydoves.colorpickerview.ColorPickerDialog;
@@ -35,6 +34,8 @@ import com.worthybitbuilders.squadsense.adapters.EditBoardsAdapter;
 import com.worthybitbuilders.squadsense.adapters.StatusContentsAdapter;
 import com.worthybitbuilders.squadsense.adapters.StatusEditItemAdapter;
 import com.worthybitbuilders.squadsense.adapters.TableViewAdapter;
+import com.worthybitbuilders.squadsense.adapters.activityLogFilterAdapter.FilterTypeAdapter;
+import com.worthybitbuilders.squadsense.adapters.filterBoardAdapter.BoardFilterAdapter;
 import com.worthybitbuilders.squadsense.databinding.ActivityProjectBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardAddItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardAddNewRowPopupBinding;
@@ -50,10 +51,14 @@ import com.worthybitbuilders.squadsense.databinding.BoardStatusItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTextItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.BoardTimelineItemPopupBinding;
 import com.worthybitbuilders.squadsense.databinding.ColumnMoreOptionsBinding;
+import com.worthybitbuilders.squadsense.databinding.PopupFilterActivityLogBinding;
+import com.worthybitbuilders.squadsense.databinding.PopupFilterBoardBinding;
 import com.worthybitbuilders.squadsense.databinding.PopupRenameBinding;
 import com.worthybitbuilders.squadsense.databinding.ProjectMoreOptionsBinding;
 import com.worthybitbuilders.squadsense.factory.ProjectActivityViewModelFactory;
+import com.worthybitbuilders.squadsense.models.FilterModel;
 import com.worthybitbuilders.squadsense.models.UserModel;
+import com.worthybitbuilders.squadsense.models.board_models.BoardBaseItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardCheckboxItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardColumnHeaderModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
@@ -81,6 +86,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -99,6 +105,8 @@ public class ProjectActivity extends AppCompatActivity {
     private UserViewModel userViewModel;
     private boolean isNewProjectCreateRequest = false;
 
+    private List<List<String>> listSelectedCollection = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +115,7 @@ public class ProjectActivity extends AppCompatActivity {
         setContentView(activityBinding.getRoot());
         activityBinding.tableView.setShowCornerView(true);
         activityBinding.btnShowTables.setOnClickListener(view -> showTables());
+        activityBinding.btnFilter.setOnClickListener(view -> showPopupFilter());
         activityBinding.btnNewBoardOnEmpty.setOnClickListener(view -> showTables());
 
         Intent intent = getIntent();
@@ -185,8 +194,8 @@ public class ProjectActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onUserItemClick(BoardUserItemModel userItemModel) {
-                showOwnerPopup(userItemModel);
+            public void onUserItemClick(BoardUserItemModel userItemModel, String columnTitle, int columnPos, int rowPos) {
+                showOwnerPopup(userItemModel, columnTitle, columnPos, rowPos);
             }
 
             @Override
@@ -236,6 +245,10 @@ public class ProjectActivity extends AppCompatActivity {
             if (boardViewModel.getSortState() == BoardViewModel.SortState.ASCENDING)
                 DrawableCompat.setTint(binding.btnSortAscContainer.getBackground(), Color.parseColor("#8ecae6"));
             else DrawableCompat.setTint(binding.btnSortAscContainer.getBackground(), ContextCompat.getColor(ProjectActivity.this, R.color.transparent));
+
+            if (boardViewModel.getSortState() == BoardViewModel.SortState.DESCENDING)
+                DrawableCompat.setTint(binding.btnSortDescContainer.getBackground(), Color.parseColor("#8ecae6"));
+            else DrawableCompat.setTint(binding.btnSortDescContainer.getBackground(), ContextCompat.getColor(ProjectActivity.this, R.color.transparent));
         }
 
         binding.btnSortAsc.setOnClickListener(view -> {
@@ -733,6 +746,104 @@ public class ProjectActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    private void showPopupFilter(){
+        final Dialog dialog = new Dialog(ProjectActivity.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        PopupFilterBoardBinding popupFilterBinding = PopupFilterBoardBinding.inflate(getLayoutInflater());
+        dialog.setContentView(popupFilterBinding.getRoot());
+
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.show();
+
+        popupFilterBinding.btnClosePopup.setOnClickListener(view -> dialog.dismiss());
+
+        //setup popup filter with items to filter
+        popupFilterBinding.rvBoardFilter.setLayoutManager(new LinearLayoutManager(ProjectActivity.this));
+        List<FilterModel> listFilterBoard = new ArrayList<>();
+        List<List<String>> listFilterCollection = new ArrayList<>();
+        List<List<String>> tempListSelectedCollection = new ArrayList<>();
+        for (List<String> selectedCollection : listSelectedCollection) {
+            List<String> newList = new ArrayList<>(selectedCollection);
+            tempListSelectedCollection.add(newList);
+        }
+        List<BoardColumnHeaderModel> listColumn = projectActivityViewModel.getProjectModel().getBoards().get(0).getColumnCells();
+        listColumn.forEach(column -> {
+            if(column.getColumnType() == BoardColumnHeaderModel.ColumnType.User)
+            {
+                //get index of column that i am getting it's title
+                int indexColumn = listColumn.indexOf(column);
+                //add title of column
+                listFilterBoard.add(new FilterModel("By " + column.getTitle(), FilterModel.TypeFilter.AVATAR));
+                List<String> filterCollection = new ArrayList<>();
+                List<String> selectedCollection = new ArrayList<>();
+                //get content of all cells in that column
+                List<List<BoardBaseItemModel>> board = projectActivityViewModel.getProjectModel().getBoards().get(0).getCells();
+                board.forEach(row -> {
+                    String content = row.get(indexColumn).getContent();
+                    if(!content.isEmpty())
+                    {
+                        if(!filterCollection.contains(content))
+                            filterCollection.add(row.get(indexColumn).getContent());
+                    }
+                });
+                listFilterCollection.add(filterCollection);
+
+                if(indexColumn < tempListSelectedCollection.size())
+                    selectedCollection.addAll(tempListSelectedCollection.get(indexColumn));
+                else {
+                    tempListSelectedCollection.add(selectedCollection);
+                }
+            }
+            else
+            {
+                //get index of column that i am getting it's title
+                int indexColumn = listColumn.indexOf(column);
+                //add title of column
+                listFilterBoard.add(new FilterModel("By " + column.getTitle(), FilterModel.TypeFilter.TEXT));
+                List<String> filterCollection = new ArrayList<>();
+                List<String> selectedCollection = new ArrayList<>();
+                //get content of all cells in that column
+                List<List<BoardBaseItemModel>> board = projectActivityViewModel.getProjectModel().getBoards().get(0).getCells();
+                board.forEach(row -> {
+                    String content = row.get(indexColumn).getContent();
+                    if(!content.isEmpty())
+                    {
+                        if(!filterCollection.contains(content))
+                            filterCollection.add(row.get(indexColumn).getContent());
+                    }
+                });
+                listFilterCollection.add(filterCollection);
+
+                if(indexColumn < tempListSelectedCollection.size())
+                    selectedCollection.addAll(tempListSelectedCollection.get(indexColumn));
+                else {
+                    tempListSelectedCollection.add(selectedCollection);
+                }
+            }
+        });
+
+        BoardFilterAdapter filterBoardAdapter = new BoardFilterAdapter(listFilterBoard, listFilterCollection, tempListSelectedCollection);
+        popupFilterBinding.rvBoardFilter.setAdapter(filterBoardAdapter);
+
+        popupFilterBinding.btnDone.setOnClickListener(view -> {
+            listSelectedCollection.clear();
+            for (List<String> selectedCollection : tempListSelectedCollection) {
+                List<String> newList = new ArrayList<>(selectedCollection);
+                listSelectedCollection.add(newList);
+            }
+            dialog.dismiss();
+        });
+
+        popupFilterBinding.btnClear.setOnClickListener(view -> {
+            tempListSelectedCollection.clear();
+            popupFilterBinding.rvBoardFilter.setAdapter(filterBoardAdapter);
+        });
+
+    }
+
     private void showNewRowPopup() {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -754,19 +865,20 @@ public class ProjectActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showOwnerPopup(BoardUserItemModel userItemModel)
-    {
+    private void showOwnerPopup(BoardUserItemModel userItemModel, String columnTitle, int columnPos, int rowPos) {
         final Dialog dialog = new Dialog(ProjectActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         BoardOwnerItemPopupBinding binding = BoardOwnerItemPopupBinding.inflate(getLayoutInflater());
+        binding.popupTitle.setText(columnTitle);
         dialog.setContentView(binding.getRoot());
 
         List<UserModel> listMember = new ArrayList<>();
-        List<UserModel> listOwner = new ArrayList<>();
+        List<UserModel> listOwner = new ArrayList<>(userItemModel.getUsers());
         binding.rvMembers.setLayoutManager(new LinearLayoutManager(ProjectActivity.this));
         binding.rvOwers.setLayoutManager(new LinearLayoutManager(ProjectActivity.this, LinearLayoutManager.HORIZONTAL, false));
         BoardItemMemberAdapter boardItemMemberAdapter = new BoardItemMemberAdapter(listMember);
         BoardItemOwnerAdapter boardItemOwnerAdapter = new BoardItemOwnerAdapter(listOwner);
+        binding.rvOwers.setAdapter(boardItemOwnerAdapter);
 
         String projectId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID);
         projectActivityViewModel.getMember(projectId, new ProjectActivityViewModel.ApiCallMemberHandlers() {
@@ -785,40 +897,45 @@ public class ProjectActivity extends AppCompatActivity {
             }
         });
 
-        boardItemMemberAdapter.setOnClickListener(new BoardItemMemberAdapter.OnActionCallback() {
-            @Override
-            public void OnClick(int position, boolean status) {
-                if(status)
-                {
-                    listOwner.add(listMember.get(position));
-                    boardItemOwnerAdapter.notifyDataSetChanged();
-                    binding.rvOwers.setAdapter(boardItemOwnerAdapter);
-                    binding.layoutRvOwers.setVisibility(View.VISIBLE);
-                }
-                else
-                {
-                    listOwner.remove(listMember.get(position));
-                    boardItemOwnerAdapter.notifyDataSetChanged();
-                    binding.rvOwers.setAdapter(boardItemOwnerAdapter);
-                    if(listOwner.size() > 0) binding.layoutRvOwers.setVisibility(View.VISIBLE);
-                    else binding.layoutRvOwers.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        boardItemOwnerAdapter.setOnClickListener(new BoardItemOwnerAdapter.OnActionCallback() {
-            @Override
-            public void OnClick(int position) {
-                listOwner.remove(listOwner.get(position));
+        boardItemMemberAdapter.setOnClickListener((position, status) -> {
+            if(status) {
+                listOwner.add(listMember.get(position));
                 boardItemOwnerAdapter.notifyDataSetChanged();
-                binding.rvOwers.setAdapter(boardItemOwnerAdapter);
+                binding.layoutRvOwers.setVisibility(View.VISIBLE);
+            } else {
+                listOwner.remove(listMember.get(position));
+                boardItemOwnerAdapter.notifyDataSetChanged();
                 if(listOwner.size() > 0) binding.layoutRvOwers.setVisibility(View.VISIBLE);
                 else binding.layoutRvOwers.setVisibility(View.GONE);
             }
         });
 
-        binding.btnClosePopup.setOnClickListener(view -> dialog.dismiss());
+        boardItemOwnerAdapter.setOnClickListener(position -> {
+            listOwner.remove(listOwner.get(position));
+            boardItemOwnerAdapter.notifyDataSetChanged();
+            if(listOwner.size() > 0) binding.layoutRvOwers.setVisibility(View.VISIBLE);
+            else binding.layoutRvOwers.setVisibility(View.GONE);
+        });
 
+        binding.btnSave.setOnClickListener(view -> {
+            userItemModel.setUsers(listOwner);
+            boardViewModel.updateACell(userItemModel).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        boardAdapter.changeCellItem(columnPos, rowPos, userItemModel);
+                        ToastUtils.showToastSuccess(ProjectActivity.this, "Updated", Toast.LENGTH_SHORT);
+                    } else ToastUtils.showToastError(ProjectActivity.this, response.message(), Toast.LENGTH_SHORT);
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    ToastUtils.showToastError(ProjectActivity.this, t.getMessage(), Toast.LENGTH_SHORT);
+                }
+            });
+            dialog.dismiss();
+        });
+        binding.btnClosePopup.setOnClickListener(view -> dialog.dismiss());
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.PopupAnimationBottom;
