@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.gson.Gson;
 import com.skydoves.colorpickerview.ColorPickerDialog;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import com.worthybitbuilders.squadsense.R;
@@ -64,6 +65,7 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardCheckboxItemMod
 import com.worthybitbuilders.squadsense.models.board_models.BoardColumnHeaderModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardDateItemModel;
+import com.worthybitbuilders.squadsense.models.board_models.BoardMapItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardNumberItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardStatusItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTextItemModel;
@@ -126,6 +128,17 @@ public class ProjectActivity extends AppCompatActivity {
         boardViewModel = new ViewModelProvider(this).get(BoardViewModel.class);
 
         boardAdapter = new TableViewAdapter(this, boardViewModel, new TableViewAdapter.OnClickHandlers() {
+            @Override
+            public void OnMapItemClick(BoardMapItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
+                Intent mapIntent = new Intent(ProjectActivity.this, MapActivity.class);
+                String itemJson = new Gson().toJson(itemModel);
+                mapIntent.putExtra("itemModel", itemJson);
+                mapIntent.putExtra("projectId", projectActivityViewModel.getProjectId());
+                mapIntent.putExtra("boardId", boardViewModel.getBoardId());
+                mapIntent.putExtra("cellId", itemModel.get_id());
+                startActivity(mapIntent);
+            }
+
             @Override
             public void OnTimelineItemClick(BoardTimelineItemModel itemModel, String columnTitle, int columnPos, int rowPos) {
                 showTimelineItemPopup(itemModel, columnTitle, columnPos, rowPos);
@@ -712,7 +725,6 @@ public class ProjectActivity extends AppCompatActivity {
                 if (position == projectActivityViewModel.getProjectModel().getChosenPosition()) {
                     boardViewModel.setBoardTitle(newTitle);
                     activityBinding.btnShowTables.setText(newTitle);
-
                 }
             }
 
@@ -729,9 +741,8 @@ public class ProjectActivity extends AppCompatActivity {
                 activityBinding.btnShowTables.setText(newContent.getBoardTitle());
                 dialog.dismiss();
             }
-
-
         });
+
         binding.rvBoards.setLayoutManager(new LinearLayoutManager(this));
         binding.rvBoards.setAdapter(editBoardsAdapter);
 
@@ -1558,6 +1569,10 @@ public class ProjectActivity extends AppCompatActivity {
 
         binding.btnAddTimelineItem.setOnClickListener((view) -> {
             boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.TimeLine);
+        });
+
+        binding.btnAddMapItem.setOnClickListener((view) -> {
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Map);
         });
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
