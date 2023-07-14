@@ -196,11 +196,7 @@ public class ProjectActivity extends AppCompatActivity {
 
             @Override
             public void onUserItemClick(BoardUserItemModel userItemModel, String columnTitle, int columnPos, int rowPos) {
-                String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
-                if(projectActivityViewModel.getProjectModel().getCreatorId().equals(userId) || projectActivityViewModel.getProjectModel().getAdminIds().contains(userId))
-                    showOwnerPopup(userItemModel, columnTitle, columnPos, rowPos);
-                else
-                    ToastUtils.showToastError(ProjectActivity.this, "You don't have permission to adjust this cell", Toast.LENGTH_SHORT);
+                showOwnerPopup(userItemModel, columnTitle, columnPos, rowPos);
             }
 
             @Override
@@ -459,6 +455,25 @@ public class ProjectActivity extends AppCompatActivity {
             case MEMBER:
                 projectMoreOptionsBinding.btnDeleteProject.setVisibility(View.GONE);
                 projectMoreOptionsBinding.btnRenameProject.setVisibility(View.GONE);
+                break;
+        }
+    }
+
+    private void showPopupOwnerFor(Role role, BoardOwnerItemPopupBinding popupBinding)
+    {
+        popupBinding.rvMembers.setVisibility(View.VISIBLE);
+        popupBinding.layoutRvOwers.setVisibility(View.VISIBLE);
+        popupBinding.btnSave.setVisibility(View.VISIBLE);
+
+        switch (role)
+        {
+            case CREATOR:
+                break;
+            case ADMIN:
+                break;
+            case MEMBER:
+                popupBinding.rvMembers.setVisibility(View.GONE);
+                popupBinding.btnSave.setVisibility(View.GONE);
                 break;
         }
     }
@@ -788,12 +803,12 @@ public class ProjectActivity extends AppCompatActivity {
                 //get content of all cells in that column
                 List<List<BoardBaseItemModel>> board = boardViewModel.getmCellModelList();
                 board.forEach(row -> {
-                    BoardUserItemModel imagePaths = (BoardUserItemModel)row.get(indexColumn);
-                    if(!imagePaths.getUsers().isEmpty())
+                    BoardUserItemModel userItem = (BoardUserItemModel)row.get(indexColumn);
+                    if(!userItem.getUsers().isEmpty())
                     {
-                        imagePaths.getUsers().forEach(user -> {
-                            if(!filterCollection.contains(user.getProfileImagePath()))
-                                filterCollection.add(user.getProfileImagePath());
+                        userItem.getUsers().forEach(user -> {
+                            if(!filterCollection.contains(user.getId()))
+                                filterCollection.add(user.getId());
                         });
                     }
                 });
@@ -889,7 +904,7 @@ public class ProjectActivity extends AppCompatActivity {
         List<UserModel> listOwner = new ArrayList<>(userItemModel.getUsers());
         binding.rvMembers.setLayoutManager(new LinearLayoutManager(ProjectActivity.this));
         binding.rvOwers.setLayoutManager(new LinearLayoutManager(ProjectActivity.this, LinearLayoutManager.HORIZONTAL, false));
-        BoardItemOwnerAdapter boardItemOwnerAdapter = new BoardItemOwnerAdapter(listOwner);
+        BoardItemOwnerAdapter boardItemOwnerAdapter = new BoardItemOwnerAdapter(listOwner, projectActivityViewModel);
         BoardItemMemberAdapter boardItemMemberAdapter = new BoardItemMemberAdapter();
         binding.rvMembers.setAdapter(boardItemMemberAdapter);
         binding.rvOwers.setAdapter(boardItemOwnerAdapter);
@@ -910,8 +925,14 @@ public class ProjectActivity extends AppCompatActivity {
                 }
                 boardItemMemberAdapter.setData(listMember, statuses);
                 binding.rvMembers.setAdapter(boardItemMemberAdapter);
-                if(listMember.size() > 0) binding.rvMembers.setVisibility(View.VISIBLE);
-                else binding.rvMembers.setVisibility(View.GONE);
+
+                String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
+                if(projectActivityViewModel.getProjectModel().getCreatorId().equals(userId))
+                    showPopupOwnerFor(Role.CREATOR, binding);
+                else if (projectActivityViewModel.getProjectModel().getAdminIds().contains(userId))
+                    showPopupOwnerFor(Role.ADMIN, binding);
+                else
+                    showPopupOwnerFor(Role.MEMBER, binding);
             }
 
             @Override
