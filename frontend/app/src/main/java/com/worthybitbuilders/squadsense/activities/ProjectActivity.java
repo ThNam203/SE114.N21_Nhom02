@@ -774,64 +774,67 @@ public class ProjectActivity extends AppCompatActivity {
             List<String> newList = new ArrayList<>(selectedCollection);
             tempListSelectedCollection.add(newList);
         }
-        boardViewModel.getColumnLiveData().observe((LifecycleOwner) ProjectActivity.this, listColumn -> {
-            if (listColumn == null) return;
-            listColumn.forEach(column -> {
-                if(column.getColumnType() == BoardColumnHeaderModel.ColumnType.User)
-                {
-                    //get index of column that i am getting it's title
-                    int indexColumn = listColumn.indexOf(column);
-                    //add title of column
-                    listFilterBoard.add(new FilterModel("By " + column.getTitle(), FilterModel.TypeFilter.AVATAR));
-                    List<String> filterCollection = new ArrayList<>();
-                    List<String> selectedCollection = new ArrayList<>();
-                    //get content of all cells in that column
-                    List<List<BoardBaseItemModel>> board = projectActivityViewModel.getProjectModel().getBoards().get(0).getCells();
-                    board.forEach(row -> {
-                        BoardUserItemModel imagePaths = (BoardUserItemModel)row.get(indexColumn);
-                        if(!imagePaths.getUsers().isEmpty())
-                        {
-                            imagePaths.getUsers().forEach(user -> {
-                                if(!filterCollection.contains(user.getProfileImagePath()))
-                                    filterCollection.add(user.getProfileImagePath());
-                            });
-                        }
-                    });
-                    listFilterCollection.add(filterCollection);
 
-                    if(indexColumn < tempListSelectedCollection.size())
-                        selectedCollection.addAll(tempListSelectedCollection.get(indexColumn));
-                    else {
-                        tempListSelectedCollection.add(selectedCollection);
+        List<BoardColumnHeaderModel> listColumn = boardViewModel.getmColumnHeaderModelList();
+        listColumn.forEach(column -> {
+            if(column.getColumnType() == BoardColumnHeaderModel.ColumnType.User)
+            {
+                //get index of column that i am getting it's title
+                int indexColumn = listColumn.indexOf(column);
+                //add title of column
+                listFilterBoard.add(new FilterModel("By " + column.getTitle(), FilterModel.TypeFilter.AVATAR));
+                List<String> filterCollection = new ArrayList<>();
+                List<String> selectedCollection = new ArrayList<>();
+                //get content of all cells in that column
+                List<List<BoardBaseItemModel>> board = boardViewModel.getmCellModelList();
+                board.forEach(row -> {
+                    BoardUserItemModel imagePaths = (BoardUserItemModel)row.get(indexColumn);
+                    if(!imagePaths.getUsers().isEmpty())
+                    {
+                        imagePaths.getUsers().forEach(user -> {
+                            if(!filterCollection.contains(user.getProfileImagePath()))
+                                filterCollection.add(user.getProfileImagePath());
+                        });
                     }
-                }
-                else
-                {
-                    //get index of column that i am getting it's title
-                    int indexColumn = listColumn.indexOf(column);
-                    //add title of column
-                    listFilterBoard.add(new FilterModel("By " + column.getTitle(), FilterModel.TypeFilter.TEXT));
-                    List<String> filterCollection = new ArrayList<>();
-                    List<String> selectedCollection = new ArrayList<>();
-                    //get content of all cells in that column
-                    List<List<BoardBaseItemModel>> board = projectActivityViewModel.getProjectModel().getBoards().get(0).getCells();
-                    board.forEach(row -> {
-                        String content = row.get(indexColumn).getContent();
-                        if(!content.isEmpty())
-                        {
-                            if(!filterCollection.contains(content))
-                                filterCollection.add(row.get(indexColumn).getContent());
-                        }
-                    });
-                    listFilterCollection.add(filterCollection);
+                });
+                listFilterCollection.add(filterCollection);
 
-                    if(indexColumn < tempListSelectedCollection.size())
-                        selectedCollection.addAll(tempListSelectedCollection.get(indexColumn));
-                    else {
-                        tempListSelectedCollection.add(selectedCollection);
-                    }
+                if(indexColumn < tempListSelectedCollection.size())
+                    selectedCollection.addAll(tempListSelectedCollection.get(indexColumn));
+                else {
+                    tempListSelectedCollection.add(selectedCollection);
                 }
-            });
+            }
+            else if (column.getColumnType() == BoardColumnHeaderModel.ColumnType.NewColumn)
+            {
+                //do no thing to this column
+            }
+            else
+            {
+                //get index of column that i am getting it's title
+                int indexColumn = listColumn.indexOf(column);
+                //add title of column
+                listFilterBoard.add(new FilterModel("By " + column.getTitle(), FilterModel.TypeFilter.TEXT));
+                List<String> filterCollection = new ArrayList<>();
+                List<String> selectedCollection = new ArrayList<>();
+                //get content of all cells in that column
+                List<List<BoardBaseItemModel>> board = boardViewModel.getmCellModelList();
+                board.forEach(row -> {
+                    String content = row.get(indexColumn).getContent();
+                    if(!content.isEmpty())
+                    {
+                        if(!filterCollection.contains(content))
+                            filterCollection.add(row.get(indexColumn).getContent());
+                    }
+                });
+                listFilterCollection.add(filterCollection);
+
+                if(indexColumn < tempListSelectedCollection.size())
+                    selectedCollection.addAll(tempListSelectedCollection.get(indexColumn));
+                else {
+                    tempListSelectedCollection.add(selectedCollection);
+                }
+            }
         });
 
 
