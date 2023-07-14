@@ -18,7 +18,7 @@
         android:background="@color/transparent"
         android:layout_gravity="center_vertical"
         android:src="@drawable/ic_choose_color"
-        app:tint="@color/white"/>
+        app:tint="@color/primary_btn_second_color"/>
     <EditText
         android:id="@+id/etText"
         android:layout_width="0dp"
@@ -41,5 +41,5 @@
         android:background="@color/transparent"
         android:layout_gravity="center_vertical"
         android:src="@drawable/ic_delete"
-        app:tint="@color/white"/>
+        app:tint="@color/primary_btn_second_color"/>
 </LinearLayout>
