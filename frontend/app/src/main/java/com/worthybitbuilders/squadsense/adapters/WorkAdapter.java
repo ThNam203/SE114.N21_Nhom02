@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ContentView;
@@ -54,15 +55,18 @@ public class WorkAdapter extends RecyclerView.Adapter<WorkAdapter.WorkViewHolder
     }
 
     public static class WorkViewHolder extends RecyclerView.ViewHolder {
-        public TextView rowTitle, tvDeadline;
-        public Context context;
+
+        public TextView rowTitle;
+        public ImageView doneTick;
         public WorkViewHolder(@NonNull View itemView) {
             super(itemView);
             rowTitle = itemView.findViewById(R.id.tvRowTitle);
-            tvDeadline = itemView.findViewById(R.id.tvDeadline);
+            doneTick = itemView.findViewById(R.id.doneTick);
         }
 
         public void bind(WorkModel workModel) {
+            if (workModel.isDone()) doneTick.setVisibility(View.VISIBLE);
+            else doneTick.setVisibility(View.GONE);
             rowTitle.setText(String.format(Locale.US, "%s > %s > %s", workModel.getProjectTitle(), workModel.getBoardTitle(), workModel.getRowTitle()));
         }
     }

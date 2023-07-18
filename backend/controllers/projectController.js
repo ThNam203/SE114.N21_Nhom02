@@ -234,9 +234,33 @@ const createActivityLog = async (
 
 exports.updateACell = asyncCatch(async (req, res, next) => {
     const { userId, projectId, boardId, cellId } = req.params
+    const user = await User.findById(userId)
     const cell = req.body
 
     const updatedCell = await updateACell(cell)
+
+    // create notificaton for user who is appointed to the tasks (whose id does not equal to userId)
+    if (cell.cellType === 'CellUser') {
+        // users who were appointed to the task before update
+        const oldUserIds = cell.users.map((u) => u._id)
+        const newUserIds = updatedCell.users.map((u) => u._id)
+        newUserIds.forEach((newUserId) => {
+            // it means a new user has been appointed the task
+            // TODO: add projectid, boardid, cellId for navigation
+            if (
+                newUserId.toString() !== userId &&
+                !oldUserIds.contains(newUserId)
+            ) {
+                Notification.create({
+                    senderId: userId,
+                    receiverId: newUserId,
+                    notificationType: 'TaskAppointed',
+                    title: 'New task',
+                    content: `${user.name} has appointed you to a new task`,
+                })
+            }
+        })
+    }
 
     if (!updatedCell)
         return next(new AppError('Unable to update the cell', 500))
@@ -246,16 +270,14 @@ exports.updateACell = asyncCatch(async (req, res, next) => {
         board.cells.forEach((cellsRow, rowIdx) => {
             cellsRow.forEach((aCell, columnIdx) => {
                 if (aCell._id.toString() === cellId) {
-                    User.findById(userId).then((user) => {
-                        createActivityLog(
-                            user._id,
-                            projectId,
-                            boardId,
-                            cellId,
-                            `${user.name} has updated a cell in column ${columnIdx}, row ${rowIdx}`,
-                            ACTIVITY_LOG_TYPES.UPDATE
-                        )
-                    })
+                    createActivityLog(
+                        user._id,
+                        projectId,
+                        boardId,
+                        cellId,
+                        `${user.name} has updated a cell in column ${columnIdx}, row ${rowIdx}`,
+                        ACTIVITY_LOG_TYPES.UPDATE
+                    )
                 }
             })
         })
@@ -424,6 +446,8 @@ exports.addNewCommentToUpdateTask = asyncCatch(async (req, res, next) => {
     const { commentContent } = req.body
     const { userId, projectId, boardId, cellId, updateTaskId } = req.params
 
+    const user = await User.findById(userId)
+
     const fileLocations = []
     if (req.files) {
         req.files.forEach((file) => {
@@ -453,6 +477,18 @@ exports.addNewCommentToUpdateTask = asyncCatch(async (req, res, next) => {
         updateTaskId: updateTaskId,
         content: comment.content,
         files: fileLocations,
+    })
+
+    // notify the user who owns the update task
+    UpdateTask.findById(updateTaskId).then((updateTask) => {
+        if (updateTask.author.toString() !== userId) {
+            Notification.create({
+                senderId: userId,
+                receiverId: updateTask.author,
+                notificationType: 'Comment',
+                title: `${user.name} has commented in your update task`,
+            })
+        }
     })
 
     if (!newComment) return next(new AppError('Unable to send comment', 500))
@@ -580,7 +616,7 @@ exports.addNewRow = asyncCatch(async (req, res, next) => {
     })
 
     const board = await Board.findById(boardId)
-    board.rowCells.push(rowHeaderModel.title)
+    board.rowCells.push(rowHeaderModel)
 
     const newCells = await Promise.all(
         cells.map(async (cell) => await createACell(cell))
@@ -589,6 +625,7 @@ exports.addNewRow = asyncCatch(async (req, res, next) => {
     const newCellIds = newCells.map((cell) => cell._id)
 
     board.cells.push(newCellIds)
+    board.markModified('rowCells')
     board.markModified('cells')
     await board.save()
 
@@ -719,14 +756,15 @@ exports.updateColumn = asyncCatch(async (req, res, next) => {
 
 exports.updateRow = asyncCatch(async (req, res, next) => {
     const { userId, projectId, boardId, rowPosition } = req.params
-    const { newTitle } = req.body.nameValuePairs
+    const { newTitle, newIsDone } = req.body.nameValuePairs
 
     const board = await Board.findById(boardId)
     if (!board) throw new AppError('Unable to find board', 404)
 
     if (newTitle) {
-        const oldTitle = board.rowCells[rowPosition]
-        board.rowCells[rowPosition] = newTitle
+        const oldTitle = board.rowCells[rowPosition].title
+        board.rowCells[rowPosition].title = newTitle
+
         board.markModified('rowCells')
         await board.save()
 
@@ -737,6 +775,29 @@ exports.updateRow = asyncCatch(async (req, res, next) => {
                 boardId,
                 null,
                 `${user.name} has renamed "${oldTitle}" row to "${newTitle}`,
+                ACTIVITY_LOG_TYPES.CHANGE
+            )
+        })
+    }
+
+    if (newIsDone != null) {
+        const { title } = board.rowCells[rowPosition]
+        board.rowCells[rowPosition].isDone = newIsDone
+
+        board.markModified('rowCells')
+        await board.save()
+
+        let message
+        if (newIsDone) message = ` has marked "${title}" row as done`
+        else message = ` has marked "${title}" row as not done`
+
+        User.findById(userId).then((user) => {
+            createActivityLog(
+                user._id,
+                projectId,
+                boardId,
+                null,
+                user.name + message,
                 ACTIVITY_LOG_TYPES.CHANGE
             )
         })
@@ -764,7 +825,7 @@ exports.removeRow = asyncCatch(async (req, res, next) => {
             projectId,
             boardId,
             null,
-            `${user.name} has removed "${deletedRow}" row`,
+            `${user.name} has removed "${deletedRow.title}" row`,
             ACTIVITY_LOG_TYPES.REMOVE
         )
     })
@@ -875,7 +936,8 @@ exports.getUserWork = asyncCatch(async (req, res, next) => {
                         boardId: board._id,
                         boardTitle: board.boardTitle,
                         boardPosition: boardPosition,
-                        rowTitle: board.rowCells[cellRowPosition],
+                        rowTitle: board.rowCells[cellRowPosition].title,
+                        isDone: board.rowCells[cellRowPosition].isDone,
                         cellRowPosition: cellRowPosition,
                         cellCreatedDate: workCell.createdAt,
                     })

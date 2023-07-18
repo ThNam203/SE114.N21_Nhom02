@@ -32,6 +32,7 @@ public class ChatRoomViewModel extends ViewModel {
             @Override
             public void onResponse(@NonNull Call<List<ChatRoom>> call, @NonNull Response<List<ChatRoom>> response) {
                 if (response.isSuccessful()) {
+                    chatRooms.clear();
                     if (response.body() != null) chatRooms.addAll(response.body());
                     handler.onSuccess();
                 } else {
@@ -46,11 +47,13 @@ public class ChatRoomViewModel extends ViewModel {
         });
     }
 
-    public void createNewChatRoom(List<String> memberIds, ApiCallHandler handler) {
+    public void createNewChatRoom(List<String> memberIds, boolean isGroup, String title, ApiCallHandler handler) {
         String userId = SharedPreferencesManager.getData(SharedPreferencesManager.KEYS.USER_ID);
         JSONObject data = new JSONObject();
         try {
             data.put("memberIds", memberIds);
+            data.put("isGroup", isGroup);
+            data.put("title", title);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

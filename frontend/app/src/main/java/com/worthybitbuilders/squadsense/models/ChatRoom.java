@@ -6,12 +6,12 @@ public class ChatRoom {
     public static class Member {
         public String _id;
         public String name;
-        public String imageProfilePath;
+        public String profileImagePath;
 
-        public Member(String _id, String name, String imageProfilePath) {
+        public Member(String _id, String name, String profileImagePath) {
             this._id = _id;
             this.name = name;
-            this.imageProfilePath = imageProfilePath;
+            this.profileImagePath = profileImagePath;
         }
 
         public String get_id() {
@@ -22,8 +22,8 @@ public class ChatRoom {
             return name;
         }
 
-        public String getImageProfilePath() {
-            return imageProfilePath;
+        public String getProfileImagePath() {
+            return profileImagePath;
         }
     }
     private String _id;
@@ -32,15 +32,18 @@ public class ChatRoom {
     private String logoPath;
     private String lastMessage;
     private String lastMessageTime;
+    // if false it means 1vs1 chat room else it is a group chat
+    private boolean isGroup;
 
     public ChatRoom() {}
 
-    public ChatRoom(String _id, String title, List<Member> members, String logoPath, String lastMessageTime) {
+    public ChatRoom(String _id, String title, List<Member> members, String logoPath, String lastMessageTime, boolean isGroup) {
         this._id = _id;
         this.title = title;
         this.members = members;
         this.logoPath = logoPath;
         this.lastMessageTime = lastMessageTime;
+        this.isGroup = isGroup;
     }
 
     public String get_id() {
@@ -65,4 +68,8 @@ public class ChatRoom {
     }
 
     public String getLastMessageTime() { return lastMessageTime; }
+
+    public boolean isGroup() {
+        return isGroup;
+    }
 }
