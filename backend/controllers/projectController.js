@@ -535,7 +535,7 @@ exports.getAllUpdateTasksOfACell = asyncCatch(async (req, res, next) => {
     const { userId, cellId } = req.params
 
     const updateTasks = await UpdateTask.find({ cellId: cellId })
-        .populate('author', '_id name email imageProfilePath')
+        .populate('author', '_id name email profileImagePath')
         .sort({
             createdAt: -1,
         })
@@ -847,62 +847,6 @@ exports.getCellsInARow = asyncCatch(async (req, res, next) => {
     })
 })
 
-// exports.getUserWork = asyncCatch(async (req, res, next) => {
-//     const { userId } = req.params
-//     const projects = await Project.find({
-//         memberIds: { $in: [userId] },
-//     })
-
-//     const works = []
-
-//     await Promise.all(
-//         projects.map(async (project) => {
-//             await project.populate({
-//                 path: 'boards',
-//                 model: 'Board',
-//                 populate: {
-//                     path: 'cells',
-//                     model: 'Cell',
-//                 },
-//             })
-
-//             project.boards.forEach((board, boardPosition) => {
-//                 const work = {}
-//                 board.cells.forEach((cellRow, cellRowPosition) => {
-//                     for (
-//                         let cellIdx = 0;
-//                         cellIdx < cellRow.length;
-//                         cellIdx += 1
-//                     ) {
-//                         const cell = cellRow[cellIdx]
-//                         if (cell.cellType === 'CellUser') {
-//                             const isInArray = cell.users.some((user) =>
-//                                 user.equals(userId)
-//                             )
-
-//                             if (isInArray) {
-//                                 work.projectId = project._id
-//                                 work.projectTitle = project.title
-//                                 work.boardId = board._id
-//                                 work.boardTitle = board.boardTitle
-//                                 work.boardPosition = boardPosition
-//                                 work.rowTitle = board.rowCells[cellRowPosition]
-//                                 work.cellRowPosition = cellRowPosition
-//                                 work.cellCreatedDate = cell.createdAt
-//                                 works.push(work)
-//                                 break
-//                             }
-//                         }
-//                     }
-//                 })
-//             })
-//         })
-//     )
-
-//     console.log(works)
-//     res.status(200).json(works)
-// })
-
 exports.getUserWork = asyncCatch(async (req, res, next) => {
     const { userId } = req.params
     const projects = await Project.find({
@@ -924,7 +868,6 @@ exports.getUserWork = asyncCatch(async (req, res, next) => {
                         cell.cellType === 'CellUser' &&
                         cell.users.some((user) => user.equals(userId))
                 )
-
                 if (workCell) {
                     result.push({
                         projectId: project._id,

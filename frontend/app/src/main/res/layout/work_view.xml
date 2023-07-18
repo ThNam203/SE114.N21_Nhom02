@@ -10,7 +10,7 @@
     android:layout_marginRight="5dp">
     <TextView
         android:id="@+id/tvRowTitle"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:gravity="center_vertical"
@@ -19,4 +19,17 @@
         android:textColor="@color/primary_word_color"
         android:textSize="@dimen/tableview_default_text_size"
         tools:text="Header title" />
+    <TextView
+        android:id="@+id/tvDeadline"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center_vertical|end"
+        android:paddingHorizontal="16dp"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/tvRowTitle"
+        android:singleLine="true"
+        android:textColor="@color/red"
+        android:textSize="@dimen/tableview_default_text_size"
+        tools:text="2 days left" />
 </RelativeLayout>
