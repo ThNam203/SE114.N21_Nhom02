@@ -69,6 +69,7 @@ import com.worthybitbuilders.squadsense.models.board_models.BoardContentModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardDateItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardMapItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardNumberItemModel;
+import com.worthybitbuilders.squadsense.models.board_models.BoardRowHeaderModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardStatusItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTextItemModel;
 import com.worthybitbuilders.squadsense.models.board_models.BoardTimelineItemModel;
@@ -109,7 +110,7 @@ public class ProjectActivity extends AppCompatActivity {
     private ActivityProjectBinding activityBinding;
     private UserViewModel userViewModel;
     private boolean isNewProjectCreateRequest = false;
-    private List<List<String>> listSelectedCollection = new ArrayList<>();
+    private final List<List<String>> listSelectedCollection = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,6 +234,7 @@ public class ProjectActivity extends AppCompatActivity {
             }
 
             @Override
+
             public void onStatusItemClick(BoardStatusItemModel itemModel, int columnPos, int rowPos) {
                 if(!canAccess(userId, rowPos)) return;
                 showTaskStatusPopup(itemModel, columnPos, rowPos);
@@ -858,9 +860,13 @@ public class ProjectActivity extends AppCompatActivity {
         binding.rvBoards.setAdapter(editBoardsAdapter);
 
         binding.btnClose.setOnClickListener(view -> {
-            if (projectActivityViewModel.getProjectModel().getBoards().size() == 0) {
-                activityBinding.emptyBoardNotification.setVisibility(View.VISIBLE);
-            }
+            boardViewModel.setBoardContent(
+                    projectActivityViewModel.getProjectModel().getBoards().get(
+                            projectActivityViewModel.getProjectModel().getChosenPosition()
+                    ),
+                    projectActivityViewModel.getProjectId(),
+                    boardAdapter)
+            ;
             dialog.dismiss();
         });
 
@@ -1007,7 +1013,17 @@ public class ProjectActivity extends AppCompatActivity {
         binding.btnAdd.setOnClickListener(view -> {
             String newRowTitle = binding.etContent.getText().toString();
             if (newRowTitle.isEmpty()) { dialog.dismiss(); return; }
-            boardViewModel.createNewRow(newRowTitle);
+            boardViewModel.createNewRow(newRowTitle, new BoardViewModel.ApiCallHandler() {
+                @Override
+                public void onSuccess() {
+                    updateProject();
+                }
+
+                @Override
+                public void onFailure(String message) {
+
+                }
+            });
             dialog.dismiss();
         });
 
@@ -1134,13 +1150,14 @@ public class ProjectActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showTaskStatusPopup(BoardStatusItemModel statusItemModel, int columnPos, int rowPos)
+    private void showTaskStatusPopup(BoardStatusItemModel statusItemModel, String columnTitle, int columnPos, int rowPos)
     {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         BoardStatusItemPopupBinding binding = BoardStatusItemPopupBinding.inflate(getLayoutInflater());
         dialog.setContentView(binding.getRoot());
 
+        binding.tvStatusPopupTitle.setText(columnTitle);
         StatusContentsAdapter statusContentsAdapter = new StatusContentsAdapter(statusItemModel);
         statusContentsAdapter.setHandlers((itemModel, newContent) -> {
             itemModel.setContent(newContent);
@@ -1751,42 +1768,51 @@ public class ProjectActivity extends AppCompatActivity {
         BoardAddItemPopupBinding binding = BoardAddItemPopupBinding.inflate(getLayoutInflater());
         dialog.setContentView(binding.getRoot());
 
-        binding.btnClosePopup.setOnClickListener((view) -> dialog.dismiss());
+        BoardViewModel.ApiCallHandler handler = new BoardViewModel.ApiCallHandler() {
+            @Override
+            public void onSuccess() {
+                updateProject();
+            }
 
+            @Override
+            public void onFailure(String message) {}
+        };
+
+        binding.btnClosePopup.setOnClickListener((view) -> dialog.dismiss());
         binding.btnAddTextItem.setOnClickListener((view) -> {
-            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Text);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Text, handler);
         });
 
         binding.btnAddUserItem.setOnClickListener((view) -> {
-            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.User);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.User, handler);
         });
 
         binding.btnAddStatusItem.setOnClickListener((view) -> {
-            boardViewModel.createNewColumn((BoardColumnHeaderModel.ColumnType.Status));
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Status, handler);
         });
 
         binding.btnAddNumberItem.setOnClickListener((view -> {
-            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Number);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Number, handler);
         }));
 
         binding.btnAddUpdateItem.setOnClickListener((view -> {
-            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Update);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Update, handler);
         }));
 
         binding.btnAddCheckboxItem.setOnClickListener((view -> {
-            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Checkbox);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Checkbox, handler);
         }));
 
         binding.btnAddDateItem.setOnClickListener((view) -> {
-            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Date);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Date, handler);
         });
 
         binding.btnAddTimelineItem.setOnClickListener((view) -> {
-            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.TimeLine);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.TimeLine, handler);
         });
 
         binding.btnAddMapItem.setOnClickListener((view) -> {
-            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Map);
+            boardViewModel.createNewColumn(BoardColumnHeaderModel.ColumnType.Map, handler);
         });
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
