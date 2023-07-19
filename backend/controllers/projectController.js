@@ -534,7 +534,7 @@ exports.getUpdateTaskAndComment = asyncCatch(async (req, res, next) => {
 
     const updateTask = await UpdateTask.findById(updateTaskId).populate(
         'author',
-        '_id name email imageProfilePath'
+        '_id name email profileImagePath'
     )
 
     const objectTask = updateTask.toObject()
