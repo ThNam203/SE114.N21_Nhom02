@@ -90,6 +90,7 @@ public class UpdateTaskCommentActivity extends AppCompatActivity {
         String boardId = intent.getStringExtra("boardId");
         String cellId = intent.getStringExtra("cellId");
         String updateTaskId = intent.getStringExtra("updateTaskId");
+        boolean isReadOnly = intent.getBooleanExtra("isReadOnly", false);
         if (projectId == null || boardId == null || cellId == null || updateTaskId == null) {
             ToastUtils.showToastError(this, "Something wrong happens, please try again", Toast.LENGTH_SHORT);
             finish();
@@ -127,7 +128,7 @@ public class UpdateTaskCommentActivity extends AppCompatActivity {
         viewModel.getUpdateTaskAndComment(new UpdateTaskCommentViewModel.ApiCallHandler() {
             @Override
             public void onSuccess() {
-                commentAdapter = new UpdateTaskCommentAdapter(UpdateTaskCommentActivity.this, viewModel);
+                commentAdapter = new UpdateTaskCommentAdapter(UpdateTaskCommentActivity.this, isReadOnly, viewModel);
                 binding.rvComments.setAdapter(commentAdapter);
                 binding.tvAuthorName.setText(viewModel.getUpdateTask().getAuthorName());
                 binding.tvTimestamp.setText(CustomUtils.mongooseDateToFormattedString(viewModel.getUpdateTask().getCreatedAt()));
@@ -138,6 +139,18 @@ public class UpdateTaskCommentActivity extends AppCompatActivity {
                 setUpFileRecyclerView();
                 setUpVideoRecyclerView();
                 setUpImageRecyclerView();
+
+                if(isReadOnly) {
+                    binding.etCommentContent.setVisibility(View.GONE);
+                    binding.btnLike.setOnClickListener(view -> {
+                        ToastUtils.showToastError(UpdateTaskCommentActivity.this, "Feature turned off due to task completion", Toast.LENGTH_SHORT);
+                    });
+                }
+                else {
+                    setUpButtonLike();
+                    binding.etCommentContent.setVisibility(View.VISIBLE);
+                }
+
                 loadingDialog.dismiss();
             }
 
