@@ -158,7 +158,6 @@ public class ProjectActivity extends AppCompatActivity {
 
             @Override
             public void onCheckboxItemClick(BoardCheckboxItemModel itemModel, int columnPos, int rowPos) {
-                if(!canAccess(userId, rowPos)) return;
                 onCheckboxItemClicked(itemModel, columnPos, rowPos);
             }
 

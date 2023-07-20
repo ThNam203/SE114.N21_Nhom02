@@ -143,7 +143,9 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
         String columnTitle = mColumnHeaderItems.get(columnPosition).getTitle();
         String rowTitle = mRowHeaderItems.get(rowPosition).getTitle();
         boolean isReadOnly = boardViewModel.getmRowHeaderModelList().get(rowPosition).isDone();
-
+        // creator admin owner
+        // new thieu projectId creator -> userId, ad
+        // exist boardViewmodel
         if (holder instanceof BoardStatusItemViewHolder) {
             ((BoardStatusItemViewHolder) holder).setItemModel((BoardStatusItemModel) cellItemModel, columnTitle, columnPosition, rowPosition);
         } else if (holder instanceof BoardTextItemViewHolder) {
