@@ -174,6 +174,7 @@ public class ProjectActivity extends AppCompatActivity {
                 updateIntent.putExtra("updateCellTitle", columnTitle);
                 updateIntent.putExtra("isFromUpdateColumn", true);
                 updateIntent.putExtra("isDone", boardViewModel.getmRowHeaderModelList().get(rowPosition).isDone());
+                updateIntent.putExtra("deadlineColumnIndex", boardViewModel.getDeadlineColumnIndex());
                 startActivity(updateIntent);
             }
 
@@ -208,6 +209,7 @@ public class ProjectActivity extends AppCompatActivity {
                 showRowIntent.putExtra("rowPosition", rowPosition);
                 showRowIntent.putExtra("rowTitle", rowTitle);
                 showRowIntent.putExtra("isDone", boardViewModel.getmRowHeaderModelList().get(rowPosition).isDone());
+                showRowIntent.putExtra("deadlineColumnIndex", boardViewModel.getDeadlineColumnIndex());
 
                 startActivity(showRowIntent);
             }
@@ -246,9 +248,13 @@ public class ProjectActivity extends AppCompatActivity {
                 return;
             } else activityBinding.emptyBoardNotification.setVisibility(View.GONE);
 
+            // the case is first the project has 0 board, then he adds, then he remove and then he add
+            // the chosen position will be -1 and the board size is bigger than 0
+            if (projectModel.getBoards().size() > 0 && projectModel.getChosenPosition() == -1)
+                projectModel.setChosenPosition(0);
+
             // the case is if user remove all board and add one, but the chosenPosition is bigger than 1
             if (projectModel.getChosenPosition() >= projectModel.getBoards().size()) projectModel.setChosenPosition(0);
-
             BoardContentModel content = projectModel.getBoards().get(projectModel.getChosenPosition());
             boardViewModel.setBoardContent(content, projectModel.get_id(), boardAdapter);
             // set board title for "more table" drop down
@@ -805,6 +811,14 @@ public class ProjectActivity extends AppCompatActivity {
         editBoardsAdapter.setHandlers(new EditBoardsAdapter.ClickHandlers() {
             @Override
             public void onRemoveClick(int position) {
+                ProjectModel projectModel = projectActivityViewModel.getProjectModel();
+                // NOTE: chosen position is still after the delete
+                // but the board size has been decreased by 1
+                if (position == projectModel.getChosenPosition()) {
+                    if (projectModel.getBoards().size() <= position) projectModel.setChosenPosition(position - 1);
+                } else if (position < projectModel.getChosenPosition()) {
+                    projectModel.setChosenPosition(projectModel.getChosenPosition() - 1);
+                }
                 editBoardsAdapter.notifyItemRemoved(position);
                 editBoardsAdapter.notifyItemRangeChanged(position, projectActivityViewModel.getProjectModel().getBoards().size());
             }
@@ -834,13 +848,16 @@ public class ProjectActivity extends AppCompatActivity {
         binding.rvBoards.setAdapter(editBoardsAdapter);
 
         binding.btnClose.setOnClickListener(view -> {
-            boardViewModel.setBoardContent(
-                    projectActivityViewModel.getProjectModel().getBoards().get(
-                            projectActivityViewModel.getProjectModel().getChosenPosition()
-                    ),
-                    projectActivityViewModel.getProjectId(),
-                    boardAdapter)
-            ;
+            if (projectActivityViewModel.getProjectModel().getBoards().size() == 0) {
+                activityBinding.emptyBoardNotification.setVisibility(View.VISIBLE);
+            } else
+                boardViewModel.setBoardContent(
+                        projectActivityViewModel.getProjectModel().getBoards().get(
+                                projectActivityViewModel.getProjectModel().getChosenPosition()
+                        ),
+                        projectActivityViewModel.getProjectId(),
+                        boardAdapter)
+                ;
             dialog.dismiss();
         });
 
