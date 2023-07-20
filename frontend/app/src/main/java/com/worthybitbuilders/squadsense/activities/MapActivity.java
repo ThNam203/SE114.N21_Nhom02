@@ -105,16 +105,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             public void onSuccess() {
                 creatorId = projectActivityViewModel.getProjectModel().getCreatorId();
                 listAdminId = projectActivityViewModel.getProjectModel().getAdminIds();
-
-                if(isDone) {
-
-                }
-                else if(userId.equals(creatorId) || listAdminId.contains(userId) || isOwner) {
-
-                }
-                else{
-
-                }
             }
 
             @Override

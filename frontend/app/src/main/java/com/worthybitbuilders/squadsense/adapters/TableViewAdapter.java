@@ -142,6 +142,7 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
         if (cellItemModel == null) return;
         String columnTitle = mColumnHeaderItems.get(columnPosition).getTitle();
         String rowTitle = mRowHeaderItems.get(rowPosition).getTitle();
+        boolean isReadOnly = boardViewModel.getmRowHeaderModelList().get(rowPosition).isDone();
 
         if (holder instanceof BoardStatusItemViewHolder) {
             ((BoardStatusItemViewHolder) holder).setItemModel((BoardStatusItemModel) cellItemModel, columnTitle, columnPosition, rowPosition);
@@ -154,7 +155,7 @@ public class TableViewAdapter extends AbstractTableAdapter<BoardColumnHeaderMode
         } else if (holder instanceof BoardNumberItemViewHolder) {
             ((BoardNumberItemViewHolder) holder).setItemModel((BoardNumberItemModel) cellItemModel, columnTitle, columnPosition, rowPosition);
         } else if (holder instanceof BoardCheckboxItemViewHolder) {
-            ((BoardCheckboxItemViewHolder) holder).setItemModel((BoardCheckboxItemModel) cellItemModel, columnPosition, rowPosition);
+            ((BoardCheckboxItemViewHolder) holder).setItemModel((BoardCheckboxItemModel) cellItemModel, columnPosition, rowPosition, isReadOnly);
         } else if (holder instanceof BoardDateItemViewHolder) {
             ((BoardDateItemViewHolder) holder).setItemModel((BoardDateItemModel) cellItemModel, columnTitle, columnPosition, rowPosition, boardViewModel.getDeadlineColumnIndex());
         } else if (holder instanceof BoardTimelineItemViewHolder) {

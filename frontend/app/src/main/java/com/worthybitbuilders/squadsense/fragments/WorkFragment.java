@@ -33,6 +33,7 @@ import com.worthybitbuilders.squadsense.adapters.WorkAdapter;
 import com.worthybitbuilders.squadsense.databinding.FragmentWorkBinding;
 import com.worthybitbuilders.squadsense.models.WorkModel;
 import com.worthybitbuilders.squadsense.utils.DialogUtils;
+import com.worthybitbuilders.squadsense.utils.SharedPreferencesManager;
 import com.worthybitbuilders.squadsense.utils.ToastUtils;
 import com.worthybitbuilders.squadsense.viewmodels.MainActivityViewModel;
 
@@ -77,6 +78,7 @@ public class WorkFragment extends Fragment {
             detailIntent.putExtra("isDone", model.isDone());
 
             detailIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            SharedPreferencesManager.saveData(SharedPreferencesManager.KEYS.CURRENT_PROJECT_ID, model.getProjectId());
             startActivity(detailIntent);
         });
         binding.rvWork.setLayoutManager(new LinearLayoutManager(mContext));
